@@ -3,18 +3,66 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 25
     buildToolsVersion "25.0.3"
+
+    signingConfigs {
+        debug {
+            storeFile project.rootProject.file('iMan.jks')
+            storePassword KEYSTORE_PASSWORD
+            keyAlias 'iMan'
+            keyPassword KEY_PASSWORD
+        }
+        release {
+            storeFile project.rootProject.file('iMan.jks')
+            storePassword KEYSTORE_PASSWORD
+            keyAlias 'iMan'
+            keyPassword KEY_PASSWORD
+        }
+    }
+
+    // 移除lint检查的error
+    lintOptions {
+        abortOnError false
+        warning 'InvalidPackage'
+
+    }
+    packagingOptions {
+        exclude 'META-INF/services/javax.annotation.processing.Processor'
+    }
+
     defaultConfig {
+        multiDexEnabled = true
         applicationId "com.sundy.iman"
         minSdkVersion 15
         targetSdkVersion 25
         versionCode 1
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+        manifestPlaceholders = [
+                EASEMOB_APPKEY :  "jiwa#lbmt",
+                GAO_DE_MAP_KEY : "285db644f8bc3cc08439e4a2907816b2"
+        ]
     }
+
     buildTypes {
-        release {
+        debug {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            zipAlignEnabled false
+            shrinkResources false
+            signingConfig signingConfigs.debug
+        }
+        release {
+            minifyEnabled true
+            zipAlignEnabled true
+            shrinkResources true
+            //proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+    }
+
+    sourceSets{
+        main{
+            java.srcDirs = ['src/main/java','src/main/java-gen']
         }
     }
 }
@@ -40,6 +88,7 @@ dependencies {
     compile 'org.greenrobot:eventbus:3.0.0'
     //依赖注入
     compile 'com.jakewharton:butterknife:8.8.1'
+    annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     //Paper DB 数据存储
     compile 'io.paperdb:paperdb:2.1'
     //日志打印
@@ -52,7 +101,7 @@ dependencies {
     //SwipeLayout
     compile 'com.daimajia.swipelayout:library:1.2.0@aar'
     //图片显示
-    compile 'com.github.bumptech.glide:glide:4.1.1'
+    compile 'com.github.bumptech.glide:glide:3.8.0'
     //Tab Layout
     compile 'com.flyco.tablayout:FlycoTabLayout_Lib:2.1.2@aar'
     //二维码扫描
@@ -64,5 +113,11 @@ dependencies {
     compile 'com.nineoldandroids:library:2.4.0'
     //图片虚化
     compile 'jp.wasabeef:blurry:2.1.1'
+    //简化实体类
+    compile 'org.projectlombok:lombok:1.16.18'
+    //缩放图片控件
+    compile 'com.github.chrisbanes:PhotoView:2.0.0'
+    //炫酷的进度条
+    compile 'com.wang.avi:library:2.1.3'
 
 }
