@@ -61,7 +61,7 @@
         <activity
             android:name=".ui.activity.GuideActivity"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.Full" />
+            android:theme="@style/AppTheme.Splash" />
         <activity
             android:name=".ui.activity.MainActivity"
             android:screenOrientation="portrait" />
