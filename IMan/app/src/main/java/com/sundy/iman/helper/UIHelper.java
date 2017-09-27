@@ -2,6 +2,7 @@ package com.sundy.iman.helper;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
@@ -51,5 +52,11 @@ public class UIHelper {
         context.finish();
     }
 
+    //打电话
+    public static void callPhone(Activity context, String phoneNum) {
+        Intent intent = new Intent(Intent.ACTION_DIAL, Uri.parse("tel:" + phoneNum));
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        context.startActivity(intent);
+    }
 
 }

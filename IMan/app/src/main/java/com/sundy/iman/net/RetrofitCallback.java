@@ -1,5 +1,7 @@
 package com.sundy.iman.net;
 
+import com.orhanobut.logger.Logger;
+
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -14,9 +16,11 @@ public abstract class RetrofitCallback<T> implements Callback<T> {
     public void onResponse(Call<T> call, Response<T> response) {
 
         if (response.isSuccessful()) {
+            Logger.w(call.request().url().toString());
             onSuccess(call, response);
             onAfter();
         } else {
+            Logger.w(response.message().toString());
             onFailure(call, new Throwable(response.message()));
             onAfter();
         }

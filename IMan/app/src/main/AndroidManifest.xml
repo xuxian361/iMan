@@ -25,6 +25,9 @@
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
     <!--用于读取缓存数据到扩展存储卡-->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!--用于打电话-->
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <!--用于使用Camera-->
     <uses-permission android:name="android.permission.CAMERA" />
 
@@ -45,7 +48,14 @@
             android:name="com.amap.api.v2.apikey"
             android:value="${GAO_DE_MAP_KEY}" />
         <service android:name="com.amap.api.location.APSService" />
-
+        <!-- 友盟统计key -->
+        <meta-data
+            android:name="UMENG_APPKEY"
+            android:value="${UMENG_APPKEY_VALUE}" />
+        <!-- 友盟统计渠道名 -->
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="${UMENG_CHANNEL_VALUE}" />
 
         <activity
             android:name=".ui.activity.LoadingActivity"
@@ -60,14 +70,26 @@
         <activity android:name=".ui.activity.BaseActivity" />
         <activity
             android:name=".ui.activity.GuideActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Splash" />
         <activity
             android:name=".ui.activity.MainActivity"
+            android:launchMode="singleTask"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.EditProfileActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.WebActivity"
+            android:launchMode="singleTop"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.LoginActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
 
         <activity
             android:name="me.iwf.photopicker.PhotoPickerActivity"

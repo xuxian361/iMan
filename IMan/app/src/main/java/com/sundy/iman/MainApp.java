@@ -1,7 +1,7 @@
 package com.sundy.iman;
 
-import android.app.Application;
 import android.support.annotation.StringRes;
+import android.support.multidex.MultiDexApplication;
 import android.widget.Toast;
 
 import com.orhanobut.logger.AndroidLogAdapter;
@@ -17,7 +17,7 @@ import io.paperdb.Paper;
  * Created by sundy on 17/9/14.
  */
 
-public class MainApp extends Application {
+public class MainApp extends MultiDexApplication {
 
     private static MainApp instance;
     private ToastUtil toastUtil;    //用做Toast显示，注意这个虽然不是单例，但是最好做为单例使用

@@ -6,6 +6,8 @@ import android.support.annotation.Nullable;
 import com.sundy.iman.R;
 import com.sundy.iman.helper.UIHelper;
 
+import butterknife.BindView;
+import butterknife.ButterKnife;
 import cn.bingoogolapple.bgabanner.BGABanner;
 
 /**
@@ -15,22 +17,19 @@ import cn.bingoogolapple.bgabanner.BGABanner;
 
 public class GuideActivity extends BaseActivity {
 
-    private BGABanner mBackgroundBanner;
-    private BGABanner mForegroundBanner;
+    @BindView(R.id.banner_guide_background)
+    BGABanner mBackgroundBanner;
+    @BindView(R.id.banner_guide_foreground)
+    BGABanner mForegroundBanner;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_guide);
+        ButterKnife.bind(this);
 
-        initView();
         setListener();
         initData();
-    }
-
-    private void initView() {
-        mBackgroundBanner = (BGABanner) findViewById(R.id.banner_guide_background);
-        mForegroundBanner = (BGABanner) findViewById(R.id.banner_guide_foreground);
     }
 
     private void setListener() {

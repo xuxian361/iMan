@@ -1,13 +1,22 @@
 package com.sundy.iman.ui.activity;
 
+import android.Manifest;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.view.KeyEvent;
 
+import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.paperdb.PaperUtils;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.PermissionNo;
+import com.yanzhenjie.permission.PermissionYes;
+
+import java.util.List;
 
 /**
  * Created by sundy on 17/9/14.
@@ -15,65 +24,68 @@ import com.sundy.iman.paperdb.PaperUtils;
 
 public class LoadingActivity extends BaseActivity {
 
-    private int second = 2; //倒计时2秒
-    private final int MSG_START = 1;
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            if (msg.what == MSG_START) {
-                second--;
-                if (second == 0) {
-                    goMain();
-                } else {
-                    startHandler();
-                }
-            }
-        }
-    };
+    private final static int MSG_GO_INTENT = 1;
+    private final static int MSG_GO_GUIDE = 2;
+    private final static long DELAY_TIME = 3000;
+    private Handler handler;
+    private static final int REQUEST_CODE_PERMISSION = 100;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_loading);
+
+        AndPermission.with(this)
+                .requestCode(REQUEST_CODE_PERMISSION)
+                .permission(Manifest.permission.READ_PHONE_STATE)
+                .callback(this)
+                .start();
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
+    /**
+     * <p>权限全部申请成功才会回调这个方法，否则回调失败的方法。</p>
+     *
+     * @param grantedPermissions AndPermission回调过来的申请成功的权限。
+     */
+    @PermissionYes(REQUEST_CODE_PERMISSION)
+    private void getPermissionYes(@NonNull List<String> grantedPermissions) {
+        Logger.e("权限申请成功!");
+        PaperUtils.setDeviceId();
+        goIndex();
+    }
+
+    /**
+     * <p>只要有一个权限申请失败就会回调这个方法，并且不会回调成功的方法。</p>
+     *
+     * @param deniedPermissions AndPermission回调过来的申请失败的权限。
+     */
+    @PermissionNo(REQUEST_CODE_PERMISSION)
+    private void getPermissionNo(@NonNull List<String> deniedPermissions) {
+        Logger.e("权限申请失败01!");
+        goIndex();
+    }
+
+    private void goIndex() {
+        if (handler == null) {
+            handler = new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    super.handleMessage(msg);
+                    switch (msg.what) {
+                        case MSG_GO_INTENT:
+                            goMain();
+                            break;
+                        case MSG_GO_GUIDE:
+                            goGuide();
+                            break;
+                    }
+                }
+            };
+        }
         if (!PaperUtils.isFirstLaunchApp()) {
-            goGuide();
+            handler.sendEmptyMessageDelayed(MSG_GO_GUIDE, DELAY_TIME);
         } else {
-            startHandler();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        stopHandler();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if (mHandler != null) {
-            stopHandler();
-            mHandler = null;
-        }
-    }
-
-    //开启倒计时
-    private void startHandler() {
-        if (mHandler != null) {
-            mHandler.sendEmptyMessageDelayed(MSG_START, 1000);
-        }
-    }
-
-    //停止倒计时
-    private void stopHandler() {
-        if (mHandler != null) {
-            mHandler.removeMessages(MSG_START);
+            handler.sendEmptyMessageDelayed(MSG_GO_INTENT, DELAY_TIME);
         }
     }
 
@@ -89,4 +101,25 @@ public class LoadingActivity extends BaseActivity {
         finish();
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK
+                && event.getAction() == KeyEvent.ACTION_DOWN) {
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        try {
+            if (handler != null) {
+                handler.removeMessages(MSG_GO_INTENT);
+                handler = null;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }

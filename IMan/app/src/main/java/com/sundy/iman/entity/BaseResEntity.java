@@ -15,7 +15,7 @@ import lombok.ToString;
 @EqualsAndHashCode
 public class BaseResEntity implements Serializable {
 
-    protected int status;
-    protected String desc;
+    protected int code;
+    protected String msg;
 
 }

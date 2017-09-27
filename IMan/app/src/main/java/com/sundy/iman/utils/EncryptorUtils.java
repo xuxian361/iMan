@@ -5,17 +5,20 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 /**
+ * 加密解密工具
  * Created by sundy on 17/9/20.
  */
 
 public class EncryptorUtils {
+    public static final String KEY_SIGN = "iMan-User";
+
     /**
      * MD5加密，32位算法
      *
      * @param str
      * @return
      */
-    public static String encryptByMD532(String str) {
+    public static String md5(String str) {
         MessageDigest messageDigest = null;
         try {
             messageDigest = MessageDigest.getInstance("MD5");
@@ -36,8 +39,6 @@ public class EncryptorUtils {
             else
                 md5StrBuff.append(Integer.toHexString(0xFF & byteArray[i]));
         }
-        // 16位加密，从第9位到25位
-        // return md5StrBuff.substring(8, 24).toString().toUpperCase();
         return md5StrBuff.toString();
     }
 }
