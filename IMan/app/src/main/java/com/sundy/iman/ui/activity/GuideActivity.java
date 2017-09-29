@@ -5,6 +5,7 @@ import android.support.annotation.Nullable;
 
 import com.sundy.iman.R;
 import com.sundy.iman.helper.UIHelper;
+import com.sundy.iman.utils.DeviceUtils;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -27,6 +28,8 @@ public class GuideActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_guide);
         ButterKnife.bind(this);
+
+        DeviceUtils.getLocaleLanguage();
 
         setListener();
         initData();

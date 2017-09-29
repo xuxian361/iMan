@@ -76,6 +76,8 @@ public class ParamHelper {
         commonMap.put("version", DeviceUtils.getAppVersion(MainApp.getInstance()));//版本号
         commonMap.put("source", "1");//来源: 1-ios，2-Android
         commonMap.put("device_id", PaperUtils.getDeviceId());//设备号
+        commonMap.put("language", PaperUtils.getLanguage());//en-英文，sc-简体中文，tc-繁体中文
+
         return commonMap;
     }
 }

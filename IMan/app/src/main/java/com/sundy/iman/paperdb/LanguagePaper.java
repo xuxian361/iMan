@@ -26,7 +26,7 @@ public class LanguagePaper {
      * @return
      */
     public static String getLanguage() {
-        return Paper.book().read(PAPER_KEY, "en");
+        return Paper.book().read(PAPER_KEY, "en"); //en-英文，sc-简体中文，tc-繁体中文
     }
 
 }

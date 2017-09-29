@@ -10,6 +10,7 @@ import java.util.regex.Pattern;
 
 public class CommonUtils {
 
+
     /**
      * 判断邮箱是否合法
      *

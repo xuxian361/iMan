@@ -10,6 +10,10 @@ import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.view.WindowManager;
 
+import com.orhanobut.logger.Logger;
+
+import java.util.Locale;
+
 /**
  * 设备工具类
  * Created by sundy on 17/9/26.
@@ -32,6 +36,18 @@ public class DeviceUtils {
             e.printStackTrace();
         }
         return version;
+    }
+
+    /**
+     * 获取系统默认语言
+     *
+     * @return
+     */
+    public static String getLocaleLanguage() {
+        Locale locale = Locale.getDefault();
+        String language = locale.getLanguage() + "-" + locale.getCountry();
+        Logger.i("----->locale language = " + language);
+        return language;
     }
 
     /**
