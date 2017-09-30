@@ -17,6 +17,7 @@ public abstract class RetrofitCallback<T> implements Callback<T> {
 
         if (response.isSuccessful()) {
             Logger.w(call.request().url().toString());
+            Logger.w(response.body().toString());
             onSuccess(call, response);
             onAfter();
         } else {

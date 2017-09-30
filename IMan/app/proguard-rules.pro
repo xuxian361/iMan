@@ -68,3 +68,14 @@ public static final int *;
     public static **[] values();
     public static ** valueOf(java.lang.String);
 }
+#七牛云
+-keep class com.qiniu.**{*;}
+-keep class com.qiniu.**{public <init>();}
+-ignorewarnings
+#Retrofit 2.0
+-dontwarn retrofit2.**
+-keep class retrofit2.** { *; }
+-keepattributes Signature
+-keepattributes Exceptions
+-dontwarn okio.**
+-dontwarn javax.annotation.**

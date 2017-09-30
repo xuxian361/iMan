@@ -35,7 +35,7 @@ android {
         minSdkVersion 15
         targetSdkVersion 25
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         manifestPlaceholders = [
                 EASEMOB_APPKEY: "jiwa#lbmt",
@@ -164,5 +164,7 @@ dependencies {
     compile 'com.yanzhenjie:permission:1.1.0'
     //友盟统计
     compile 'com.umeng.analytics:analytics:latest.integration'
+    //七牛云
+    compile 'com.qiniu:qiniu-android-sdk:7.3.+'
 
 }

@@ -4,7 +4,9 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 
 import com.sundy.iman.R;
+import com.sundy.iman.config.Constants;
 import com.sundy.iman.helper.UIHelper;
+import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DeviceUtils;
 
 import butterknife.BindView;
@@ -29,7 +31,6 @@ public class GuideActivity extends BaseActivity {
         setContentView(R.layout.act_guide);
         ButterKnife.bind(this);
 
-        DeviceUtils.getLocaleLanguage();
 
         setListener();
         initData();
@@ -56,9 +57,30 @@ public class GuideActivity extends BaseActivity {
                 R.mipmap.iman_guide_background_2,
                 R.mipmap.iman_guide_background_3);
 
-        mForegroundBanner.setData(R.mipmap.iman_guide_foreground_1,
-                R.mipmap.iman_guide_foreground_2,
-                R.mipmap.iman_guide_foreground_3);
+        String lang = DeviceUtils.getLocaleLanguage();
+        if (lang.startsWith("en")) { //英文
+            PaperUtils.setLanguage(Constants.LANG_EN);
+            mForegroundBanner.setData(R.mipmap.iman_guide_foreground_1,
+                    R.mipmap.iman_guide_foreground_2,
+                    R.mipmap.iman_guide_foreground_3);
+        } else if (lang.startsWith("zh")) { //中文简体/繁体
+            if (lang.equals("zh-HK")) { //繁体
+                PaperUtils.setLanguage(Constants.LANG_TC);
+                mForegroundBanner.setData(R.mipmap.iman_guide_foreground_1,
+                        R.mipmap.iman_guide_foreground_2,
+                        R.mipmap.iman_guide_foreground_3);
+            } else { //简体
+                PaperUtils.setLanguage(Constants.LANG_SC);
+                mForegroundBanner.setData(R.mipmap.iman_guide_foreground_1,
+                        R.mipmap.iman_guide_foreground_2,
+                        R.mipmap.iman_guide_foreground_3);
+            }
+        } else { //英文
+            PaperUtils.setLanguage(Constants.LANG_EN);
+            mForegroundBanner.setData(R.mipmap.iman_guide_foreground_1,
+                    R.mipmap.iman_guide_foreground_2,
+                    R.mipmap.iman_guide_foreground_3);
+        }
     }
 
     @Override

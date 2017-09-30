@@ -77,7 +77,7 @@ public class ParamHelper {
         commonMap.put("source", "1");//来源: 1-ios，2-Android
         commonMap.put("device_id", PaperUtils.getDeviceId());//设备号
         commonMap.put("language", PaperUtils.getLanguage());//en-英文，sc-简体中文，tc-繁体中文
-
+        commonMap.put("appkey", "im_android"); // app key 用于验签 android：im_android ios：im_iphone
         return commonMap;
     }
 }
