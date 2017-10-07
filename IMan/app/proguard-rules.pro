@@ -79,3 +79,8 @@ public static final int *;
 -keepattributes Exceptions
 -dontwarn okio.**
 -dontwarn javax.annotation.**
+#uCrop 图片裁剪
+-dontwarn com.yalantis.ucrop**
+-keep class com.yalantis.ucrop** { *; }
+-keep interface com.yalantis.ucrop** { *; }
+-keep class android.support.**{ *; }

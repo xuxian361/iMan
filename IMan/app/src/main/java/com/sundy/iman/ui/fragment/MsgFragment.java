@@ -7,6 +7,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -15,7 +16,9 @@ import com.amap.api.location.AMapLocationListener;
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
 import com.sundy.iman.entity.LocationEntity;
+import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.paperdb.LocationPaper;
+import com.sundy.iman.ui.activity.AddCommunityActivity;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
 import com.yanzhenjie.permission.PermissionNo;
@@ -24,6 +27,11 @@ import com.yanzhenjie.permission.Rationale;
 import com.yanzhenjie.permission.RationaleListener;
 
 import java.util.List;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import butterknife.Unbinder;
 
 /**
  * Created by sundy on 17/9/14.
@@ -37,11 +45,16 @@ public class MsgFragment extends BaseFragment {
     public AMapLocationClient locationClient = null;
     //声明AMapLocationClientOption对象
     public AMapLocationClientOption locationOption = null;
+    @BindView(R.id.iv_add_community)
+    ImageView ivAddCommunity;
+    Unbinder unbinder;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_msg, container, false);
+        View view = inflater.inflate(R.layout.fragment_msg, container, false);
+        unbinder = ButterKnife.bind(this, view);
+        return view;
     }
 
     @Override
@@ -182,6 +195,16 @@ public class MsgFragment extends BaseFragment {
     public void onDestroyView() {
         super.onDestroyView();
         destroyLocation();
+        unbinder.unbind();
     }
 
+    @OnClick(R.id.iv_add_community)
+    public void onViewClicked() {
+        goAddCommunity();
+    }
+
+    //跳转添加社区
+    private void goAddCommunity() {
+        UIHelper.jump(mContext, AddCommunityActivity.class);
+    }
 }

@@ -141,7 +141,6 @@ public class MainActivity extends BaseActivity implements OnBaseListener {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        Logger.i("------------->onActivityResult");
         if (mContent != null) {
             mContent.onActivityResult(requestCode, resultCode, data);
         }

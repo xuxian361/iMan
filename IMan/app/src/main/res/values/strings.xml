@@ -1,3 +1,33 @@
 <resources>
     <string name="app_name">IMan</string>
+    <string name="wallet">Wallet</string>
+    <string name="my_imcoin">My imcoin</string>
+    <string name="use_of_imcoin">Use of imcoin</string>
+    <string name="use_my_wallet">Use my wallet</string>
+    <string name="want_to_ad">I want to advertise</string>
+    <string name="want_to_promote_community">I want to promote a community</string>
+    <string name="want_to_create_community">I want to create a community</string>
+    <string name="account">Account</string>
+    <string name="my_contacts">My contacts</string>
+    <string name="my_post">My posts</string>
+    <string name="settings">Settings</string>
+    <string name="me_login">Login</string>
+    <string name="scanner_promt">请把二维码置于扫描框内</string>
+    <string name="confirm">Confirm</string>
+    <string name="report">Report</string>
+    <string name="password">Password</string>
+    <string name="confirm_pwd">Confirm Password</string>
+    <string name="set_transfer_pwd">Set transfer password</string>
+    <string name="chat">Chat</string>
+    <string name="community_name">Community Name</string>
+    <string name="select_tags">Select Tags</string>
+    <string name="create_community">Create Community</string>
+    <string name="save">Save</string>
+    <string name="edit">Edit</string>
+    <string name="contacts">Contacts</string>
+    <string name="my_community">My Community</string>
+    <string name="promote_community">Promote Community</string>
+    <string name="cancel">Cancel</string>
+    <string name="photo_album">Photo Album</string>
+    <string name="camera">Camera</string>
 </resources>

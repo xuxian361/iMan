@@ -10,7 +10,7 @@ import java.security.NoSuchAlgorithmException;
  */
 
 public class EncryptorUtils {
-    public static final String KEY_SIGN = "iMan-User";
+    public static final String KEY_SIGN = "GxnJyO&HX)FZiI7JpORLr6XPCx%wf^*M";
 
     /**
      * MD5加密，32位算法

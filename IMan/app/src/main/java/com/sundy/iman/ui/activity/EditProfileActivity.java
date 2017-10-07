@@ -1,23 +1,67 @@
 package com.sundy.iman.ui.activity;
 
+import android.content.Intent;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
+import android.text.TextUtils;
+import android.view.Gravity;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 
-import com.amap.api.location.AMapLocation;
-import com.amap.api.location.AMapLocationClient;
-import com.amap.api.location.AMapLocationClientOption;
-import com.amap.api.location.AMapLocationListener;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.orhanobut.logger.Logger;
+import com.qiniu.android.common.AutoZone;
+import com.qiniu.android.http.ResponseInfo;
+import com.qiniu.android.storage.Configuration;
+import com.qiniu.android.storage.UpCompletionHandler;
+import com.qiniu.android.storage.UpProgressHandler;
+import com.qiniu.android.storage.UploadManager;
+import com.qiniu.android.storage.UploadOptions;
 import com.sundy.iman.R;
+import com.sundy.iman.entity.QiNiuTokenListEntity;
+import com.sundy.iman.entity.SaveMemberEntity;
+import com.sundy.iman.interfaces.OnTitleBarClickListener;
+import com.sundy.iman.net.ParamHelper;
+import com.sundy.iman.net.RetrofitCallback;
+import com.sundy.iman.net.RetrofitHelper;
+import com.sundy.iman.utils.DateUtils;
+import com.sundy.iman.utils.DeviceUtils;
+import com.sundy.iman.utils.FileUtils;
+import com.sundy.iman.view.TitleBarView;
+import com.sundy.iman.view.popupwindow.SelectPhotoPopup;
+import com.yalantis.ucrop.UCrop;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
 import com.yanzhenjie.permission.PermissionNo;
 import com.yanzhenjie.permission.PermissionYes;
-import com.yanzhenjie.permission.Rationale;
-import com.yanzhenjie.permission.RationaleListener;
 
+import org.json.JSONObject;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+
+import butterknife.BindView;
+import butterknife.ButterKnife;
+import butterknife.OnClick;
+import me.iwf.photopicker.PhotoPicker;
+import retrofit2.Call;
+import retrofit2.Response;
+import top.zibin.luban.Luban;
+import top.zibin.luban.OnCompressListener;
 
 /**
  * 编辑用户信息
@@ -27,177 +71,365 @@ import java.util.List;
 public class EditProfileActivity extends BaseActivity {
 
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 100;
-    private static final int REQUEST_CODE_SETTING = 300;
+    private static final int REQUEST_CODE_PERMISSION_PHOTO = 200;
+    private static final int REQUEST_CODE_CAMERA = 300;
 
-    //声明AMapLocationClient类对象
-    public AMapLocationClient locationClient = null;
-    //声明AMapLocationClientOption对象
-    public AMapLocationClientOption locationOption = null;
+    @BindView(R.id.title_bar)
+    TitleBarView titleBar;
+    @BindView(R.id.iv_header)
+    ImageView ivHeader;
+    @BindView(R.id.et_username)
+    EditText etUsername;
+    @BindView(R.id.ll_location)
+    LinearLayout llLocation;
+    @BindView(R.id.rd_male)
+    RadioButton rdMale;
+    @BindView(R.id.rd_female)
+    RadioButton rdFemale;
+    @BindView(R.id.rg_gender)
+    RadioGroup rgGender;
+    @BindView(R.id.et_about)
+    EditText etAbout;
+    @BindView(R.id.btn_save)
+    Button btnSave;
+    @BindView(R.id.ll_content)
+    LinearLayout llContent;
+
+    private SelectPhotoPopup selectPhotoPopup;
+    private Uri imageUri; //拍照后保存的图片uri
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_edit_profile);
+        ButterKnife.bind(this);
+
+        initTitle();
+        init();
+    }
+
+    private void initTitle() {
+        titleBar.setBackMode(getString(R.string.edit));
+        titleBar.setOnClickListener(new OnTitleBarClickListener() {
+            @Override
+            public void onLeftImgClick() {
+                finish();
+            }
+
+            @Override
+            public void onLeftTxtClick() {
+
+            }
+
+            @Override
+            public void onRightImgClick() {
+
+            }
+
+            @Override
+            public void onRightTxtClick() {
+
+            }
+
+            @Override
+            public void onTitleClick() {
+
+            }
+        });
     }
 
 
     private void init() {
-        AndPermission.with(this)
-                .requestCode(REQUEST_CODE_PERMISSION_LOCATION)
-                .permission(Permission.LOCATION)
-                .callback(this)
-                // rationale作用是：用户拒绝一次权限，再次申请时先征求用户同意，再打开授权对话框；
-                // 这样避免用户勾选不再提示，导致以后无法申请权限。
-                // 你也可以不设置。
-                .rationale(new RationaleListener() {
-                    @Override
-                    public void showRequestPermissionRationale(int requestCode, Rationale rationale) {
-                        // 这里的对话框可以自定义，只要调用rationale.resume()就可以继续申请。
-                        AndPermission.rationaleDialog(EditProfileActivity.this, rationale).show();
-                    }
-                })
-                .start();
+        selectPhotoPopup = new SelectPhotoPopup(this);
+
+
     }
 
-    /**
-     * 初始化定位
-     */
-    private void initLocation() {
-        //初始化client
-        locationClient = new AMapLocationClient(this.getApplicationContext());
-        locationOption = getDefaultOption();
-        //设置定位参数
-        locationClient.setLocationOption(locationOption);
-        // 设置定位监听
-        locationClient.setLocationListener(locationListener);
-    }
-
-    /**
-     * 默认的定位参数
-     *
-     * @author hongming.wang
-     * @since 2.8.0
-     */
-    private AMapLocationClientOption getDefaultOption() {
-        AMapLocationClientOption mOption = new AMapLocationClientOption();
-        mOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);//可选，设置定位模式，可选的模式有高精度、仅设备、仅网络。默认为高精度模式
-        mOption.setGpsFirst(false);//可选，设置是否gps优先，只在高精度模式下有效。默认关闭
-        mOption.setHttpTimeOut(30000);//可选，设置网络请求超时时间。默认为30秒。在仅设备模式下无效
-        mOption.setInterval(2000);//可选，设置定位间隔。默认为2秒
-        mOption.setNeedAddress(true);//可选，设置是否返回逆地理地址信息。默认是true
-        mOption.setOnceLocation(false);//可选，设置是否单次定位。默认是false
-        mOption.setOnceLocationLatest(false);//可选，设置是否等待wifi刷新，默认为false.如果设置为true,会自动变为单次定位，持续定位时不要使用
-        AMapLocationClientOption.setLocationProtocol(AMapLocationClientOption.AMapLocationProtocol.HTTP);//可选， 设置网络请求的协议。可选HTTP或者HTTPS。默认为HTTP
-        mOption.setSensorEnable(false);//可选，设置是否使用传感器。默认是false
-        mOption.setWifiScan(true); //可选，设置是否开启wifi扫描。默认为true，如果设置为false会同时停止主动刷新，停止以后完全依赖于系统刷新，定位位置可能存在误差
-        mOption.setLocationCacheEnable(true); //可选，设置是否使用缓存定位，默认为true
-        return mOption;
-    }
-
-    /**
-     * 定位监听
-     */
-    AMapLocationListener locationListener = new AMapLocationListener() {
-        @Override
-        public void onLocationChanged(AMapLocation location) {
-            if (null != location) {
-                StringBuffer sb = new StringBuffer();
-                //errCode等于0代表定位成功，其他的为定位失败，具体的可以参照官网定位错误码说明
-                if (location.getErrorCode() == 0) {
-                    sb.append("定位成功" + "\n");
-                    sb.append("定位类型: " + location.getLocationType() + "\n");
-                    sb.append("经    度    : " + location.getLongitude() + "\n");
-                    sb.append("纬    度    : " + location.getLatitude() + "\n");
-                    sb.append("精    度    : " + location.getAccuracy() + "米" + "\n");
-                    sb.append("提供者    : " + location.getProvider() + "\n");
-
-                    sb.append("速    度    : " + location.getSpeed() + "米/秒" + "\n");
-                    sb.append("角    度    : " + location.getBearing() + "\n");
-                    // 获取当前提供定位服务的卫星个数
-                    sb.append("星    数    : " + location.getSatellites() + "\n");
-                    sb.append("国    家    : " + location.getCountry() + "\n");
-                    sb.append("省            : " + location.getProvince() + "\n");
-                    sb.append("市            : " + location.getCity() + "\n");
-                    sb.append("城市编码 : " + location.getCityCode() + "\n");
-                    sb.append("区            : " + location.getDistrict() + "\n");
-                    sb.append("区域 码   : " + location.getAdCode() + "\n");
-                    sb.append("地    址    : " + location.getAddress() + "\n");
-                    sb.append("兴趣点    : " + location.getPoiName() + "\n");
-                    //定位完成的时间
-                } else {
-                    //定位失败
-                    sb.append("定位失败" + "\n");
-                    sb.append("错误码:" + location.getErrorCode() + "\n");
-                    sb.append("错误信息:" + location.getErrorInfo() + "\n");
-                    sb.append("错误描述:" + location.getLocationDetail() + "\n");
-                }
-                sb.append("***定位质量报告***").append("\n");
-                //解析定位结果，
-                String result = sb.toString();
-            } else {
-                Logger.e("定位失败，loc is null");
-            }
-        }
-    };
-
-    /**
-     * 开始定位
-     */
-    private void startLocation() {
-        // 设置定位参数
-        locationClient.setLocationOption(locationOption);
-        // 启动定位
-        locationClient.startLocation();
-    }
-
-    /**
-     * 停止定位
-     */
-    private void stopLocation() {
-        // 停止定位
-        locationClient.stopLocation();
-    }
-
-    /**
-     * 销毁定位
-     */
-    private void destroyLocation() {
-        if (null != locationClient) {
-            locationClient.onDestroy();
-            locationClient = null;
-            locationOption = null;
-        }
-    }
-
-    /**
-     * <p>权限全部申请成功才会回调这个方法，否则回调失败的方法。</p>
-     *
-     * @param grantedPermissions AndPermission回调过来的申请成功的权限。
-     */
     @PermissionYes(REQUEST_CODE_PERMISSION_LOCATION)
-    private void getPermissionYes(@NonNull List<String> grantedPermissions) {
+    private void getPermissionLocationYes(@NonNull List<String> grantedPermissions) {
         Logger.e("位置权限申请成功!");
-        startLocation();
+
     }
 
-    /**
-     * <p>只要有一个权限申请失败就会回调这个方法，并且不会回调成功的方法。</p>
-     *
-     * @param deniedPermissions AndPermission回调过来的申请失败的权限。
-     */
     @PermissionNo(REQUEST_CODE_PERMISSION_LOCATION)
-    private void getPermissionNo(@NonNull List<String> deniedPermissions) {
+    private void getPermissionLocationNo(@NonNull List<String> deniedPermissions) {
         Logger.e("位置权限申请失败!");
-        // 用户否勾选了不再提示并且拒绝了权限，那么提示用户到设置中授权。
-        if (AndPermission.hasAlwaysDeniedPermission(this, deniedPermissions)) {
-            // 第一种：用默认的提示语。
-            AndPermission.defaultSettingDialog(this, REQUEST_CODE_SETTING).show();
-        }
+    }
+
+    @PermissionYes(REQUEST_CODE_PERMISSION_PHOTO)
+    private void getPermissionStorageYes(@NonNull List<String> grantedPermissions) {
+        Logger.e("文件操作权限申请成功!");
+        showSelectPhoto();
+    }
+
+    @PermissionNo(REQUEST_CODE_PERMISSION_PHOTO)
+    private void getPermissionStorageNo(@NonNull List<String> deniedPermissions) {
+        Logger.e("文件操作权限申请失败!");
+
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        destroyLocation();
+        if (selectPhotoPopup != null) {
+            selectPhotoPopup.dismiss();
+            selectPhotoPopup = null;
+        }
     }
+
+    @OnClick({R.id.iv_header, R.id.ll_location, R.id.btn_save})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.iv_header:
+                headerClick();
+                break;
+            case R.id.ll_location:
+                locationClick();
+                break;
+            case R.id.btn_save:
+                saveMemberInfo();
+                break;
+        }
+    }
+
+    //点击定位
+    private void locationClick() {
+        AndPermission.with(this)
+                .requestCode(REQUEST_CODE_PERMISSION_LOCATION)
+                .permission(Permission.LOCATION)
+                .callback(this)
+                .start();
+    }
+
+    //点击头像
+    private void headerClick() {
+        AndPermission.with(this)
+                .requestCode(REQUEST_CODE_PERMISSION_PHOTO)
+                .permission(Permission.STORAGE, Permission.CAMERA)
+                .callback(this)
+                .start();
+    }
+
+    //显示选择图片弹框
+    private void showSelectPhoto() {
+        selectPhotoPopup.setOnClickListener(new SelectPhotoPopup.OnClickListener() {
+            @Override
+            public void clickCamera() {
+                selectPhotoPopup.dismiss();
+                if (FileUtils.existSD()) {
+                    File fileUri = new File(FileUtils.getImageCache() + "/" + DateUtils.getTimeStamp() + ".jpg");
+                    imageUri = Uri.fromFile(fileUri);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+                        imageUri = FileProvider.getUriForFile(EditProfileActivity.this,
+                                DeviceUtils.getAppPackageName(EditProfileActivity.this), fileUri);//通过FileProvider创建一个content类型的Uri
+
+                    //调用系统相机
+                    Intent intentCamera = new Intent();
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                        intentCamera.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); //添加这一句表示对目标应用临时授权该Uri所代表的文件
+                    }
+                    intentCamera.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
+                    //将拍照结果保存至photo_file的Uri中，不保留在相册中
+                    intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
+                    startActivityForResult(intentCamera, REQUEST_CODE_CAMERA);
+                }
+            }
+
+            @Override
+            public void clickAlbum() {
+                selectPhotoPopup.dismiss();
+                PhotoPicker.builder()
+                        .setPhotoCount(1)
+                        .setShowCamera(false)
+                        .setShowGif(false)
+                        .setPreviewEnabled(true)
+                        .start(EditProfileActivity.this, PhotoPicker.REQUEST_CODE);
+            }
+        });
+        selectPhotoPopup.showAtLocation(llContent, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case PhotoPicker.REQUEST_CODE: //相册获取图片
+                    if (data != null) {
+                        ArrayList<String> photos =
+                                data.getStringArrayListExtra(PhotoPicker.KEY_SELECTED_PHOTOS);
+                        if (photos != null && photos.size() > 0) {
+                            String photoPath = photos.get(0);
+                            Logger.i("---->photoPath = " + photoPath);
+                            String targetDir = FileUtils.getImageCache();
+                            //压缩图片
+                            Luban.with(this)
+                                    .load(photoPath)                                   // 传人要压缩的图片列表
+                                    .ignoreBy(100)                                  // 忽略不压缩图片的大小
+                                    .setTargetDir(targetDir)                        // 设置压缩后文件存储位置
+                                    .setCompressListener(new OnCompressListener() { //设置回调
+                                        @Override
+                                        public void onStart() {
+                                            // TODO 压缩开始前调用，可以在方法内启动 loading UI
+                                            Logger.i("----->压缩开始");
+                                        }
+
+                                        @Override
+                                        public void onSuccess(File file) {
+                                            // TODO 压缩成功后调用，返回压缩后的图片文件
+                                            Logger.i("----->压缩成功 :" + file.getPath());
+                                            if (!TextUtils.isEmpty(file.getPath()))
+                                                cropPhoto(file.getPath());
+                                        }
+
+                                        @Override
+                                        public void onError(Throwable e) {
+                                            // TODO 当压缩过程出现问题时调用
+                                            Logger.i("----->压缩失败");
+                                        }
+                                    }).launch();    //启动压缩
+                        }
+                    }
+                    break;
+                case REQUEST_CODE_CAMERA: //拍照获取图片
+                    if (imageUri != null) {
+                        String photoPath = imageUri.getPath();
+                        Logger.i("---->photoPath = " + photoPath);
+                        String targetDir = FileUtils.getImageCache();
+                        //压缩图片
+                        Luban.with(this)
+                                .load(photoPath)                                   // 传人要压缩的图片列表
+                                .ignoreBy(100)                                  // 忽略不压缩图片的大小
+                                .setTargetDir(targetDir)                        // 设置压缩后文件存储位置
+                                .setCompressListener(new OnCompressListener() { //设置回调
+                                    @Override
+                                    public void onStart() {
+                                        // TODO 压缩开始前调用，可以在方法内启动 loading UI
+                                        Logger.i("----->压缩开始");
+                                    }
+
+                                    @Override
+                                    public void onSuccess(File file) {
+                                        // TODO 压缩成功后调用，返回压缩后的图片文件
+                                        Logger.i("----->压缩成功 :" + file.getPath());
+                                        if (!TextUtils.isEmpty(file.getPath()))
+                                            cropPhoto(file.getPath());
+                                    }
+
+                                    @Override
+                                    public void onError(Throwable e) {
+                                        // TODO 当压缩过程出现问题时调用
+                                        Logger.i("----->压缩失败");
+                                    }
+                                }).launch();    //启动压缩
+                    }
+                    break;
+                case UCrop.REQUEST_CROP:
+                    final Uri resultUri = UCrop.getOutput(data);
+                    Logger.i("---->resultUri =" + resultUri.getPath());
+                    break;
+            }
+        }
+    }
+
+    //裁剪图片
+    private void cropPhoto(String source) {
+        Uri sourceUri = Uri.fromFile(new File(source));
+        String saveDir = FileUtils.getPortraitCache();
+        Uri destinationUri = Uri.fromFile(new File(saveDir, "header.jpg"));
+        UCrop.of(sourceUri, destinationUri)
+                .withAspectRatio(1, 1)
+                .withMaxResultSize(600, 600)
+                .start(this);
+    }
+
+    //获取七牛上传token
+    private void getQiNiuToken() {
+        JsonArray jsonArray = new JsonArray();
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("ext", "jpg");
+        jsonObject.addProperty("width", "200");
+        jsonObject.addProperty("height", "200");
+        jsonArray.add(jsonObject);
+        Map<String, String> param = new HashMap<>();
+        param.put("category", "1"); //类型:1-用户头像，2-社区，3-post
+        param.put("upload_params", jsonArray.toString()); //上传参数:json格式的数据:ext-上传文件的格式，width-上传文件的宽度，height-上传文件的高度
+        Call<QiNiuTokenListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .getQiNiuToken(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<QiNiuTokenListEntity>() {
+            @Override
+            public void onSuccess(Call<QiNiuTokenListEntity> call, Response<QiNiuTokenListEntity> response) {
+
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<QiNiuTokenListEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //上传图片
+    private void uploadImg(File data, String key, String token) {
+        Configuration config = new Configuration.Builder()
+                .zone(AutoZone.autoZone)
+                .build();
+        UploadManager uploadManager = new UploadManager(config);
+        uploadManager.put(data, key, token, new UpCompletionHandler() {
+            @Override
+            public void complete(String key, ResponseInfo info, JSONObject response) {
+                if (info.isOK()) {
+                    Logger.i("--->Upload Success");
+                } else {
+                    Logger.i("--->Upload Fail");
+                    //如果失败，这里可以把info信息上报自己的服务器，便于后面分析上传错误原因
+                }
+                Logger.i("--->" + key + ",\r\n " + info + ",\r\n " + response);
+            }
+        }, new UploadOptions(null, null, false, new UpProgressHandler() {
+            @Override
+            public void progress(String key, double percent) {
+                Logger.i("--->percent : " + percent);
+            }
+        }, null));
+    }
+
+
+    //保存个人信息
+    private void saveMemberInfo() {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", "");
+        param.put("session_key", "");
+        param.put("username", "");
+        param.put("profile_image", "");
+        param.put("gender", ""); //性别:1-男，2-女
+        param.put("location", "");
+        param.put("latitude", "");
+        param.put("longitude", "");
+        param.put("introduction", "");
+        Call<SaveMemberEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .saveMemberInfo(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<SaveMemberEntity>() {
+            @Override
+            public void onSuccess(Call<SaveMemberEntity> call, Response<SaveMemberEntity> response) {
+
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<SaveMemberEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
 }

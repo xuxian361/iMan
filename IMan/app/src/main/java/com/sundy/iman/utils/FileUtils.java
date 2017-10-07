@@ -96,6 +96,7 @@ public class FileUtils {
 
     /**
      * 是否存在SD卡
+     *
      * @return
      */
     public static boolean existSD() {
@@ -114,13 +115,13 @@ public class FileUtils {
     public static String getRootDir() {
         String dir = "";
         if (existSD()) {
-            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + FileName + File.separator + "user");
+            File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath() + File.separator + FileName + File.separator + "iman");
             if (!file.exists()) {
                 file.mkdirs();
             }
             dir = file.getAbsolutePath();
         } else {
-            File file = new File(Environment.getDataDirectory() + File.separator + FileName + File.separator + "user");
+            File file = new File(Environment.getDataDirectory() + File.separator + FileName + File.separator + "iman");
             if (!file.exists()) {
                 file.mkdirs();
             }

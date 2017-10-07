@@ -89,7 +89,7 @@ public class MainFragment extends BaseFragment {
     }
 
     public void switchContent(Fragment fragment) {
-        switchContent(fragment, R.id.frameMain);
+        mCallback.switchContent(fragment, R.id.frameMain);
     }
 
     @Override

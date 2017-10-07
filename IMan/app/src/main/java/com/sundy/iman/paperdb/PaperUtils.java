@@ -1,6 +1,9 @@
 package com.sundy.iman.paperdb;
 
+import android.text.TextUtils;
+
 import com.sundy.iman.MainApp;
+import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.utils.DeviceUtils;
 
 /**
@@ -38,6 +41,29 @@ public class PaperUtils {
     //获取设备ID
     public static String getDeviceId() {
         return CommonDataPaper.getDeviceId();
+    }
+
+    //保存登录用户信息
+    public static void saveUserInfo(MemberInfoEntity memberInfoEntity) {
+        UserPaper.saveUserInfo(memberInfoEntity);
+    }
+
+    //获取登录用户信息
+    public static MemberInfoEntity getUserInfo() {
+        return UserPaper.getUserInfo();
+    }
+
+    //判断用户是否已登录
+    public static boolean isLogin() {
+        MemberInfoEntity memberInfoEntity = getUserInfo();
+        if (memberInfoEntity != null) {
+            MemberInfoEntity.DataEntity dataEntity = memberInfoEntity.getData();
+            String userId = dataEntity.getId();
+            if (!TextUtils.isEmpty(userId)) {
+                return true;
+            }
+        }
+        return false;
     }
 
 

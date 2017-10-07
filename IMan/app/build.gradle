@@ -38,7 +38,7 @@ android {
         versionName "1.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         manifestPlaceholders = [
-                EASEMOB_APPKEY: "jiwa#lbmt",
+                EASEMOB_APPKEY: "1185170930178964#iman",
                 GAO_DE_MAP_KEY: "285db644f8bc3cc08439e4a2907816b2"
         ]
 
@@ -148,12 +148,16 @@ dependencies {
     //图片选择器
     compile 'me.iwf.photopicker:PhotoPicker:0.9.5@aar'
     compile 'com.nineoldandroids:library:2.4.0'
+    //图片裁剪
+    compile 'com.github.yalantis:ucrop:2.2.1'
     //图片虚化
     compile 'jp.wasabeef:blurry:2.1.1'
     //简化实体类
     compile 'org.projectlombok:lombok:1.16.18'
     //缩放图片控件
     compile 'com.github.chrisbanes:PhotoView:2.0.0'
+    //图片压缩
+    compile 'top.zibin:Luban:1.1.3'
     //炫酷的进度条
     compile 'com.wang.avi:library:2.1.3'
     //引导介绍页
@@ -166,5 +170,4 @@ dependencies {
     compile 'com.umeng.analytics:analytics:latest.integration'
     //七牛云
     compile 'com.qiniu:qiniu-android-sdk:7.3.+'
-
 }

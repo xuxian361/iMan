@@ -39,6 +39,17 @@ public class DeviceUtils {
     }
 
     /**
+     * 获取App 包名
+     *
+     * @param context
+     * @return
+     */
+    public static String getAppPackageName(Context context) {
+        return context.getApplicationInfo().packageName;
+    }
+
+
+    /**
      * 获取系统默认语言
      *
      * @return

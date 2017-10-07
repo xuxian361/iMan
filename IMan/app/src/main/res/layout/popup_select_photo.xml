@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rel_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/transparent"
+    android:orientation="vertical">
+
+
+    <TextView
+        android:id="@+id/tv_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"
+        android:gravity="center"
+        android:text="@string/cancel"
+        android:textColor="@color/txt_black"
+        android:textSize="13sp" />
+
+    <View
+        android:id="@+id/line_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_above="@+id/tv_cancel"
+        android:background="@color/bg_light_gray" />
+
+    <TextView
+        android:id="@+id/tv_album"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_above="@+id/line_bottom"
+        android:background="@color/white"
+        android:gravity="center"
+        android:text="@string/photo_album"
+        android:textColor="@color/txt_black"
+        android:textSize="13sp" />
+
+    <View
+        android:id="@+id/line_1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@+id/tv_album"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:background="@color/bg_light_gray" />
+
+    <TextView
+        android:id="@+id/tv_camera"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_above="@+id/tv_album"
+        android:layout_marginBottom="1dp"
+        android:background="@color/white"
+        android:gravity="center"
+        android:text="@string/camera"
+        android:textColor="@color/txt_black"
+        android:textSize="13sp" />
+
+    <View
+        android:id="@+id/line_2"
+        android:layout_width="match_parent"
+        android:layout_height="3dp"
+        android:layout_above="@+id/tv_camera"
+        android:background="@color/bg_light_gray" />
+
+</RelativeLayout>

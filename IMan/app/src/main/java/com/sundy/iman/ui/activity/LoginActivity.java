@@ -8,11 +8,20 @@ import android.widget.EditText;
 
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
+import com.sundy.iman.entity.CancelPostEntity;
 import com.sundy.iman.entity.ChangeLanguageEntity;
+import com.sundy.iman.entity.CollectAdvertisingEntity;
+import com.sundy.iman.entity.CommunityInfoEntity;
+import com.sundy.iman.entity.DeletePostEntity;
+import com.sundy.iman.entity.GetHomeListEntity;
+import com.sundy.iman.entity.GetPostInfoEntity;
+import com.sundy.iman.entity.JoinCommunityEntity;
+import com.sundy.iman.entity.JoinPromoteCommunityEntity;
 import com.sundy.iman.entity.LoginEntity;
 import com.sundy.iman.entity.LogoutEntity;
 import com.sundy.iman.entity.MemberInfoEntity;
-import com.sundy.iman.entity.UpdateTransferPwdEntity;
+import com.sundy.iman.entity.PostListEntity;
+import com.sundy.iman.entity.UpdatePostEntity;
 import com.sundy.iman.entity.VerificationCodeEntity;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
@@ -236,37 +245,6 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
-    //更新支付密码接口
-    private void updateTransferPwd(String mid, String session_key) {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", mid);
-        param.put("session_key", session_key);
-        param.put("password", "123456");
-        param.put("confirm_password", "123456");
-        Call<UpdateTransferPwdEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .updateTransferPwd(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<UpdateTransferPwdEntity>() {
-            @Override
-            public void onSuccess(Call<UpdateTransferPwdEntity> call, Response<UpdateTransferPwdEntity> response) {
-                UpdateTransferPwdEntity updateTransferPwdEntity = response.body();
-                if (updateTransferPwdEntity != null) {
-                    int code = updateTransferPwdEntity.getCode();
-                    Logger.e("------>code = " + code);
-                }
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<UpdateTransferPwdEntity> call, Throwable t) {
-
-            }
-        });
-    }
-
     //修改语言接口
     private void changeLanguage(String mid, String session_key) {
         Map<String, String> param = new HashMap<>();
@@ -292,6 +270,286 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onFailure(Call<ChangeLanguageEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+
+    //加入或退出社区
+    private void joinCommunity() {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", "");
+        param.put("session_key", "");
+        param.put("type", ""); //类型: 0-加入，1-退出
+        param.put("community_id", "");
+        Call<JoinCommunityEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .joinCommunity(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<JoinCommunityEntity>() {
+            @Override
+            public void onSuccess(Call<JoinCommunityEntity> call, Response<JoinCommunityEntity> response) {
+
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<JoinCommunityEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //获取post列表
+    private void getPostList() {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", "");
+        param.put("session_key", "");
+        param.put("type", ""); //类型: 0-加入，1-退出
+        param.put("community_id", "");
+        param.put("page", "");
+        param.put("perpage", "");
+        Call<PostListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .getPostList(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<PostListEntity>() {
+            @Override
+            public void onSuccess(Call<PostListEntity> call, Response<PostListEntity> response) {
+
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<PostListEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //删除Post
+    private void deletePost() {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", "");
+        param.put("session_key", "");
+        param.put("post_id", "");
+        Call<DeletePostEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .deletePost(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<DeletePostEntity>() {
+            @Override
+            public void onSuccess(Call<DeletePostEntity> call, Response<DeletePostEntity> response) {
+
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<DeletePostEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //取消Post
+    private void cancelPost() {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", "");
+        param.put("session_key", "");
+        param.put("post_id", "");
+        Call<CancelPostEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .cancelPost(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<CancelPostEntity>() {
+            @Override
+            public void onSuccess(Call<CancelPostEntity> call, Response<CancelPostEntity> response) {
+
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<CancelPostEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //更新Post
+    private void updatePost() {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", "");
+        param.put("session_key", "");
+        param.put("title", ""); //post标题
+        param.put("detail", ""); //post详情
+        param.put("tags", ""); //标签
+        param.put("location", "");
+        param.put("latitude", "");
+        param.put("longitude", "");
+        param.put("aging", ""); //时效
+        param.put("attachment", ""); //附件 json格式数据:att_type为附件类型，1-图片，2-视频 url：附件存放路径
+        param.put("post_id", "");
+        Call<UpdatePostEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .updatePost(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<UpdatePostEntity>() {
+            @Override
+            public void onSuccess(Call<UpdatePostEntity> call, Response<UpdatePostEntity> response) {
+
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<UpdatePostEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //获取Post 信息
+    private void getPostInfo() {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", "");
+        param.put("session_key", "");
+        param.put("post_id", ""); //post id
+        param.put("creator_id", ""); //post的作者ID
+        Call<GetPostInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .getPostInfo(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<GetPostInfoEntity>() {
+            @Override
+            public void onSuccess(Call<GetPostInfoEntity> call, Response<GetPostInfoEntity> response) {
+
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<GetPostInfoEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //领取广告奖励
+    private void collectAdvertising() {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", "");
+        param.put("session_key", "");
+        param.put("post_id", ""); //post id
+        param.put("creator_id", ""); //post的作者ID
+        param.put("community_id", ""); //社区ID
+        param.put("income", ""); //奖励金额
+        Call<CollectAdvertisingEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .collectAdvertising(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<CollectAdvertisingEntity>() {
+            @Override
+            public void onSuccess(Call<CollectAdvertisingEntity> call, Response<CollectAdvertisingEntity> response) {
+
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<CollectAdvertisingEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //加入推广社区
+    private void joinPromoteCommunity() {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", "");
+        param.put("session_key", "");
+        param.put("community_id", ""); //社区ID
+        param.put("promoter_id", ""); //推广者ID
+        Call<JoinPromoteCommunityEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .joinPromoteCommunity(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<JoinPromoteCommunityEntity>() {
+            @Override
+            public void onSuccess(Call<JoinPromoteCommunityEntity> call, Response<JoinPromoteCommunityEntity> response) {
+
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<JoinPromoteCommunityEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //社区详情
+    private void getCommunityInfo() {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", "");
+        param.put("session_key", "");
+        param.put("community_id", ""); //社区ID
+        param.put("type", ""); //类型: 1-普通社区，2-推广社区
+        Call<CommunityInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .getCommunityInfo(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<CommunityInfoEntity>() {
+            @Override
+            public void onSuccess(Call<CommunityInfoEntity> call, Response<CommunityInfoEntity> response) {
+
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<CommunityInfoEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //首页列表
+    private void getHomePostList() {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", "");
+        param.put("session_key", "");
+        param.put("latitude", "");
+        param.put("longitude", "");
+        Call<GetHomeListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .getHomeList(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<GetHomeListEntity>() {
+            @Override
+            public void onSuccess(Call<GetHomeListEntity> call, Response<GetHomeListEntity> response) {
+
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<GetHomeListEntity> call, Throwable t) {
 
             }
         });
