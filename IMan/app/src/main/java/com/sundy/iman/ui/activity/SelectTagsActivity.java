@@ -2,18 +2,25 @@ package com.sundy.iman.ui.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
+import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
 import com.sundy.iman.R;
 import com.sundy.iman.entity.TagListEntity;
+import com.sundy.iman.entity.TagListItemEntity;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.view.TitleBarView;
+import com.zhy.view.flowlayout.FlowLayout;
+import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
 
 import java.util.HashMap;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -41,6 +48,7 @@ public class SelectTagsActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         initTitle();
+        getTagList();
     }
 
     private void initTitle() {
@@ -84,7 +92,16 @@ public class SelectTagsActivity extends BaseActivity {
                     if (response != null) {
                         TagListEntity entity = response.body();
                         if (entity != null) {
-                            TagListEntity.DataEntity dataEntity = entity.getData();
+                            int code = entity.getCode();
+                            if (code == 0) {
+                                TagListEntity.DataEntity dataEntity = entity.getData();
+                                if (dataEntity != null) {
+                                    List<TagListItemEntity> list = dataEntity.getList();
+                                    if (list != null && list.size() > 0) {
+                                        setData(list);
+                                    }
+                                }
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -102,6 +119,25 @@ public class SelectTagsActivity extends BaseActivity {
 
             }
         });
+    }
+
+    //设置数据
+    private void setData(List<TagListItemEntity> list) {
+        TagAdapter<TagListItemEntity> adapter_Tag = new TagAdapter<TagListItemEntity>(list) {
+            @Override
+            public View getView(FlowLayout parent, int position, TagListItemEntity item) {
+                TextView tv = (TextView) getLayoutInflater().inflate(R.layout.item_tag_can_select,
+                        flTab, false);
+                String title = item.getTitle();
+                if (!TextUtils.isEmpty(title)) {
+                    tv.setText(title);
+                }
+                return tv;
+            }
+        };
+        flTab.setAdapter(adapter_Tag);
+        flTab.setEnabled(true);
+
     }
 
     @OnClick(R.id.btn_confirm)

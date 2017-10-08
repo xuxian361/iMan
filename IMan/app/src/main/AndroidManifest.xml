@@ -58,7 +58,7 @@
             android:value="${UMENG_CHANNEL_VALUE}" />
 
         <activity
-            android:name=".ui.activity.EditProfileActivity"
+            android:name=".ui.activity.LoadingActivity"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Full">
             <intent-filter>
@@ -77,10 +77,10 @@
             android:name=".ui.activity.MainActivity"
             android:launchMode="singleTask"
             android:screenOrientation="portrait" />
-        <!--<activity-->
-        <!--android:name=".ui.activity.EditProfileActivity"-->
-        <!--android:launchMode="singleTop"-->
-        <!--android:screenOrientation="portrait" />-->
+        <activity
+            android:name=".ui.activity.EditProfileActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
         <activity
             android:name=".ui.activity.WebActivity"
             android:launchMode="singleTop"
@@ -167,7 +167,7 @@
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths"
-                tools:replace="name,resource"/>
+                tools:replace="name,resource" />
         </provider>
 
     </application>

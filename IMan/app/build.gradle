@@ -131,7 +131,7 @@ dependencies {
     //日志打印
     compile 'com.orhanobut:logger:2.1.1'
     //Flow Layout控件
-    compile 'com.hyman:flowlayout-lib:1.1.1'
+    compile 'com.hyman:flowlayout-lib:1.1.2'
     //RecycleView & Adapter
     compile 'com.android.support:recyclerview-v7:25.2.0'
     compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.28'

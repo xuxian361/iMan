@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:zhy="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
@@ -25,7 +26,9 @@
             android:id="@+id/fl_tab"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/btn_confirm" />
+            android:layout_above="@+id/btn_confirm"
+            android:padding="10dp"
+            zhy:max_select="5" />
 
     </RelativeLayout>
 </LinearLayout>

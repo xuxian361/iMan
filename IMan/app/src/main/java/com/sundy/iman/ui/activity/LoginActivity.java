@@ -9,18 +9,14 @@ import android.widget.EditText;
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
 import com.sundy.iman.entity.CancelPostEntity;
-import com.sundy.iman.entity.ChangeLanguageEntity;
 import com.sundy.iman.entity.CollectAdvertisingEntity;
 import com.sundy.iman.entity.CommunityInfoEntity;
 import com.sundy.iman.entity.DeletePostEntity;
-import com.sundy.iman.entity.GetHomeListEntity;
 import com.sundy.iman.entity.GetPostInfoEntity;
 import com.sundy.iman.entity.JoinCommunityEntity;
 import com.sundy.iman.entity.JoinPromoteCommunityEntity;
 import com.sundy.iman.entity.LoginEntity;
-import com.sundy.iman.entity.LogoutEntity;
 import com.sundy.iman.entity.MemberInfoEntity;
-import com.sundy.iman.entity.PostListEntity;
 import com.sundy.iman.entity.UpdatePostEntity;
 import com.sundy.iman.entity.VerificationCodeEntity;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
@@ -165,9 +161,8 @@ public class LoginActivity extends BaseActivity {
                         Logger.i("----->用户ID=" + userId);
                         Logger.i("----->easemob_account=" + easemob_account);
 //                        getMemberInfo(userId, dataEntity.getSession_key());
-//                        logout(userId, dataEntity.getSession_key());
-//                        updateTransferPwd(userId, dataEntity.getSession_key());
-                        changeLanguage(userId, dataEntity.getSession_key());
+
+
                     }
                 }
             }
@@ -216,66 +211,6 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
-    //登出
-    private void logout(String mid, String session_key) {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", mid);
-        param.put("session_key", session_key);
-        Call<LogoutEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .logout(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<LogoutEntity>() {
-            @Override
-            public void onSuccess(Call<LogoutEntity> call, Response<LogoutEntity> response) {
-                LogoutEntity logoutEntity = response.body();
-                if (logoutEntity != null) {
-                    int code = logoutEntity.getCode();
-                    Logger.e("------>code = " + code);
-                }
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<LogoutEntity> call, Throwable t) {
-
-            }
-        });
-    }
-
-    //修改语言接口
-    private void changeLanguage(String mid, String session_key) {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", mid);
-        param.put("session_key", session_key);
-        param.put("language", "en");//语言 en-英文,sc-简体中文,tc-繁体中文
-        Call<ChangeLanguageEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .changeLanguage(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<ChangeLanguageEntity>() {
-            @Override
-            public void onSuccess(Call<ChangeLanguageEntity> call, Response<ChangeLanguageEntity> response) {
-                ChangeLanguageEntity changeLanguageEntity = response.body();
-                if (changeLanguageEntity != null) {
-                    int code = changeLanguageEntity.getCode();
-                    Logger.e("------>code = " + code);
-                }
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<ChangeLanguageEntity> call, Throwable t) {
-
-            }
-        });
-    }
-
-
     //加入或退出社区
     private void joinCommunity() {
         Map<String, String> param = new HashMap<>();
@@ -303,34 +238,6 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
-    //获取post列表
-    private void getPostList() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("type", ""); //类型: 0-加入，1-退出
-        param.put("community_id", "");
-        param.put("page", "");
-        param.put("perpage", "");
-        Call<PostListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getPostList(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<PostListEntity>() {
-            @Override
-            public void onSuccess(Call<PostListEntity> call, Response<PostListEntity> response) {
-
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<PostListEntity> call, Throwable t) {
-
-            }
-        });
-    }
 
     //删除Post
     private void deletePost() {
@@ -528,32 +435,6 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
-    //首页列表
-    private void getHomePostList() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("latitude", "");
-        param.put("longitude", "");
-        Call<GetHomeListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getHomeList(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<GetHomeListEntity>() {
-            @Override
-            public void onSuccess(Call<GetHomeListEntity> call, Response<GetHomeListEntity> response) {
-
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<GetHomeListEntity> call, Throwable t) {
-
-            }
-        });
-    }
 
 
 }

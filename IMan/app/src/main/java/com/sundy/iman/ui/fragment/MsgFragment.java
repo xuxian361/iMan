@@ -15,8 +15,12 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
+import com.sundy.iman.entity.GetHomeListEntity;
 import com.sundy.iman.entity.LocationEntity;
 import com.sundy.iman.helper.UIHelper;
+import com.sundy.iman.net.ParamHelper;
+import com.sundy.iman.net.RetrofitCallback;
+import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.LocationPaper;
 import com.sundy.iman.ui.activity.AddCommunityActivity;
 import com.yanzhenjie.permission.AndPermission;
@@ -26,12 +30,16 @@ import com.yanzhenjie.permission.PermissionYes;
 import com.yanzhenjie.permission.Rationale;
 import com.yanzhenjie.permission.RationaleListener;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import retrofit2.Call;
+import retrofit2.Response;
 
 /**
  * Created by sundy on 17/9/14.
@@ -183,6 +191,33 @@ public class MsgFragment extends BaseFragment {
         locationEntity.setLng(location.getLongitude());
 
         LocationPaper.saveLocation(locationEntity);
+    }
+
+    //首页列表
+    private void getHomePostList() {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", "");
+        param.put("session_key", "");
+        param.put("latitude", "");
+        param.put("longitude", "");
+        Call<GetHomeListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .getHomeList(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<GetHomeListEntity>() {
+            @Override
+            public void onSuccess(Call<GetHomeListEntity> call, Response<GetHomeListEntity> response) {
+
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<GetHomeListEntity> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override

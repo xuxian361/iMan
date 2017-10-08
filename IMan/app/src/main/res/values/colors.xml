@@ -21,6 +21,8 @@
     <color name="txt_green">#27b07e</color>
     <color name="txt_red">#f5565a</color>
     <color name="txt_blue">#0078cc</color>
+    <color name="bg_blue">#0078cc</color>
+    <color name="bg_gray">#898a8b</color>
     <color name="txt_white">#ffffff</color>
     <color name="transparent">#00000000</color>
     <color name="half_transparent">#33000000</color>
