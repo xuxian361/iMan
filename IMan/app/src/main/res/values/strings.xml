@@ -30,4 +30,6 @@
     <string name="cancel">Cancel</string>
     <string name="photo_album">Photo Album</string>
     <string name="camera">Camera</string>
+    <string name="female">Female</string>
+    <string name="male">Male</string>
 </resources>

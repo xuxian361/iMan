@@ -15,8 +15,8 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.RadioButton;
-import android.widget.RadioGroup;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
@@ -39,6 +39,7 @@ import com.sundy.iman.utils.DateUtils;
 import com.sundy.iman.utils.DeviceUtils;
 import com.sundy.iman.utils.FileUtils;
 import com.sundy.iman.view.TitleBarView;
+import com.sundy.iman.view.popupwindow.SelectGenderPopup;
 import com.sundy.iman.view.popupwindow.SelectPhotoPopup;
 import com.yalantis.ucrop.UCrop;
 import com.yanzhenjie.permission.AndPermission;
@@ -82,21 +83,20 @@ public class EditProfileActivity extends BaseActivity {
     EditText etUsername;
     @BindView(R.id.ll_location)
     LinearLayout llLocation;
-    @BindView(R.id.rd_male)
-    RadioButton rdMale;
-    @BindView(R.id.rd_female)
-    RadioButton rdFemale;
-    @BindView(R.id.rg_gender)
-    RadioGroup rgGender;
     @BindView(R.id.et_about)
     EditText etAbout;
     @BindView(R.id.btn_save)
     Button btnSave;
     @BindView(R.id.ll_content)
     LinearLayout llContent;
+    @BindView(R.id.tv_gender)
+    TextView tvGender;
+    @BindView(R.id.rel_gender)
+    RelativeLayout relGender;
 
     private SelectPhotoPopup selectPhotoPopup;
     private Uri imageUri; //拍照后保存的图片uri
+    private SelectGenderPopup selectGenderPopup;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -141,8 +141,8 @@ public class EditProfileActivity extends BaseActivity {
 
     private void init() {
         selectPhotoPopup = new SelectPhotoPopup(this);
-
-
+        selectGenderPopup = new SelectGenderPopup(this);
+        selectGenderPopup.setGenderSelected(1);
     }
 
     @PermissionYes(REQUEST_CODE_PERMISSION_LOCATION)
@@ -175,13 +175,20 @@ public class EditProfileActivity extends BaseActivity {
             selectPhotoPopup.dismiss();
             selectPhotoPopup = null;
         }
+        if (selectGenderPopup != null) {
+            selectGenderPopup.dismiss();
+            selectGenderPopup = null;
+        }
     }
 
-    @OnClick({R.id.iv_header, R.id.ll_location, R.id.btn_save})
+    @OnClick({R.id.iv_header, R.id.ll_location, R.id.btn_save, R.id.rel_gender})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.iv_header:
                 headerClick();
+                break;
+            case R.id.rel_gender:
+                genderClick();
                 break;
             case R.id.ll_location:
                 locationClick();
@@ -190,6 +197,17 @@ public class EditProfileActivity extends BaseActivity {
                 saveMemberInfo();
                 break;
         }
+    }
+
+    //点击性别
+    private void genderClick() {
+        selectGenderPopup.setOnGenderClickListener(new SelectGenderPopup.OnGenderClickListener() {
+            @Override
+            public void onGenderClick(int gender) {
+                Logger.i("--->gender = " + gender);
+            }
+        });
+        selectGenderPopup.showAtLocation(llContent, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
     }
 
     //点击定位

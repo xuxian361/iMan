@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    android:orientation="vertical"
-    android:id="@+id/ll_content">
+    android:orientation="vertical">
 
     <com.sundy.iman.view.TitleBarView
         android:id="@+id/title_bar"
@@ -37,25 +37,20 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"></LinearLayout>
 
-            <RadioGroup
-                android:id="@+id/rg_gender"
-                android:layout_width="wrap_content"
+            <RelativeLayout
+                android:id="@+id/rel_gender"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:paddingBottom="10dp"
+                android:paddingTop="10dp">
 
-                <RadioButton
-                    android:id="@+id/rd_male"
+                <TextView
+                    android:id="@+id/tv_gender"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Male" />
+                    android:text="@string/male" />
+            </RelativeLayout>
 
-                <RadioButton
-                    android:id="@+id/rd_female"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Female" />
-
-            </RadioGroup>
 
             <EditText
                 android:id="@+id/et_about"
