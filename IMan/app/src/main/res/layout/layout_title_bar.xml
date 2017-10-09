@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rel_title_bar"
     android:layout_width="match_parent"
-    android:layout_height="50dp"
+    android:layout_height="@dimen/title_bar_height"
     android:background="@color/white"
     android:orientation="vertical">
 
@@ -25,7 +25,7 @@
         android:maxWidth="90dp"
         android:text="Left"
         android:textColor="@color/txt_gray"
-        android:textSize="13sp"
+        android:textSize="11sp"
         android:visibility="gone" />
 
     <TextView
@@ -46,14 +46,15 @@
         android:id="@+id/tv_right"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:layout_toLeftOf="@+id/iv_right"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="10dp"
         android:gravity="center"
         android:maxLines="1"
         android:maxWidth="90dp"
         android:text="Right"
-        android:textColor="@color/txt_gray"
-        android:textSize="13sp"
+        android:textColor="@color/txt_black"
+        android:textSize="11sp"
         android:visibility="gone" />
 
 
@@ -62,6 +63,7 @@
         android:layout_width="wrap_content"
         android:layout_height="40dp"
         android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
         android:layout_margin="5dp"
         android:background="@color/bg_light_gray"
         android:minWidth="25dp"

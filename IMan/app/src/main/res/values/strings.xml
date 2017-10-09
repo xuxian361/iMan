@@ -34,4 +34,9 @@
     <string name="male">Male</string>
     <string name="logout">Logout</string>
     <string name="transfer_pwd_hint">Limit 6 digits.</string>
+    <string name="login">Login</string>
+    <string name="get_code">Get Code</string>
+    <string name="login_account_hint">Mobile Number</string>
+    <string name="verification_code">Verification code</string>
+    <string name="country_code">Country Code</string>
 </resources>

@@ -134,7 +134,7 @@ dependencies {
     compile 'com.hyman:flowlayout-lib:1.1.2'
     //RecycleView & Adapter
     compile 'com.android.support:recyclerview-v7:25.2.0'
-    compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.28'
+    compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.30'
     //SwipeLayout
     compile 'com.daimajia.swipelayout:library:1.2.0@aar'
     //图片显示

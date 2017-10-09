@@ -37,7 +37,7 @@
             <RelativeLayout
                 android:id="@+id/rel_logined"
                 android:layout_width="match_parent"
-                android:layout_height="130dp"
+                android:layout_height="150dp"
                 android:visibility="visible">
 
                 <ImageView

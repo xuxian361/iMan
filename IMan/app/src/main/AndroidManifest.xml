@@ -146,6 +146,11 @@
             android:name=".ui.activity.MyPromoteCommunityActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.SelectCountryCodeActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+
 
         <activity
             android:name="me.iwf.photopicker.PhotoPickerActivity"

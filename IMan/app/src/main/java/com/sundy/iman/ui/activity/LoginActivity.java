@@ -5,25 +5,33 @@ import android.support.annotation.Nullable;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
 import com.sundy.iman.entity.CancelPostEntity;
 import com.sundy.iman.entity.CollectAdvertisingEntity;
 import com.sundy.iman.entity.CommunityInfoEntity;
+import com.sundy.iman.entity.CountryCodeEntity;
 import com.sundy.iman.entity.DeletePostEntity;
 import com.sundy.iman.entity.GetPostInfoEntity;
 import com.sundy.iman.entity.JoinCommunityEntity;
 import com.sundy.iman.entity.JoinPromoteCommunityEntity;
 import com.sundy.iman.entity.LoginEntity;
 import com.sundy.iman.entity.MemberInfoEntity;
+import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.UpdatePostEntity;
 import com.sundy.iman.entity.VerificationCodeEntity;
-import com.sundy.iman.interfaces.OnTitleBarClickListener;
+import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
-import com.sundy.iman.view.TitleBarView;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,8 +48,6 @@ import retrofit2.Response;
 
 public class LoginActivity extends BaseActivity {
 
-    @BindView(R.id.title_bar)
-    TitleBarView titleBar;
     @BindView(R.id.et_account)
     EditText etAccount;
     @BindView(R.id.et_code)
@@ -49,60 +55,52 @@ public class LoginActivity extends BaseActivity {
     @BindView(R.id.btn_get_code)
     Button btnGetCode;
     @BindView(R.id.btn_login)
-    Button btnLogin;
+    TextView btnLogin;
+    @BindView(R.id.btn_close)
+    ImageView btnClose;
+    @BindView(R.id.tv_area)
+    TextView tvArea;
+    @BindView(R.id.ll_area)
+    LinearLayout llArea;
+
+    private CountryCodeEntity.DataEntity curCountryCode;//当前选择的国家码
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_login);
         ButterKnife.bind(this);
-
+        EventBus.getDefault().register(this);
         init();
     }
 
     private void init() {
-        titleBar.setBackMode();
-        titleBar.setOnClickListener(new OnTitleBarClickListener() {
-            @Override
-            public void onLeftImgClick() {
-                finish();
-            }
-
-            @Override
-            public void onLeftTxtClick() {
-
-            }
-
-            @Override
-            public void onRightImgClick() {
-
-            }
-
-            @Override
-            public void onRightTxtClick() {
-
-            }
-
-            @Override
-            public void onTitleClick() {
-
-            }
-        });
 
     }
 
-
-    @OnClick({R.id.btn_get_code, R.id.btn_login})
+    @OnClick({R.id.btn_get_code, R.id.btn_login, R.id.ll_area, R.id.btn_close})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_get_code:
                 getCode();
-
                 break;
             case R.id.btn_login:
                 login();
                 break;
+            case R.id.ll_area:
+                goSelectCountryCode();
+                break;
+            case R.id.btn_close:
+                finish();
+                break;
         }
+    }
+
+    //跳转选择国家码
+    private void goSelectCountryCode() {
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("Country_Code", curCountryCode);
+        UIHelper.jump(this, SelectCountryCodeActivity.class, bundle);
     }
 
     //获取手机验证码
@@ -237,7 +235,6 @@ public class LoginActivity extends BaseActivity {
             }
         });
     }
-
 
     //删除Post
     private void deletePost() {
@@ -436,5 +433,25 @@ public class LoginActivity extends BaseActivity {
     }
 
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(MsgEvent event) {
+        if (event != null) {
+            String msg = event.getMsg();
+            switch (msg) {
+                case MsgEvent.EVENT_GET_COUNTRY_CODE:
+                    curCountryCode = (CountryCodeEntity.DataEntity) event.getObj();
+                    if (curCountryCode != null) {
+                        tvArea.setText(curCountryCode.getCode());
+                    }
+                    break;
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
 
 }
