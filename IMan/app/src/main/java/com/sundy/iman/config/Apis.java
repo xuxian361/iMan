@@ -86,11 +86,12 @@ public class Apis {
     //首页列表接口
     public static final String URL_HOME_GET_LIST = "home/getList";
 
+    //更新版本
+    public static final String URL_UPDATE_VERSION = "versionInfo/updateVersion";
 
+    //获取静态内容接口
+    public static final String URL_GET_STATIC_CONTENT = "staticContent/getStaticContent";
 
-
-    //获取APP 版本
-    public static final String URL_GET_APP_VERSION = "app/getVersion";
 
     //图片上传
     public static final String URL_UPLOAD_IMAGE = "";

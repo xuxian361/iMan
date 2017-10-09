@@ -84,3 +84,6 @@ public static final int *;
 -keep class com.yalantis.ucrop** { *; }
 -keep interface com.yalantis.ucrop** { *; }
 -keep class android.support.**{ *; }
+#炫酷进度条
+-keep class com.wang.avi.** { *; }
+-keep class com.wang.avi.indicators.** { *; }

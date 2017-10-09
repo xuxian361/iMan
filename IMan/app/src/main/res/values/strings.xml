@@ -32,4 +32,6 @@
     <string name="camera">Camera</string>
     <string name="female">Female</string>
     <string name="male">Male</string>
+    <string name="logout">Logout</string>
+    <string name="transfer_pwd_hint">Limit 6 digits.</string>
 </resources>

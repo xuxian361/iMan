@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <dimen name="actionBarSize">36dip</dimen>
+    <dimen name="button_height">36dp</dimen>
+    <dimen name="button_min_width">180dp</dimen>
+    <dimen name="edt_height">42dp</dimen>
 </resources>

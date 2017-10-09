@@ -2,8 +2,8 @@ package com.sundy.iman.ui.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
@@ -36,7 +36,7 @@ public class SetTransferPwdActivity extends BaseActivity {
     @BindView(R.id.et_confirm_pwd)
     EditText etConfirmPwd;
     @BindView(R.id.btn_confirm)
-    Button btnConfirm;
+    TextView btnConfirm;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {

@@ -12,22 +12,24 @@
         android:layout_height="match_parent"
         android:layout_above="@+id/view_menu" />
 
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@+id/view_menu"
+        android:background="@color/bg_light_gray" />
+
     <com.flyco.tablayout.CommonTabLayout
         android:id="@+id/view_menu"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="55dp"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:background="@color/white"
-        tl:tl_iconHeight="23dp"
-        tl:tl_iconWidth="23dp"
-        tl:tl_indicator_color="#2C97DE"
-        tl:tl_indicator_height="0dp"
-        tl:tl_textSelectColor="#2C97DE"
-        tl:tl_textUnselectColor="#66000000"
-        tl:tl_textsize="12sp"
-        tl:tl_underline_color="#DDDDDD"
-        tl:tl_underline_height="1dp" />
+        tl:tl_iconHeight="20dp"
+        tl:tl_iconWidth="20dp"
+        tl:tl_textSelectColor="@color/txt_blue"
+        tl:tl_textUnselectColor="@color/txt_gray"
+        tl:tl_textsize="8sp" />
 
 </RelativeLayout>

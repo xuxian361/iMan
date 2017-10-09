@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">@color/white</color>
+    <color name="colorPrimaryDark">@color/half_transparent</color>
+    <color name="colorAccent">@color/bg_blue</color>
 
     <color name="main_green">#00C792</color>
     <color name="main_green_light">#71DBBB</color>
@@ -13,15 +13,16 @@
     <color name="bg_light_gray">#f1f2f4</color>
     <color name="bg_line_gray">#e3e3e4</color>
     <color name="bg_line_black">#141214</color>
-    <color name="txt_gray">#898a8b</color>
+    <color name="bg_semi_light_gray">#efd2d2d2</color>
     <color name="txt_light_gray">#a6a6a7</color>
+    <color name="txt_gray">#898a8b</color>
     <color name="txt_normal">#555656</color>
     <color name="txt_black">#000000</color>
     <color name="txt_dark">#202020</color>
     <color name="txt_green">#27b07e</color>
     <color name="txt_red">#f5565a</color>
-    <color name="txt_blue">#0078cc</color>
-    <color name="bg_blue">#0078cc</color>
+    <color name="txt_blue">#1d89ff</color>
+    <color name="bg_blue">#e01d89ff</color>
     <color name="bg_gray">#898a8b</color>
     <color name="txt_white">#ffffff</color>
     <color name="transparent">#00000000</color>

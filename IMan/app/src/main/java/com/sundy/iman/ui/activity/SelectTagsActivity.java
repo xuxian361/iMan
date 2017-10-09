@@ -8,6 +8,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import com.sundy.iman.R;
+import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.TagListEntity;
 import com.sundy.iman.entity.TagListItemEntity;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
@@ -93,7 +94,7 @@ public class SelectTagsActivity extends BaseActivity {
                         TagListEntity entity = response.body();
                         if (entity != null) {
                             int code = entity.getCode();
-                            if (code == 0) {
+                            if (code == Constants.CODE_SUCCESS) {
                                 TagListEntity.DataEntity dataEntity = entity.getData();
                                 if (dataEntity != null) {
                                     List<TagListItemEntity> list = dataEntity.getList();

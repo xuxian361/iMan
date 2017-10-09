@@ -2,6 +2,7 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:orientation="vertical">
 
     <com.sundy.iman.view.TitleBarView
@@ -14,31 +15,71 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <EditText
-            android:id="@+id/et_pwd"
-            android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:hint="@string/password"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="40dp"
+            android:drawableLeft="@drawable/corner_bg_small_blue"
+            android:drawablePadding="5dp"
+            android:text="@string/password"
+            android:textColor="@color/txt_black"
             android:textSize="13sp" />
 
         <EditText
-            android:id="@+id/et_confirm_pwd"
+            android:id="@+id/et_pwd"
+            style="@style/MyEditText"
             android:layout_width="match_parent"
-            android:layout_height="40dp"
-            android:hint="@string/confirm_pwd" />
+            android:layout_height="@dimen/edt_height"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="5dp"
+            android:inputType="number"
+            android:maxEms="6"
+            android:textSize="13sp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Limit 6 digits."
-            android:textColor="@color/txt_light_gray"
-            android:textSize="12sp" />
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:drawableLeft="@drawable/corner_bg_small_blue"
+            android:drawablePadding="5dp"
+            android:text="@string/confirm_pwd"
+            android:textColor="@color/txt_black"
+            android:textSize="13sp" />
 
-        <Button
-            android:id="@+id/btn_confirm"
+        <EditText
+            android:id="@+id/et_confirm_pwd"
+            style="@style/MyEditText"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/edt_height"
+            android:layout_marginLeft="15dp"
+            android:layout_marginRight="15dp"
+            android:layout_marginTop="5dp"
+            android:inputType="number"
+            android:maxEms="6" />
+
+        <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="5dp"
+            android:text="@string/transfer_pwd_hint"
+            android:textColor="@color/txt_normal"
+            android:textSize="10sp" />
+
+        <TextView
+            android:id="@+id/btn_confirm"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/button_height"
+            android:layout_gravity="center"
+            android:layout_marginTop="40dp"
+            android:background="@drawable/selector_btn_blue_gray"
+            android:gravity="center"
+            android:minWidth="@dimen/button_min_width"
             android:text="@string/confirm"
+            android:textColor="@color/txt_white"
             android:textSize="14sp" />
 
     </LinearLayout>

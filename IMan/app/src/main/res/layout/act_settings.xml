@@ -19,113 +19,226 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginTop="20dp"
+                android:background="@color/bg_light_gray" />
+
             <RelativeLayout
                 android:id="@+id/rel_set_transfer_pwd"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="10dp"
-                android:paddingTop="10dp">
+                android:paddingBottom="15dp"
+                android:paddingTop="15dp">
 
                 <TextView
                     android:id="@+id/tv_set_transfer_pwd"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_toLeftOf="@+id/iv_arrow_pwd"
                     android:text="Set imcoin transfer password"
                     android:textColor="@color/txt_black"
-                    android:textSize="14sp" />
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:id="@+id/iv_arrow_pwd"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="12dp"
+                    android:src="@mipmap/icon_default_portrait" />
 
             </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="12dp"
+                android:background="@color/bg_light_gray" />
 
             <RelativeLayout
                 android:id="@+id/rel_language"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="10dp"
-                android:paddingTop="10dp">
+                android:paddingBottom="15dp"
+                android:paddingTop="15dp">
 
                 <TextView
                     android:id="@+id/tv_language"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_toLeftOf="@+id/iv_arrow_language"
                     android:text="Language"
                     android:textColor="@color/txt_black"
-                    android:textSize="14sp" />
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:id="@+id/iv_arrow_language"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="12dp"
+                    android:src="@mipmap/icon_default_portrait" />
 
             </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="6dp"
+                android:background="@color/bg_light_gray" />
 
             <RelativeLayout
                 android:id="@+id/rel_term_of_use"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="10dp"
-                android:paddingTop="10dp">
+                android:paddingBottom="15dp"
+                android:paddingTop="15dp">
 
                 <TextView
                     android:id="@+id/tv_term_of_use"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_toLeftOf="@+id/iv_arrow_terms"
                     android:text="Terms of use"
                     android:textColor="@color/txt_black"
-                    android:textSize="14sp" />
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:id="@+id/iv_arrow_terms"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="12dp"
+                    android:src="@mipmap/icon_default_portrait" />
 
             </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="12dp"
+                android:background="@color/bg_light_gray" />
 
             <RelativeLayout
                 android:id="@+id/rel_privacy"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="10dp"
-                android:paddingTop="10dp">
+                android:paddingBottom="15dp"
+                android:paddingTop="15dp">
 
                 <TextView
                     android:id="@+id/tv_privacy"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_toLeftOf="@+id/iv_arrow_privacy"
                     android:text="Privacy"
                     android:textColor="@color/txt_black"
-                    android:textSize="14sp" />
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:id="@+id/iv_arrow_privacy"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="12dp"
+                    android:src="@mipmap/icon_default_portrait" />
 
             </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="12dp"
+                android:background="@color/bg_light_gray" />
 
             <RelativeLayout
                 android:id="@+id/rel_contact_us"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="10dp"
-                android:paddingTop="10dp">
+                android:paddingBottom="15dp"
+                android:paddingTop="15dp">
 
                 <TextView
                     android:id="@+id/tv_contact_us"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_toLeftOf="@+id/iv_arrow_contact_us"
                     android:text="Contact us"
                     android:textColor="@color/txt_black"
-                    android:textSize="14sp" />
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:id="@+id/iv_arrow_contact_us"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="12dp"
+                    android:src="@mipmap/icon_default_portrait" />
 
             </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="12dp"
+                android:background="@color/bg_light_gray" />
 
             <RelativeLayout
                 android:id="@+id/rel_version"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:paddingBottom="10dp"
-                android:paddingTop="10dp">
+                android:paddingBottom="15dp"
+                android:paddingTop="15dp">
 
                 <TextView
                     android:id="@+id/tv_version"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginLeft="12dp"
+                    android:layout_toLeftOf="@+id/iv_arrow_version"
                     android:text="Version"
                     android:textColor="@color/txt_black"
-                    android:textSize="14sp" />
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:id="@+id/iv_arrow_version"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="12dp"
+                    android:src="@mipmap/icon_default_portrait" />
 
             </RelativeLayout>
 
-            <Button
-                android:id="@+id/btn_logout"
+            <View
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:text="Logout" />
+                android:layout_height="1dp"
+                android:background="@color/bg_light_gray" />
+
+            <TextView
+                android:id="@+id/btn_logout"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/button_height"
+                android:layout_gravity="center"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/semi_bg_blue"
+                android:gravity="center"
+                android:minWidth="@dimen/button_min_width"
+                android:text="@string/logout"
+                android:textColor="@color/txt_white"
+                android:textSize="13sp" />
 
         </LinearLayout>
 

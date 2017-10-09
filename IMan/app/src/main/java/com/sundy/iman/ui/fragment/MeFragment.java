@@ -10,8 +10,16 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.orhanobut.logger.Logger;
+import com.scwang.smartrefresh.layout.SmartRefreshLayout;
+import com.scwang.smartrefresh.layout.api.RefreshLayout;
+import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.sundy.iman.R;
+import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.helper.UIHelper;
+import com.sundy.iman.net.ParamHelper;
+import com.sundy.iman.net.RetrofitCallback;
+import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.ui.activity.CreateAdvertisingActivity;
 import com.sundy.iman.ui.activity.CreateCommunityActivity;
@@ -22,10 +30,15 @@ import com.sundy.iman.ui.activity.MyPostActivity;
 import com.sundy.iman.ui.activity.MyPromoteCommunityActivity;
 import com.sundy.iman.ui.activity.SettingsActivity;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import retrofit2.Call;
+import retrofit2.Response;
 
 /**
  * Created by sundy on 17/9/14.
@@ -110,13 +123,59 @@ public class MeFragment extends BaseFragment {
     LinearLayout llAccount;
     @BindView(R.id.tv_my_imcoin_num)
     TextView tvMyImcoinNum;
+    @BindView(R.id.refreshLayout)
+    SmartRefreshLayout refreshLayout;
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_me, container, false);
         unbinder = ButterKnife.bind(this, view);
+
+        init();
         return view;
+    }
+
+    private void init() {
+        refreshLayout.setOnRefreshListener(new OnRefreshListener() {
+            @Override
+            public void onRefresh(RefreshLayout refreshlayout) {
+                Logger.e("------>onRefresh");
+                refreshlayout.finishRefresh(2000);
+            }
+        });
+    }
+
+    //获取个人用户信息
+    private void getMemberInfo() {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", "");
+        param.put("session_key", "");
+        param.put("profile_id", "");
+        Call<MemberInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .getMemberInfo(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<MemberInfoEntity>() {
+            @Override
+            public void onSuccess(Call<MemberInfoEntity> call, Response<MemberInfoEntity> response) {
+                MemberInfoEntity memberInfoEntity = response.body();
+                if (memberInfoEntity != null) {
+                    MemberInfoEntity.DataEntity dataEntity = memberInfoEntity.getData();
+                    if (dataEntity != null) {
+                        Logger.i("------->phone=" + dataEntity.getPhone());
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<MemberInfoEntity> call, Throwable t) {
+
+            }
+        });
     }
 
     @Override

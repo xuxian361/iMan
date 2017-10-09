@@ -23,6 +23,7 @@ import com.sundy.iman.entity.PostListEntity;
 import com.sundy.iman.entity.QiNiuTokenListEntity;
 import com.sundy.iman.entity.ReportPostEntity;
 import com.sundy.iman.entity.SaveMemberEntity;
+import com.sundy.iman.entity.StaticContentEntity;
 import com.sundy.iman.entity.TagListEntity;
 import com.sundy.iman.entity.UpdatePostEntity;
 import com.sundy.iman.entity.UpdateTransferPwdEntity;
@@ -245,14 +246,22 @@ public interface ApiService {
     @GET(Apis.URL_HOME_GET_LIST)
     Call<GetHomeListEntity> getHomeList(@QueryMap Map<String, String> map);
 
-
     /**
-     * 获取App 版本
+     * 获取App 版本 更新
      *
      * @return
      */
-    @GET(Apis.URL_GET_APP_VERSION)
+    @GET(Apis.URL_UPDATE_VERSION)
     Call<AppVersionEntity> getAppVersion(@QueryMap Map<String, String> map);
+
+    /**
+     * 获取静态内容接口
+     *
+     * @return
+     */
+    @GET(Apis.URL_GET_STATIC_CONTENT)
+    Call<StaticContentEntity> getStaticContent(@QueryMap Map<String, String> map);
+
 
     /**
      * 图片上传
