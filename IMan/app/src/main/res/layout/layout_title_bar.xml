@@ -10,14 +10,17 @@
         android:id="@+id/iv_back"
         android:layout_width="wrap_content"
         android:layout_height="40dp"
+        android:layout_centerVertical="true"
         android:layout_margin="5dp"
-        android:background="@color/bg_light_gray"
-        android:minWidth="25dp" />
+        android:minWidth="25dp"
+        android:scaleType="center"
+        android:src="@mipmap/icon_back" />
 
     <TextView
         android:id="@+id/tv_left"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
         android:layout_marginTop="16dp"
         android:layout_toRightOf="@+id/iv_back"
         android:gravity="center"
@@ -33,14 +36,15 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerHorizontal="true"
+        android:layout_centerVertical="true"
         android:layout_marginTop="16dp"
         android:gravity="center"
         android:maxLines="1"
         android:maxWidth="180dp"
         android:text="Title"
         android:textColor="@color/txt_black"
-        android:textSize="13sp"
-        android:visibility="gone" />
+        android:textSize="14sp"
+        android:visibility="gone" />s
 
     <TextView
         android:id="@+id/tv_right"
@@ -65,8 +69,8 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_margin="5dp"
-        android:background="@color/bg_light_gray"
         android:minWidth="25dp"
+        android:scaleType="center"
         android:visibility="gone" />
 
 </RelativeLayout>

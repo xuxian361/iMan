@@ -2,17 +2,23 @@ package com.sundy.iman.ui.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
-import com.orhanobut.logger.Logger;
+import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
+import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.UpdateTransferPwdEntity;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
+import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.view.TitleBarView;
+import com.sundy.iman.view.dialog.CommonDialog;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,6 +51,7 @@ public class SetTransferPwdActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         initTitle();
+        init();
     }
 
     private void initTitle() {
@@ -77,6 +84,36 @@ public class SetTransferPwdActivity extends BaseActivity {
         });
     }
 
+    private void init() {
+        etPwd.addTextChangedListener(textWatcher);
+        etConfirmPwd.addTextChangedListener(textWatcher);
+    }
+
+    private TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            String password = etPwd.getText().toString().trim();
+            String confirmPwd = etConfirmPwd.getText().toString().trim();
+            if (password.length() == 6 && confirmPwd.length() == 6 && password.equals(confirmPwd)) {
+                btnConfirm.setSelected(true);
+                btnConfirm.setEnabled(true);
+            } else {
+                btnConfirm.setSelected(false);
+                btnConfirm.setEnabled(false);
+            }
+        }
+    };
+
     @OnClick(R.id.btn_confirm)
     public void onViewClicked() {
         updateTransferPwd();
@@ -87,8 +124,8 @@ public class SetTransferPwdActivity extends BaseActivity {
         String password = etPwd.getText().toString().trim();
         String confirm_password = etConfirmPwd.getText().toString().trim();
         Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
         param.put("password", password);
         param.put("confirm_password", confirm_password);
         Call<UpdateTransferPwdEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
@@ -99,7 +136,12 @@ public class SetTransferPwdActivity extends BaseActivity {
                 UpdateTransferPwdEntity updateTransferPwdEntity = response.body();
                 if (updateTransferPwdEntity != null) {
                     int code = updateTransferPwdEntity.getCode();
-                    Logger.e("------>code = " + code);
+                    String msg = updateTransferPwdEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        showSuccessDialog();
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
                 }
             }
 
@@ -111,6 +153,21 @@ public class SetTransferPwdActivity extends BaseActivity {
             @Override
             public void onFailure(Call<UpdateTransferPwdEntity> call, Throwable t) {
 
+            }
+        });
+    }
+
+    private void showSuccessDialog() {
+        final CommonDialog dialog = new CommonDialog(this);
+        dialog.getTitle().setVisibility(View.GONE);
+        dialog.getContent().setText(getString(R.string.success));
+        dialog.getBtnCancel().setVisibility(View.GONE);
+        dialog.setCancelable(false);
+        dialog.setOnBtnClick(new CommonDialog.OnBtnClick() {
+            @Override
+            public void onOkClick() {
+                dialog.dismiss();
+                finish();
             }
         });
     }

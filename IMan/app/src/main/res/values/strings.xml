@@ -39,4 +39,12 @@
     <string name="login_account_hint">Mobile Number</string>
     <string name="verification_code">Verification code</string>
     <string name="country_code">Country Code</string>
+    <string name="version">Version</string>
+    <string name="contact_us">Contact us</string>
+    <string name="privacy">Privacy</string>
+    <string name="terms_of_use">Terms of use</string>
+    <string name="language">Language</string>
+    <string name="set_imcoin_password">Set imcoin transfer password</string>
+    <string name="a_new_version">A new version :</string>
+    <string name="success">Success</string>
 </resources>

@@ -4,16 +4,19 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.orhanobut.logger.Logger;
+import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.AppVersionEntity;
-import com.sundy.iman.entity.ChangeLanguageEntity;
 import com.sundy.iman.entity.LogoutEntity;
+import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.StaticContentEntity;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
@@ -23,6 +26,10 @@ import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -67,6 +74,10 @@ public class SettingsActivity extends BaseActivity {
     RelativeLayout relVersion;
     @BindView(R.id.btn_logout)
     TextView btnLogout;
+    @BindView(R.id.iv_dot_version)
+    ImageView ivDotVersion;
+    @BindView(R.id.tv_version_value)
+    TextView tvVersionValue;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -74,6 +85,7 @@ public class SettingsActivity extends BaseActivity {
         setContentView(R.layout.act_settings);
         ButterKnife.bind(this);
 
+        EventBus.getDefault().register(this);
         initTitle();
     }
 
@@ -111,9 +123,31 @@ public class SettingsActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         if (PaperUtils.isLogin()) {
-            btnLogout.setVisibility(View.GONE);
-        } else {
             btnLogout.setVisibility(View.VISIBLE);
+        } else {
+            btnLogout.setVisibility(View.GONE);
+        }
+        showVersion();
+    }
+
+    //显示版本
+    private void showVersion() {
+        AppVersionEntity appVersionEntity = PaperUtils.getAppVersion();
+        if (appVersionEntity != null) {
+            AppVersionEntity.DataEntity dataEntity = appVersionEntity.getData();
+            if (dataEntity != null) {
+                String version = dataEntity.getVersion();
+                String description = dataEntity.getDescription();
+                final String download_url = dataEntity.getDownload_url();
+                String is_update = dataEntity.getIs_update(); //是否提示更新:1-是，0-否
+                String forced_update = dataEntity.getForced_update(); //是否强制升级:1-是，0-否
+                tvVersionValue.setText(version);
+                if (is_update.equals("1")) {
+                    ivDotVersion.setVisibility(View.VISIBLE);
+                } else {
+                    ivDotVersion.setVisibility(View.GONE);
+                }
+            }
         }
     }
 
@@ -125,7 +159,7 @@ public class SettingsActivity extends BaseActivity {
                 goSetTransferPwd();
                 break;
             case R.id.rel_language:
-                changeLanguage();
+                goChangeLanguage();
                 break;
             case R.id.rel_term_of_use:
                 getStaticContent(1);
@@ -137,7 +171,7 @@ public class SettingsActivity extends BaseActivity {
                 getStaticContent(3);
                 break;
             case R.id.rel_version:
-                updateVersion();
+                showUpdateDialog();
                 break;
             case R.id.btn_logout:
                 logout();
@@ -145,11 +179,16 @@ public class SettingsActivity extends BaseActivity {
         }
     }
 
+    //跳转切换语言
+    private void goChangeLanguage() {
+        UIHelper.jump(this, ChangeLanguageActivity.class);
+    }
+
     //获取静态内容
     private void getStaticContent(int type) { //类型:1-使用条款，2-隐私条例，3-联系我们
         Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
         param.put("type", type + "");
         Call<StaticContentEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .getStaticContent(ParamHelper.formatData(param));
@@ -182,71 +221,55 @@ public class SettingsActivity extends BaseActivity {
 
     //跳转Web View显示H5
     private void goWebView(StaticContentEntity.DataEntity dataEntity) {
+        String url = dataEntity.getUrl();
+        String title = "";
+        String type = dataEntity.getType(); //类型 1-​使用条款 ,2-隐私条 例,3-联系 我们
+        if (type.equals("1")) {
+            title = getString(R.string.terms_of_use);
+        } else if (type.equals("2")) {
+            title = getString(R.string.privacy);
+        } else if (type.equals("3")) {
+            title = getString(R.string.contact_us);
+        }
+        if (TextUtils.isEmpty(url))
+            return;
         Bundle bundle = new Bundle();
-        bundle.putString("url", dataEntity.getUrl());
+        bundle.putString("url", url);
+        bundle.putString("title", title);
         UIHelper.jump(this, WebActivity.class, bundle);
     }
 
-    //更新版本
-    private void updateVersion() {
-        Map<String, String> param = new HashMap<>();
-        Call<AppVersionEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getAppVersion(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<AppVersionEntity>() {
-            @Override
-            public void onSuccess(Call<AppVersionEntity> call, Response<AppVersionEntity> response) {
-                AppVersionEntity appVersionEntity = response.body();
-                if (appVersionEntity != null) {
-                    int code = appVersionEntity.getCode();
-                    if (code == Constants.CODE_SUCCESS) {
-                        AppVersionEntity.DataEntity dataEntity = appVersionEntity.getData();
-                        if (dataEntity != null) {
-                            showUpdateDialog(dataEntity);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<AppVersionEntity> call, Throwable t) {
-
-            }
-        });
-    }
-
     //显示版本更新Dialog
-    private void showUpdateDialog(AppVersionEntity.DataEntity dataEntity) {
-        String version = dataEntity.getVersion();
-        String description = dataEntity.getDescription();
-        final String download_url = dataEntity.getDownload_url();
-        String is_update = dataEntity.getIs_update(); //是否提示更新:1-是，0-否
-        String forced_update = dataEntity.getForced_update(); //是否强制升级:1-是，0-否
-
-        if (is_update.equals("1")) {
-            final CommonDialog dialog = new CommonDialog(this);
-            dialog.getTitle().setText(version);
-            dialog.getContent().setText(description);
-            if (forced_update.equals("1")) {
-                dialog.getBtnCancel().setVisibility(View.GONE);
-                dialog.setCancelable(false);
-            }
-            dialog.setOnBtnClick(new CommonDialog.OnBtnClick() {
-                @Override
-                public void onOkClick() {
-                    dialog.dismiss();
-                    goDownloadUrl(download_url);
+    private void showUpdateDialog() {
+        AppVersionEntity appVersionEntity = PaperUtils.getAppVersion();
+        if (appVersionEntity != null) {
+            AppVersionEntity.DataEntity dataEntity = appVersionEntity.getData();
+            if (dataEntity != null) {
+                String version = dataEntity.getVersion();
+                String description = dataEntity.getDescription();
+                final String download_url = dataEntity.getDownload_url();
+                String is_update = dataEntity.getIs_update(); //是否提示更新:1-是，0-否
+                String forced_update = dataEntity.getForced_update(); //是否强制升级:1-是，0-否
+                if (is_update.equals("1")) {
+                    final CommonDialog dialog = new CommonDialog(this);
+                    dialog.getTitle().setText(getString(R.string.a_new_version) + version);
+                    dialog.getContent().setText(description);
+                    dialog.setOnBtnClick(new CommonDialog.OnBtnClick() {
+                        @Override
+                        public void onOkClick() {
+                            dialog.dismiss();
+                            goDownloadUrl(download_url);
+                        }
+                    });
                 }
-            });
+            }
         }
     }
 
     //跳转下载链接
     private void goDownloadUrl(String download_url) {
+        if (TextUtils.isEmpty(download_url))
+            return;
         Intent intent = new Intent(Intent.ACTION_VIEW);
         intent.setData(Uri.parse(download_url));
         startActivity(intent);
@@ -261,40 +284,11 @@ public class SettingsActivity extends BaseActivity {
         }
     }
 
-    //修改语言接口
-    private void changeLanguage() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        Call<ChangeLanguageEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .changeLanguage(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<ChangeLanguageEntity>() {
-            @Override
-            public void onSuccess(Call<ChangeLanguageEntity> call, Response<ChangeLanguageEntity> response) {
-                ChangeLanguageEntity changeLanguageEntity = response.body();
-                if (changeLanguageEntity != null) {
-                    int code = changeLanguageEntity.getCode();
-                    Logger.e("------>code = " + code);
-                }
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<ChangeLanguageEntity> call, Throwable t) {
-
-            }
-        });
-    }
-
     //登出
     private void logout() {
         Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
         Call<LogoutEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .logout(ParamHelper.formatData(param));
         call.enqueue(new RetrofitCallback<LogoutEntity>() {
@@ -303,7 +297,17 @@ public class SettingsActivity extends BaseActivity {
                 LogoutEntity logoutEntity = response.body();
                 if (logoutEntity != null) {
                     int code = logoutEntity.getCode();
-                    Logger.e("------>code = " + code);
+                    String msg = logoutEntity.getMsg();
+                    //清除登录用户本地信息
+                    PaperUtils.clearUserInfo();
+                    if (code == Constants.CODE_SUCCESS) {
+
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                    btnLogout.setVisibility(View.GONE);
+                    //发送登出Event 事件，刷新页面
+                    sendLogoutEvent();
                 }
             }
 
@@ -317,6 +321,31 @@ public class SettingsActivity extends BaseActivity {
 
             }
         });
+    }
+
+    //发送登出Event 事件，刷新页面
+    private void sendLogoutEvent() {
+        MsgEvent msgEvent = new MsgEvent();
+        msgEvent.setMsg(MsgEvent.EVENT_LOGOUT_SUCCESS);
+        EventBus.getDefault().post(msgEvent);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(MsgEvent event) {
+        if (event != null) {
+            String msg = event.getMsg();
+            switch (msg) {
+                case MsgEvent.EVENT_CHANGE_LANGUAGE: //切换语言成功
+                    Logger.i("------->切换语言成功");
+                    break;
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 
 }

@@ -1,33 +1,33 @@
 package com.sundy.iman.ui.activity;
 
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.orhanobut.logger.Logger;
+import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
-import com.sundy.iman.entity.CancelPostEntity;
-import com.sundy.iman.entity.CollectAdvertisingEntity;
-import com.sundy.iman.entity.CommunityInfoEntity;
+import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.CountryCodeEntity;
-import com.sundy.iman.entity.DeletePostEntity;
-import com.sundy.iman.entity.GetPostInfoEntity;
-import com.sundy.iman.entity.JoinCommunityEntity;
-import com.sundy.iman.entity.JoinPromoteCommunityEntity;
 import com.sundy.iman.entity.LoginEntity;
 import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.entity.MsgEvent;
-import com.sundy.iman.entity.UpdatePostEntity;
 import com.sundy.iman.entity.VerificationCodeEntity;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
+import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.utils.PhoneFormatCheckUtils;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -53,7 +53,7 @@ public class LoginActivity extends BaseActivity {
     @BindView(R.id.et_code)
     EditText etCode;
     @BindView(R.id.btn_get_code)
-    Button btnGetCode;
+    TextView btnGetCode;
     @BindView(R.id.btn_login)
     TextView btnLogin;
     @BindView(R.id.btn_close)
@@ -62,6 +62,34 @@ public class LoginActivity extends BaseActivity {
     TextView tvArea;
     @BindView(R.id.ll_area)
     LinearLayout llArea;
+
+    private final int MSG_COUNT_DOWN = 1;
+    private final int MSG_STOP_COUNT = 0;
+    private final int DURATION = 60; //间隔时间：秒
+    private int second = DURATION;
+    private Handler mHandler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case MSG_COUNT_DOWN:
+                    if (second == 1) {
+                        stopCountDown();
+                    } else {
+                        second--;
+                        btnGetCode.setText(second + "s");
+                        startCountDown();
+                    }
+                    break;
+                case MSG_STOP_COUNT:
+                    second = DURATION;
+                    btnGetCode.setEnabled(true);
+                    btnGetCode.setSelected(true);
+                    btnGetCode.setText(getString(R.string.get_code));
+                    break;
+            }
+        }
+    };
 
     private CountryCodeEntity.DataEntity curCountryCode;//当前选择的国家码
 
@@ -75,7 +103,90 @@ public class LoginActivity extends BaseActivity {
     }
 
     private void init() {
+        tvArea.setText("+86");
+        etAccount.addTextChangedListener(textWatcherAccount);
+        etCode.addTextChangedListener(textWatcherCode);
+        btnGetCode.setSelected(false);
+        btnGetCode.setEnabled(false);
+        btnLogin.setSelected(false);
+        btnLogin.setEnabled(false);
+    }
 
+    private TextWatcher textWatcherAccount = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            String mobile = etAccount.getText().toString().trim();
+            String verification_code = etCode.getText().toString().trim();
+            if (PhoneFormatCheckUtils.isPhoneLegal(mobile)) {
+                stopCountDown();
+            } else {
+                btnGetCode.setSelected(false);
+                btnGetCode.setEnabled(false);
+            }
+
+            if (TextUtils.isEmpty(verification_code) || verification_code.length() < 4
+                    || TextUtils.isEmpty(mobile)
+                    || !PhoneFormatCheckUtils.isPhoneLegal(mobile)) {
+                btnLogin.setSelected(false);
+                btnLogin.setEnabled(false);
+            } else {
+                btnLogin.setSelected(true);
+                btnLogin.setEnabled(true);
+            }
+        }
+    };
+
+    private TextWatcher textWatcherCode = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            String mobile = etAccount.getText().toString().trim();
+            String verification_code = etCode.getText().toString().trim();
+            if (TextUtils.isEmpty(verification_code) || verification_code.length() < 4
+                    || TextUtils.isEmpty(mobile)
+                    || !PhoneFormatCheckUtils.isPhoneLegal(mobile)) {
+                btnLogin.setSelected(false);
+                btnLogin.setEnabled(false);
+            } else {
+                btnLogin.setSelected(true);
+                btnLogin.setEnabled(true);
+            }
+        }
+    };
+
+    //开始计时
+    private void startCountDown() {
+        if (mHandler != null) {
+            mHandler.removeMessages(MSG_STOP_COUNT);
+            mHandler.sendEmptyMessageDelayed(MSG_COUNT_DOWN, 1000);
+        }
+    }
+
+    //停止计时
+    private void stopCountDown() {
+        if (mHandler != null) {
+            mHandler.removeMessages(MSG_COUNT_DOWN);
+            mHandler.sendEmptyMessage(MSG_STOP_COUNT);
+        }
     }
 
     @OnClick({R.id.btn_get_code, R.id.btn_login, R.id.ll_area, R.id.btn_close})
@@ -106,8 +217,16 @@ public class LoginActivity extends BaseActivity {
     //获取手机验证码
     private void getCode() {
         String phone = etAccount.getText().toString().trim();
+        String area_code = tvArea.getText().toString().trim();
+        if (TextUtils.isEmpty(area_code)) {
+            area_code = "86";
+        } else {
+            if (area_code.startsWith("+")) {
+                area_code = area_code.substring(1, area_code.length());
+            }
+        }
         Map<String, String> param = new HashMap<>();
-        param.put("area_code", "86");
+        param.put("area_code", area_code);
         param.put("phone", phone);
         param.put("type", "1"); //类型 1-登录
         Call<VerificationCodeEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
@@ -117,10 +236,20 @@ public class LoginActivity extends BaseActivity {
             public void onSuccess(Call<VerificationCodeEntity> call, Response<VerificationCodeEntity> response) {
                 VerificationCodeEntity verificationCodeEntity = response.body();
                 if (verificationCodeEntity != null) {
-                    VerificationCodeEntity.DataEntity dataEntity = verificationCodeEntity.getData();
-                    if (dataEntity != null) {
-                        String code = dataEntity.getVerification_code();
-                        Logger.i("------->验证码=" + code);
+                    int code = verificationCodeEntity.getCode();
+                    String msg = verificationCodeEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        VerificationCodeEntity.DataEntity dataEntity = verificationCodeEntity.getData();
+                        if (dataEntity != null) {
+                            String verification_code = dataEntity.getVerification_code();
+                            Logger.i("------->验证码=" + verification_code);
+                            btnGetCode.setEnabled(false);
+                            btnGetCode.setSelected(false);
+                            btnGetCode.setText(DURATION + "s");
+                            startCountDown();
+                        }
+                    } else {
+                        MainApp.getInstance().showToast(msg);
                     }
                 }
             }
@@ -140,9 +269,17 @@ public class LoginActivity extends BaseActivity {
     //登录
     private void login() {
         String phone = etAccount.getText().toString().trim();
-        String verification_code = etCode.getText().toString();
+        String verification_code = etCode.getText().toString().trim();
+        String area_code = tvArea.getText().toString().trim();
+        if (TextUtils.isEmpty(area_code)) {
+            area_code = "86";
+        } else {
+            if (area_code.startsWith("+")) {
+                area_code = area_code.substring(1, area_code.length());
+            }
+        }
         Map<String, String> param = new HashMap<>();
-        param.put("area_code", "86");
+        param.put("area_code", area_code);
         param.put("phone", phone);
         param.put("verification_code", verification_code); //类型 1-登录
         Call<LoginEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
@@ -152,15 +289,19 @@ public class LoginActivity extends BaseActivity {
             public void onSuccess(Call<LoginEntity> call, Response<LoginEntity> response) {
                 LoginEntity loginEntity = response.body();
                 if (loginEntity != null) {
-                    LoginEntity.DataEntity dataEntity = loginEntity.getData();
-                    if (dataEntity != null) {
-                        String userId = dataEntity.getId();
-                        String easemob_account = dataEntity.getEasemob_account();
-                        Logger.i("----->用户ID=" + userId);
-                        Logger.i("----->easemob_account=" + easemob_account);
-//                        getMemberInfo(userId, dataEntity.getSession_key());
-
-
+                    int code = loginEntity.getCode();
+                    String msg = loginEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        LoginEntity.DataEntity dataEntity = loginEntity.getData();
+                        if (dataEntity != null) {
+                            String userId = dataEntity.getId();
+                            String session_key = dataEntity.getSession_key();
+                            //保存用户Session Key
+                            PaperUtils.setSessionKey(session_key);
+                            getMemberInfo(userId, session_key);
+                        }
+                    } else {
+                        MainApp.getInstance().showToast(msg);
                     }
                 }
             }
@@ -178,7 +319,7 @@ public class LoginActivity extends BaseActivity {
     }
 
     //获取个人用户信息
-    private void getMemberInfo(String mid, String session_key) {
+    private void getMemberInfo(final String mid, String session_key) {
         Map<String, String> param = new HashMap<>();
         param.put("mid", mid);
         param.put("session_key", session_key);
@@ -190,9 +331,18 @@ public class LoginActivity extends BaseActivity {
             public void onSuccess(Call<MemberInfoEntity> call, Response<MemberInfoEntity> response) {
                 MemberInfoEntity memberInfoEntity = response.body();
                 if (memberInfoEntity != null) {
-                    MemberInfoEntity.DataEntity dataEntity = memberInfoEntity.getData();
-                    if (dataEntity != null) {
-                        Logger.i("------->phone=" + dataEntity.getPhone());
+                    int code = memberInfoEntity.getCode();
+                    String msg = memberInfoEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        MemberInfoEntity.DataEntity dataEntity = memberInfoEntity.getData();
+                        if (dataEntity != null) {
+                            //保存登录用户信息
+                            PaperUtils.saveUserInfo(memberInfoEntity);
+                            sendLoginEvent();
+                            finish();
+                        }
+                    } else {
+                        MainApp.getInstance().showToast(msg);
                     }
                 }
             }
@@ -209,229 +359,12 @@ public class LoginActivity extends BaseActivity {
         });
     }
 
-    //加入或退出社区
-    private void joinCommunity() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("type", ""); //类型: 0-加入，1-退出
-        param.put("community_id", "");
-        Call<JoinCommunityEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .joinCommunity(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<JoinCommunityEntity>() {
-            @Override
-            public void onSuccess(Call<JoinCommunityEntity> call, Response<JoinCommunityEntity> response) {
-
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<JoinCommunityEntity> call, Throwable t) {
-
-            }
-        });
+    //发送登录成功事件
+    private void sendLoginEvent() {
+        MsgEvent msgEvent = new MsgEvent();
+        msgEvent.setMsg(MsgEvent.EVENT_LOGIN_SUCCESS);
+        EventBus.getDefault().post(msgEvent);
     }
-
-    //删除Post
-    private void deletePost() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("post_id", "");
-        Call<DeletePostEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .deletePost(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<DeletePostEntity>() {
-            @Override
-            public void onSuccess(Call<DeletePostEntity> call, Response<DeletePostEntity> response) {
-
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<DeletePostEntity> call, Throwable t) {
-
-            }
-        });
-    }
-
-    //取消Post
-    private void cancelPost() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("post_id", "");
-        Call<CancelPostEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .cancelPost(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<CancelPostEntity>() {
-            @Override
-            public void onSuccess(Call<CancelPostEntity> call, Response<CancelPostEntity> response) {
-
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<CancelPostEntity> call, Throwable t) {
-
-            }
-        });
-    }
-
-    //更新Post
-    private void updatePost() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("title", ""); //post标题
-        param.put("detail", ""); //post详情
-        param.put("tags", ""); //标签
-        param.put("location", "");
-        param.put("latitude", "");
-        param.put("longitude", "");
-        param.put("aging", ""); //时效
-        param.put("attachment", ""); //附件 json格式数据:att_type为附件类型，1-图片，2-视频 url：附件存放路径
-        param.put("post_id", "");
-        Call<UpdatePostEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .updatePost(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<UpdatePostEntity>() {
-            @Override
-            public void onSuccess(Call<UpdatePostEntity> call, Response<UpdatePostEntity> response) {
-
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<UpdatePostEntity> call, Throwable t) {
-
-            }
-        });
-    }
-
-    //获取Post 信息
-    private void getPostInfo() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("post_id", ""); //post id
-        param.put("creator_id", ""); //post的作者ID
-        Call<GetPostInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getPostInfo(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<GetPostInfoEntity>() {
-            @Override
-            public void onSuccess(Call<GetPostInfoEntity> call, Response<GetPostInfoEntity> response) {
-
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<GetPostInfoEntity> call, Throwable t) {
-
-            }
-        });
-    }
-
-    //领取广告奖励
-    private void collectAdvertising() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("post_id", ""); //post id
-        param.put("creator_id", ""); //post的作者ID
-        param.put("community_id", ""); //社区ID
-        param.put("income", ""); //奖励金额
-        Call<CollectAdvertisingEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .collectAdvertising(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<CollectAdvertisingEntity>() {
-            @Override
-            public void onSuccess(Call<CollectAdvertisingEntity> call, Response<CollectAdvertisingEntity> response) {
-
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<CollectAdvertisingEntity> call, Throwable t) {
-
-            }
-        });
-    }
-
-    //加入推广社区
-    private void joinPromoteCommunity() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("community_id", ""); //社区ID
-        param.put("promoter_id", ""); //推广者ID
-        Call<JoinPromoteCommunityEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .joinPromoteCommunity(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<JoinPromoteCommunityEntity>() {
-            @Override
-            public void onSuccess(Call<JoinPromoteCommunityEntity> call, Response<JoinPromoteCommunityEntity> response) {
-
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<JoinPromoteCommunityEntity> call, Throwable t) {
-
-            }
-        });
-    }
-
-    //社区详情
-    private void getCommunityInfo() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("community_id", ""); //社区ID
-        param.put("type", ""); //类型: 1-普通社区，2-推广社区
-        Call<CommunityInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getCommunityInfo(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<CommunityInfoEntity>() {
-            @Override
-            public void onSuccess(Call<CommunityInfoEntity> call, Response<CommunityInfoEntity> response) {
-
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<CommunityInfoEntity> call, Throwable t) {
-
-            }
-        });
-    }
-
 
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(MsgEvent event) {
@@ -449,9 +382,19 @@ public class LoginActivity extends BaseActivity {
     }
 
     @Override
+    protected void onStop() {
+        super.onStop();
+        stopCountDown();
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
+        if (mHandler != null) {
+            stopCountDown();
+            mHandler = null;
+        }
     }
 
 }

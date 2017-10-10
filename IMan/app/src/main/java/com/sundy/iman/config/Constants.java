@@ -18,7 +18,7 @@ public class Constants {
     public static final String LANG_TC = "tc";
 
     //API 响应Code
-    public static final int CODE_SUCCESS = 1;
+    public static final int CODE_SUCCESS = 0; //0代表成功
 
 
 }

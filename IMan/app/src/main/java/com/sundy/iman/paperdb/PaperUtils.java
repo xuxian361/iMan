@@ -3,6 +3,7 @@ package com.sundy.iman.paperdb;
 import android.text.TextUtils;
 
 import com.sundy.iman.MainApp;
+import com.sundy.iman.entity.AppVersionEntity;
 import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.utils.DeviceUtils;
 
@@ -64,6 +65,40 @@ public class PaperUtils {
             }
         }
         return false;
+    }
+
+    //获取登录用户ID
+    public static String getMId() {
+        if (isLogin())
+            return getUserInfo().getData().getId();
+        return "";
+    }
+
+    //获取登录用户Session Key
+    public static String getSessionKey() {
+        if (isLogin())
+            return UserPaper.getSessionKey();
+        return "";
+    }
+
+    //保存登录用户Session Key
+    public static void setSessionKey(String sessionKey) {
+        UserPaper.saveSessionKey(sessionKey);
+    }
+
+    //清除登录用户的本地信息
+    public static void clearUserInfo() {
+        UserPaper.deleteUserInfo();
+    }
+
+    //保存App 版本信息
+    public static void setAppVersion(AppVersionEntity appVersion) {
+        AppVersionPaper.saveAppVersion(appVersion);
+    }
+
+    //获取App 版本信息
+    public static AppVersionEntity getAppVersion() {
+        return AppVersionPaper.getAppVersion();
     }
 
 

@@ -13,7 +13,7 @@
         android:layout_toLeftOf="@+id/iv_check"
         android:paddingBottom="15dp"
         android:paddingTop="15dp"
-        android:text="China (+86)"
+        android:text="中文简体"
         android:textColor="@drawable/selector_gender_text"
         android:textSize="12sp" />
 

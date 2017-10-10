@@ -150,6 +150,10 @@
             android:name=".ui.activity.SelectCountryCodeActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.ChangeLanguageActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
 
 
         <activity

@@ -39,6 +39,7 @@ public class WebActivity extends BaseActivity {
     @BindView(R.id.avi)
     AVLoadingIndicatorView avi;
     private String url;
+    private String title = "";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -46,12 +47,23 @@ public class WebActivity extends BaseActivity {
         setContentView(R.layout.act_web);
         ButterKnife.bind(this);
 
+        initData();
         initTitle();
         init();
     }
 
+    private void initData() {
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            url = bundle.containsKey("url") ? bundle.getString("url") : "";
+            title = bundle.containsKey("title") ? bundle.getString("title") : "";
+        }
+        Logger.i("-------->title = " + title);
+        Logger.i("-------->url = " + url);
+    }
+
     private void initTitle() {
-        titleBar.setBackMode();
+        titleBar.setBackMode(title);
         titleBar.setOnClickListener(new OnTitleBarClickListener() {
             @Override
             public void onLeftImgClick() {
@@ -81,12 +93,6 @@ public class WebActivity extends BaseActivity {
     }
 
     private void init() {
-        Bundle bundle = getIntent().getExtras();
-        if (bundle != null) {
-            url = bundle.containsKey("url") ? bundle.getString("url") : "";
-        }
-        Logger.i("-------->url = " + url);
-
         WebSettings webSettings = webView.getSettings();
         webSettings.setJavaScriptEnabled(true);
         webSettings.setDomStorageEnabled(true);

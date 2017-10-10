@@ -63,9 +63,7 @@ public class TitleBarView extends LinearLayout implements View.OnClickListener {
 
     //Title Bar: 返回模式
     public void setBackMode() {
-        setLeftIvBg(R.mipmap.ic_launcher);
         setLeftIvVisibility(View.VISIBLE);
-
         setLeftTvTextVisibility(View.GONE);
         setTitleTvVisibility(View.GONE);
         setRightTvVisibility(View.GONE);
@@ -74,14 +72,10 @@ public class TitleBarView extends LinearLayout implements View.OnClickListener {
 
     //Title Bar: 返回模式
     public void setBackMode(String title) {
-        setLeftIvBg(R.mipmap.ic_launcher);
         setLeftIvVisibility(View.VISIBLE);
-
         setLeftTvTextVisibility(View.GONE);
-
         setTitleTvVisibility(View.VISIBLE);
         setTitleTvText(title);
-
         setRightTvVisibility(View.GONE);
         setRightIvVisibility(View.GONE);
     }

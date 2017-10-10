@@ -110,8 +110,6 @@ public class SelectCountryCodeActivity extends BaseActivity {
         rvCountryCode.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
         codeAdapter = new CountryCodeAdapter(R.layout.item_country_code, listCode);
         codeAdapter.setOnItemClickListener(onItemClickListener);
-        codeAdapter.openLoadAnimation();
-        codeAdapter.isFirstOnly(false);
         rvCountryCode.setAdapter(codeAdapter);
     }
 
