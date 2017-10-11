@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.entity.AppVersionEntity;
 import com.sundy.iman.entity.MemberInfoEntity;
+import com.sundy.iman.helper.LocaleHelper;
 import com.sundy.iman.utils.DeviceUtils;
 
 /**
@@ -32,6 +33,7 @@ public class PaperUtils {
     //保存App 当前语言
     public static void setLanguage(String language) {
         LanguagePaper.saveLanguage(language);
+        LocaleHelper.setLocale(MainApp.getInstance(), language);
     }
 
     //保存设备ID

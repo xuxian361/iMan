@@ -1,6 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">IMan</string>
-    <string name="wallet">钱包</string>
+    <string name="wallet">錢包</string>
     <string name="my_imcoin">My imcoin</string>
     <string name="use_of_imcoin">Use of imcoin</string>
     <string name="use_my_wallet">Use my wallet</string>

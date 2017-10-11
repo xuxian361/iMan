@@ -14,9 +14,10 @@ import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
+import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.ChangeLanguageEntity;
 import com.sundy.iman.entity.LanguageEntity;
-import com.sundy.iman.entity.MsgEvent;
+import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
@@ -24,8 +25,6 @@ import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -98,12 +97,9 @@ public class ChangeLanguageActivity extends BaseActivity {
                     return;
                 PaperUtils.setLanguage(curLanguage);
                 if (PaperUtils.isLogin()) {
-                    changeLanguage();
+                    changeLanguageApi();
                 }
-                //发送切换语言成功事件
-                MsgEvent msgEvent = new MsgEvent();
-                msgEvent.setMsg(MsgEvent.EVENT_CHANGE_LANGUAGE);
-                EventBus.getDefault().post(msgEvent);
+                UIHelper.jump(ChangeLanguageActivity.this, MainActivity.class);
                 finish();
             }
 
@@ -115,7 +111,7 @@ public class ChangeLanguageActivity extends BaseActivity {
     }
 
     //修改语言接口
-    private void changeLanguage() {
+    private void changeLanguageApi() {
         Map<String, String> param = new HashMap<>();
         param.put("mid", PaperUtils.getMId());
         param.put("session_key", PaperUtils.getSessionKey());
@@ -139,7 +135,6 @@ public class ChangeLanguageActivity extends BaseActivity {
         });
     }
 
-
     private void setData() {
         curLanguage = PaperUtils.getLanguage();
 
@@ -147,17 +142,17 @@ public class ChangeLanguageActivity extends BaseActivity {
         LanguageEntity.DataEntity dataEntity1 = new LanguageEntity.DataEntity();
         dataEntity1.setId("1");
         dataEntity1.setTitle("中文简体");
-        dataEntity1.setLang("sc");
+        dataEntity1.setLang(Constants.LANG_SC);
         listLanguage.add(dataEntity1);
         LanguageEntity.DataEntity dataEntity2 = new LanguageEntity.DataEntity();
         dataEntity2.setId("2");
         dataEntity2.setTitle("中文繁体");
-        dataEntity2.setLang("tc");
+        dataEntity2.setLang(Constants.LANG_TC);
         listLanguage.add(dataEntity2);
         LanguageEntity.DataEntity dataEntity3 = new LanguageEntity.DataEntity();
         dataEntity3.setId("3");
         dataEntity3.setTitle("English");
-        dataEntity3.setLang("en");
+        dataEntity3.setLang(Constants.LANG_EN);
         listLanguage.add(dataEntity3);
 
         languageAdapter.setNewData(listLanguage);

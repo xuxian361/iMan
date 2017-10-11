@@ -10,7 +10,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.orhanobut.logger.Logger;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
@@ -28,8 +27,6 @@ import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -85,7 +82,6 @@ public class SettingsActivity extends BaseActivity {
         setContentView(R.layout.act_settings);
         ButterKnife.bind(this);
 
-        EventBus.getDefault().register(this);
         initTitle();
     }
 
@@ -328,24 +324,6 @@ public class SettingsActivity extends BaseActivity {
         MsgEvent msgEvent = new MsgEvent();
         msgEvent.setMsg(MsgEvent.EVENT_LOGOUT_SUCCESS);
         EventBus.getDefault().post(msgEvent);
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(MsgEvent event) {
-        if (event != null) {
-            String msg = event.getMsg();
-            switch (msg) {
-                case MsgEvent.EVENT_CHANGE_LANGUAGE: //切换语言成功
-                    Logger.i("------->切换语言成功");
-                    break;
-            }
-        }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 
 }

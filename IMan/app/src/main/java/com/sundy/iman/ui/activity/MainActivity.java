@@ -46,6 +46,8 @@ public class MainActivity extends BaseActivity implements OnBaseListener {
     private void init() {
         //设置第一次启动APP标志，设置后表示启动过APP
         PaperUtils.setFirstLaunchApp();
+        //设置App 语言
+        PaperUtils.setLanguage(PaperUtils.getLanguage());
     }
 
     //更新版本

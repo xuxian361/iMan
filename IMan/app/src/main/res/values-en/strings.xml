@@ -1,6 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">IMan</string>
-    <string name="wallet">钱包</string>
+    <string name="wallet">Wallet</string>
     <string name="my_imcoin">My imcoin</string>
     <string name="use_of_imcoin">Use of imcoin</string>
     <string name="use_my_wallet">Use my wallet</string>
@@ -11,7 +12,7 @@
     <string name="my_contacts">My contacts</string>
     <string name="my_post">My posts</string>
     <string name="settings">Settings</string>
-    <string name="me_login">登陆</string>
+    <string name="me_login">Login</string>
     <string name="scanner_promt">请把二维码置于扫描框内</string>
     <string name="confirm">Confirm</string>
     <string name="report">Report</string>
