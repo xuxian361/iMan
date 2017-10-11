@@ -8,6 +8,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.KeyEvent;
+import android.view.ViewGroup;
 import android.webkit.SslErrorHandler;
 import android.webkit.WebChromeClient;
 import android.webkit.WebResourceError;
@@ -20,7 +21,6 @@ import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.view.TitleBarView;
-import com.wang.avi.AVLoadingIndicatorView;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -36,8 +36,6 @@ public class WebActivity extends BaseActivity {
     TitleBarView titleBar;
     @BindView(R.id.webView)
     WebView webView;
-    @BindView(R.id.avi)
-    AVLoadingIndicatorView avi;
     private String url;
     private String title = "";
 
@@ -107,13 +105,13 @@ public class WebActivity extends BaseActivity {
             @Override
             public void onPageStarted(WebView view, String url, Bitmap favicon) {
                 super.onPageStarted(view, url, favicon);
-                avi.smoothToShow();
+                showProgress();
             }
 
             @Override
             public void onPageFinished(WebView view, String url) {
                 super.onPageFinished(view, url);
-                avi.smoothToHide();
+                hideProgress();
             }
 
             @Override
@@ -192,6 +190,13 @@ public class WebActivity extends BaseActivity {
         // If it wasn't the Back key or there's no web page history, bubble up to the default
         // system behavior (probably exit the activity)
         return super.onKeyDown(keyCode, event);
+    }
+
+    @Override
+    public void finish() {
+        ViewGroup view = (ViewGroup) getWindow().getDecorView();
+        view.removeAllViews();
+        super.finish();
     }
 
 }

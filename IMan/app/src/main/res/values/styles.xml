@@ -74,8 +74,14 @@
         <item name="android:background">@null</item>
     </style>
 
+    <style name="NoDimDialogFragmentStyle" parent="@android:style/Theme.Holo.Light.Dialog">
+        <item name="android:backgroundDimAmount">0.0</item>
+        <item name="android:backgroundDimEnabled">false</item>
+    </style>
+
     <style name="MyEditText" parent="Theme.AppCompat.Light">
         <item name="colorControlNormal">@color/bg_light_gray</item>
         <item name="colorControlActivated">@color/bg_blue</item>
     </style>
+
 </resources>

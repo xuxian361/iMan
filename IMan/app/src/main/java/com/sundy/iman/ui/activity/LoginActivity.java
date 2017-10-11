@@ -284,9 +284,11 @@ public class LoginActivity extends BaseActivity {
         param.put("verification_code", verification_code); //类型 1-登录
         Call<LoginEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .login(ParamHelper.formatData(param));
+        showProgress();
         call.enqueue(new RetrofitCallback<LoginEntity>() {
             @Override
             public void onSuccess(Call<LoginEntity> call, Response<LoginEntity> response) {
+                hideProgress();
                 LoginEntity loginEntity = response.body();
                 if (loginEntity != null) {
                     int code = loginEntity.getCode();
@@ -308,7 +310,6 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onAfter() {
-
             }
 
             @Override
@@ -326,9 +327,11 @@ public class LoginActivity extends BaseActivity {
         param.put("profile_id", mid);
         Call<MemberInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .getMemberInfo(ParamHelper.formatData(param));
+        showProgress();
         call.enqueue(new RetrofitCallback<MemberInfoEntity>() {
             @Override
             public void onSuccess(Call<MemberInfoEntity> call, Response<MemberInfoEntity> response) {
+                hideProgress();
                 MemberInfoEntity memberInfoEntity = response.body();
                 if (memberInfoEntity != null) {
                     int code = memberInfoEntity.getCode();
@@ -349,7 +352,6 @@ public class LoginActivity extends BaseActivity {
 
             @Override
             public void onAfter() {
-
             }
 
             @Override
