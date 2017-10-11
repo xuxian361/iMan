@@ -18,7 +18,7 @@
                 android:id="@+id/rel_not_login"
                 android:layout_width="match_parent"
                 android:layout_height="130dp"
-                android:visibility="gone">
+                android:visibility="visible">
 
                 <TextView
                     android:id="@+id/tv_login"
@@ -27,9 +27,9 @@
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginRight="20dp"
-                    android:text="@string/me_login"
-                    android:textColor="@color/txt_black"
-                    android:textSize="28sp"
+                    android:text="@string/login"
+                    android:textColor="@color/txt_blue"
+                    android:textSize="24sp"
                     android:textStyle="normal" />
 
             </RelativeLayout>
@@ -38,7 +38,7 @@
                 android:id="@+id/rel_logined"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"
-                android:visibility="visible">
+                android:visibility="gone">
 
                 <ImageView
                     android:id="@+id/iv_header"
@@ -58,7 +58,7 @@
                     android:layout_marginLeft="10dp"
                     android:layout_toLeftOf="@+id/iv_header"
                     android:maxLines="1"
-                    android:text="UserName"
+                    android:text="@string/username"
                     android:textColor="@color/txt_black"
                     android:textSize="22sp"
                     android:textStyle="normal" />
@@ -69,11 +69,11 @@
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
                     android:layout_marginBottom="5dp"
-                    android:layout_marginLeft="10dp"
+                    android:layout_marginLeft="13dp"
                     android:layout_marginTop="5dp"
                     android:layout_toLeftOf="@+id/iv_header"
                     android:maxLines="1"
-                    android:text="Location"
+                    android:text="@string/location"
                     android:textColor="@color/txt_gray"
                     android:textSize="10sp" />
 
@@ -86,7 +86,7 @@
                     android:layout_marginTop="5dp"
                     android:layout_toLeftOf="@+id/iv_header"
                     android:maxLines="1"
-                    android:text="Introduction"
+                    android:text="@string/introduction"
                     android:textColor="@color/txt_normal"
                     android:textSize="10sp" />
 
@@ -119,8 +119,8 @@
                     android:id="@+id/rel_imcoin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
-                    android:paddingTop="10dp">
+                    android:paddingBottom="15dp"
+                    android:paddingTop="15dp">
 
                     <TextView
                         android:id="@+id/tv_my_imcoin"
@@ -146,12 +146,13 @@
 
                     <ImageView
                         android:id="@+id/iv_arrow_my_imcoin"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="10dp"
-                        android:src="@mipmap/icon_default_portrait" />
+                        android:layout_marginRight="15dp"
+                        android:scaleType="fitCenter"
+                        android:src="@mipmap/icon_me_imcoin" />
 
                 </RelativeLayout>
 
@@ -164,8 +165,8 @@
                     android:id="@+id/rel_use_of_imcoin"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
-                    android:paddingTop="10dp">
+                    android:paddingBottom="15dp"
+                    android:paddingTop="15dp">
 
                     <TextView
                         android:id="@+id/tv_use_imcoin"
@@ -179,12 +180,13 @@
 
                     <ImageView
                         android:id="@+id/iv_arrow_use_imcoin"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="10dp"
-                        android:src="@mipmap/icon_default_portrait" />
+                        android:layout_marginRight="15dp"
+                        android:scaleType="fitCenter"
+                        android:src="@mipmap/icon_me_use_imcoin" />
 
                 </RelativeLayout>
 
@@ -221,8 +223,8 @@
                     android:id="@+id/rel_create_ad"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
-                    android:paddingTop="10dp">
+                    android:paddingBottom="15dp"
+                    android:paddingTop="15dp">
 
                     <TextView
                         android:id="@+id/tv_create_ad"
@@ -236,12 +238,13 @@
 
                     <ImageView
                         android:id="@+id/iv_arrow_create_ad"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="10dp"
-                        android:src="@mipmap/icon_default_portrait" />
+                        android:layout_marginRight="15dp"
+                        android:scaleType="fitCenter"
+                        android:src="@mipmap/icon_me_ad" />
 
                 </RelativeLayout>
 
@@ -254,8 +257,8 @@
                     android:id="@+id/rel_promote_community"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
-                    android:paddingTop="10dp">
+                    android:paddingBottom="15dp"
+                    android:paddingTop="15dp">
 
                     <TextView
                         android:id="@+id/tv_promote_community"
@@ -269,12 +272,13 @@
 
                     <ImageView
                         android:id="@+id/iv_arrow_promote_community"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="10dp"
-                        android:src="@mipmap/icon_default_portrait" />
+                        android:layout_marginRight="15dp"
+                        android:scaleType="fitCenter"
+                        android:src="@mipmap/icon_me_promote_community" />
 
                 </RelativeLayout>
 
@@ -287,8 +291,8 @@
                     android:id="@+id/rel_create_community"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
-                    android:paddingTop="10dp">
+                    android:paddingBottom="15dp"
+                    android:paddingTop="15dp">
 
                     <TextView
                         android:id="@+id/tv_create_community"
@@ -302,12 +306,13 @@
 
                     <ImageView
                         android:id="@+id/iv_arrow_create_community"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="10dp"
-                        android:src="@mipmap/icon_default_portrait" />
+                        android:layout_marginRight="15dp"
+                        android:scaleType="fitCenter"
+                        android:src="@mipmap/icon_me_create_community" />
 
                 </RelativeLayout>
 
@@ -344,8 +349,8 @@
                     android:id="@+id/rel_my_contacts"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
-                    android:paddingTop="10dp">
+                    android:paddingBottom="15dp"
+                    android:paddingTop="15dp">
 
                     <TextView
                         android:id="@+id/tv_my_contacts"
@@ -359,12 +364,13 @@
 
                     <ImageView
                         android:id="@+id/iv_arrow_my_contacts"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="10dp"
-                        android:src="@mipmap/icon_default_portrait" />
+                        android:layout_marginRight="15dp"
+                        android:scaleType="fitCenter"
+                        android:src="@mipmap/icon_me_my_contact" />
 
                 </RelativeLayout>
 
@@ -377,8 +383,8 @@
                     android:id="@+id/rel_my_post"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
-                    android:paddingTop="10dp">
+                    android:paddingBottom="15dp"
+                    android:paddingTop="15dp">
 
                     <TextView
                         android:id="@+id/tv_my_post"
@@ -392,12 +398,13 @@
 
                     <ImageView
                         android:id="@+id/iv_arrow_my_post"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="10dp"
-                        android:src="@mipmap/icon_default_portrait" />
+                        android:layout_marginRight="15dp"
+                        android:scaleType="fitCenter"
+                        android:src="@mipmap/icon_me_my_post" />
 
                 </RelativeLayout>
 
@@ -410,8 +417,8 @@
                     android:id="@+id/rel_settings"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:paddingBottom="10dp"
-                    android:paddingTop="10dp">
+                    android:paddingBottom="15dp"
+                    android:paddingTop="15dp">
 
                     <TextView
                         android:id="@+id/tv_settings"
@@ -425,12 +432,13 @@
 
                     <ImageView
                         android:id="@+id/iv_arrow_settings"
-                        android:layout_width="28dp"
-                        android:layout_height="28dp"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
                         android:layout_alignParentRight="true"
                         android:layout_centerVertical="true"
-                        android:layout_marginRight="10dp"
-                        android:src="@mipmap/icon_default_portrait" />
+                        android:layout_marginRight="15dp"
+                        android:scaleType="fitCenter"
+                        android:src="@mipmap/icon_me_settings" />
 
                 </RelativeLayout>
 

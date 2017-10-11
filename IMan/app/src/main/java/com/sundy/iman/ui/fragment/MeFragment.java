@@ -2,6 +2,7 @@ package com.sundy.iman.ui.fragment;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,7 +16,9 @@ import com.scwang.smartrefresh.layout.SmartRefreshLayout;
 import com.scwang.smartrefresh.layout.api.RefreshLayout;
 import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.sundy.iman.R;
+import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.MemberInfoEntity;
+import com.sundy.iman.helper.ImageHelper;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
@@ -141,17 +144,30 @@ public class MeFragment extends BaseFragment {
             @Override
             public void onRefresh(RefreshLayout refreshlayout) {
                 Logger.e("------>onRefresh");
-                refreshlayout.finishRefresh(2000);
+                getMemberInfo();
             }
         });
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (PaperUtils.isLogin()) {
+            relNotLogin.setVisibility(View.GONE);
+            relLogined.setVisibility(View.VISIBLE);
+            showMemberInfo(PaperUtils.getUserInfo());
+        } else {
+            relNotLogin.setVisibility(View.VISIBLE);
+            relLogined.setVisibility(View.GONE);
+        }
     }
 
     //获取个人用户信息
     private void getMemberInfo() {
         Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("profile_id", "");
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("profile_id", PaperUtils.getMId());
         Call<MemberInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .getMemberInfo(ParamHelper.formatData(param));
         call.enqueue(new RetrofitCallback<MemberInfoEntity>() {
@@ -159,16 +175,21 @@ public class MeFragment extends BaseFragment {
             public void onSuccess(Call<MemberInfoEntity> call, Response<MemberInfoEntity> response) {
                 MemberInfoEntity memberInfoEntity = response.body();
                 if (memberInfoEntity != null) {
-                    MemberInfoEntity.DataEntity dataEntity = memberInfoEntity.getData();
-                    if (dataEntity != null) {
-                        Logger.i("------->phone=" + dataEntity.getPhone());
+                    int code = memberInfoEntity.getCode();
+                    String msg = memberInfoEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        MemberInfoEntity.DataEntity dataEntity = memberInfoEntity.getData();
+                        if (dataEntity != null) {
+                            PaperUtils.saveUserInfo(memberInfoEntity);
+                            showMemberInfo(memberInfoEntity);
+                        }
                     }
                 }
             }
 
             @Override
             public void onAfter() {
-
+                refreshLayout.finishRefresh(2000);
             }
 
             @Override
@@ -176,6 +197,41 @@ public class MeFragment extends BaseFragment {
 
             }
         });
+    }
+
+    //显示用户信息
+    private void showMemberInfo(MemberInfoEntity memberInfoEntity) {
+        if (memberInfoEntity != null) {
+            MemberInfoEntity.DataEntity dataEntity = memberInfoEntity.getData();
+            if (dataEntity != null) {
+                String username = dataEntity.getUsername();
+                if (TextUtils.isEmpty(username)) {
+                    tvUsername.setText(getString(R.string.iman));
+                } else {
+                    tvUsername.setText(username);
+                }
+                String location = dataEntity.getLocation();
+                if (TextUtils.isEmpty(location)) {
+                    tvLocation.setText(getString(R.string.location_default));
+                } else {
+                    tvLocation.setText(location);
+                }
+                String introduction = dataEntity.getIntroduction();
+                if (TextUtils.isEmpty(introduction)) {
+                    tvIntroduction.setText(getString(R.string.introduction_default));
+                } else {
+                    tvIntroduction.setText(introduction);
+                }
+                String coin = dataEntity.getBalance();
+                if (TextUtils.isEmpty(coin)) {
+                    tvMyImcoinNum.setVisibility(View.GONE);
+                } else {
+                    tvMyImcoinNum.setVisibility(View.VISIBLE);
+                    tvMyImcoinNum.setText(coin);
+                }
+                ImageHelper.displayPortrait(getActivity(), dataEntity.getProfile_image(), ivHeader);
+            }
+        }
     }
 
     @Override

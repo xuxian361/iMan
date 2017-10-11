@@ -47,4 +47,10 @@
     <string name="set_imcoin_password">Set imcoin transfer password</string>
     <string name="a_new_version">A new version :</string>
     <string name="success">Success</string>
+    <string name="username">Username</string>
+    <string name="location">Location</string>
+    <string name="introduction">Introduction</string>
+    <string name="iman">地球人</string>
+    <string name="introduction_default">这个地球人也夠懒了，什么都没写！</string>
+    <string name="location_default">地球村</string>
 </resources>

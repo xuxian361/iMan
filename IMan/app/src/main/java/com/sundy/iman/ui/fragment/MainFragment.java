@@ -34,11 +34,11 @@ public class MainFragment extends BaseFragment {
     Unbinder unbinder;
     private String[] mTitles = {"Message", "Me"};
     private int[] mIconUnSelectIds = {
-            R.mipmap.tab_speech_unselect,
-            R.mipmap.tab_contact_unselect};
+            R.mipmap.icons_msg_uncheck,
+            R.mipmap.icons_me_uncheck};
     private int[] mIconSelectIds = {
-            R.mipmap.tab_speech_select,
-            R.mipmap.tab_contact_select};
+            R.mipmap.icons_msg_checked,
+            R.mipmap.icons_me_checked};
     private ArrayList<CustomTabEntity> mTabEntities = new ArrayList<>();
 
     private Fragment msgFragment, meFragment;

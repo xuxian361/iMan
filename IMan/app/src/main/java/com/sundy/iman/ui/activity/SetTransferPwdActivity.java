@@ -128,11 +128,13 @@ public class SetTransferPwdActivity extends BaseActivity {
         param.put("session_key", PaperUtils.getSessionKey());
         param.put("password", password);
         param.put("confirm_password", confirm_password);
+        showProgress();
         Call<UpdateTransferPwdEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .updateTransferPwd(ParamHelper.formatData(param));
         call.enqueue(new RetrofitCallback<UpdateTransferPwdEntity>() {
             @Override
             public void onSuccess(Call<UpdateTransferPwdEntity> call, Response<UpdateTransferPwdEntity> response) {
+                hideProgress();
                 UpdateTransferPwdEntity updateTransferPwdEntity = response.body();
                 if (updateTransferPwdEntity != null) {
                     int code = updateTransferPwdEntity.getCode();
