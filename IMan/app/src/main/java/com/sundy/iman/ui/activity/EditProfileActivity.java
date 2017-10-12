@@ -7,11 +7,13 @@ import android.os.Bundle;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
+import android.text.Editable;
 import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -29,12 +31,17 @@ import com.qiniu.android.storage.UpProgressHandler;
 import com.qiniu.android.storage.UploadManager;
 import com.qiniu.android.storage.UploadOptions;
 import com.sundy.iman.R;
+import com.sundy.iman.config.Constants;
+import com.sundy.iman.entity.MemberInfoEntity;
+import com.sundy.iman.entity.QiNiuTokenItemEntity;
 import com.sundy.iman.entity.QiNiuTokenListEntity;
 import com.sundy.iman.entity.SaveMemberEntity;
+import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
+import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
 import com.sundy.iman.utils.DeviceUtils;
 import com.sundy.iman.utils.FileUtils;
@@ -58,6 +65,7 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.hdodenhof.circleimageview.CircleImageView;
 import me.iwf.photopicker.PhotoPicker;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -78,25 +86,38 @@ public class EditProfileActivity extends BaseActivity {
     @BindView(R.id.title_bar)
     TitleBarView titleBar;
     @BindView(R.id.iv_header)
-    ImageView ivHeader;
+    CircleImageView ivHeader;
     @BindView(R.id.et_username)
     EditText etUsername;
-    @BindView(R.id.ll_location)
-    LinearLayout llLocation;
     @BindView(R.id.et_about)
     EditText etAbout;
-    @BindView(R.id.btn_save)
-    Button btnSave;
     @BindView(R.id.ll_content)
     LinearLayout llContent;
     @BindView(R.id.tv_gender)
     TextView tvGender;
     @BindView(R.id.rel_gender)
     RelativeLayout relGender;
+    @BindView(R.id.rel_header)
+    RelativeLayout relHeader;
+    @BindView(R.id.iv_location)
+    ImageView ivLocation;
+    @BindView(R.id.tv_location)
+    TextView tvLocation;
+    @BindView(R.id.line_location)
+    View lineLocation;
+    @BindView(R.id.rel_location)
+    RelativeLayout relLocation;
+    @BindView(R.id.iv_arrow_gender)
+    ImageView ivArrowGender;
+    @BindView(R.id.tv_bytes)
+    TextView tvBytes;
 
     private SelectPhotoPopup selectPhotoPopup;
     private Uri imageUri; //拍照后保存的图片uri
     private SelectGenderPopup selectGenderPopup;
+    private int curGender = 1; //1:male;2:female
+    private File curHeaderFile;
+    private static final int headerSize = 600;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -109,7 +130,9 @@ public class EditProfileActivity extends BaseActivity {
     }
 
     private void initTitle() {
-        titleBar.setBackMode(getString(R.string.edit));
+        titleBar.setBackMode(getString(R.string.edit_profile));
+        titleBar.setRightTvText(getString(R.string.save));
+        titleBar.setRightTvVisibility(View.VISIBLE);
         titleBar.setOnClickListener(new OnTitleBarClickListener() {
             @Override
             public void onLeftImgClick() {
@@ -128,7 +151,7 @@ public class EditProfileActivity extends BaseActivity {
 
             @Override
             public void onRightTxtClick() {
-
+                saveMemberInfo();
             }
 
             @Override
@@ -138,17 +161,89 @@ public class EditProfileActivity extends BaseActivity {
         });
     }
 
-
     private void init() {
         selectPhotoPopup = new SelectPhotoPopup(this);
         selectGenderPopup = new SelectGenderPopup(this);
         selectGenderPopup.setGenderSelected(1);
+
+        etAbout.addTextChangedListener(etAboutWatcher);
+        MemberInfoEntity memberInfoEntity = PaperUtils.getUserInfo();
+        if (memberInfoEntity != null) {
+            MemberInfoEntity.DataEntity dataEntity = memberInfoEntity.getData();
+            if (dataEntity != null) {
+                String username = dataEntity.getUsername();
+                String aboutMe = dataEntity.getIntroduction();
+                String gender = dataEntity.getGender(); //性别1-男，2-女
+                String country = dataEntity.getCountry();
+                String province = dataEntity.getProvince();
+                String city = dataEntity.getCity();
+
+                if (TextUtils.isEmpty(username)) {
+                    etUsername.setText(getString(R.string.iman));
+                } else {
+                    etUsername.setText(username);
+                }
+                if (TextUtils.isEmpty(aboutMe)) {
+                    etAbout.setText(getString(R.string.introduction_default));
+                } else {
+                    etAbout.setText(aboutMe);
+                }
+                if (!TextUtils.isEmpty(gender)) {
+                    if (gender.equals("1")) {
+                        curGender = 1;
+                        tvGender.setText(getString(R.string.male));
+                    } else {
+                        curGender = 2;
+                        tvGender.setText(getString(R.string.female));
+                    }
+                } else {
+                    curGender = 1;
+                    tvGender.setText(getString(R.string.male));
+                }
+
+                if (!TextUtils.isEmpty(province) && !TextUtils.isEmpty(city)) {
+                    tvLocation.setText(province + "  " + city);
+                } else if (TextUtils.isEmpty(province) && TextUtils.isEmpty(city)) {
+                    tvLocation.setText(country);
+                } else {
+                    if (TextUtils.isEmpty(city)) {
+                        tvLocation.setText(country + " " + province);
+                    } else {
+                        tvLocation.setText(country + " " + city);
+                    }
+                }
+            }
+        }
     }
+
+    private TextWatcher etAboutWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            String content = etAbout.getText().toString().trim();
+            if (content.length() > 144) {
+                tvBytes.setTextColor(ContextCompat.getColor(EditProfileActivity.this, R.color.main_red));
+            } else {
+                tvBytes.setTextColor(ContextCompat.getColor(EditProfileActivity.this, R.color.txt_normal));
+            }
+
+            tvBytes.setText("(" + content.length() + "/" + 144 + ")");
+        }
+    };
 
     @PermissionYes(REQUEST_CODE_PERMISSION_LOCATION)
     private void getPermissionLocationYes(@NonNull List<String> grantedPermissions) {
         Logger.e("位置权限申请成功!");
-
+        goSelectLocationByMap();
     }
 
     @PermissionNo(REQUEST_CODE_PERMISSION_LOCATION)
@@ -181,20 +276,17 @@ public class EditProfileActivity extends BaseActivity {
         }
     }
 
-    @OnClick({R.id.iv_header, R.id.ll_location, R.id.btn_save, R.id.rel_gender})
+    @OnClick({R.id.rel_location, R.id.rel_gender, R.id.rel_header})
     public void onViewClicked(View view) {
         switch (view.getId()) {
-            case R.id.iv_header:
+            case R.id.rel_header:
                 headerClick();
                 break;
             case R.id.rel_gender:
                 genderClick();
                 break;
-            case R.id.ll_location:
+            case R.id.rel_location:
                 locationClick();
-                break;
-            case R.id.btn_save:
-                saveMemberInfo();
                 break;
         }
     }
@@ -204,7 +296,14 @@ public class EditProfileActivity extends BaseActivity {
         selectGenderPopup.setOnGenderClickListener(new SelectGenderPopup.OnGenderClickListener() {
             @Override
             public void onGenderClick(int gender) {
+                //1: male; 2:female
                 Logger.i("--->gender = " + gender);
+                curGender = gender;
+                if (gender == 1) {
+                    tvGender.setText(getString(R.string.male));
+                } else {
+                    tvGender.setText(getString(R.string.female));
+                }
             }
         });
         selectGenderPopup.showAtLocation(llContent, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
@@ -267,6 +366,11 @@ public class EditProfileActivity extends BaseActivity {
         selectPhotoPopup.showAtLocation(llContent, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
     }
 
+    //跳转地图获取位置信息
+    private void goSelectLocationByMap() {
+        UIHelper.jump(this, SelectLocationByMapActivity.class);
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -311,8 +415,11 @@ public class EditProfileActivity extends BaseActivity {
                                 @Override
                                 public void onSuccess(File file) {
                                     // TODO 压缩成功后调用，返回压缩后的图片文件
-                                    Logger.i("----->压缩成功 :" + file.getPath());
-
+                                    if (file != null) {
+                                        curHeaderFile = file;
+                                        Logger.i("----->压缩成功 :" + file.getPath());
+                                        getQiNiuToken();
+                                    }
                                 }
 
                                 @Override
@@ -333,7 +440,7 @@ public class EditProfileActivity extends BaseActivity {
         Uri destinationUri = Uri.fromFile(new File(saveDir, "header.jpg"));
         UCrop.of(sourceUri, destinationUri)
                 .withAspectRatio(1, 1)
-                .withMaxResultSize(600, 600)
+                .withMaxResultSize(headerSize, headerSize)
                 .start(this);
     }
 
@@ -342,8 +449,8 @@ public class EditProfileActivity extends BaseActivity {
         JsonArray jsonArray = new JsonArray();
         JsonObject jsonObject = new JsonObject();
         jsonObject.addProperty("ext", "jpg");
-        jsonObject.addProperty("width", "200");
-        jsonObject.addProperty("height", "200");
+        jsonObject.addProperty("width", headerSize + "");
+        jsonObject.addProperty("height", headerSize + "");
         jsonArray.add(jsonObject);
         Map<String, String> param = new HashMap<>();
         param.put("category", "1"); //类型:1-用户头像，2-社区，3-post
@@ -353,7 +460,27 @@ public class EditProfileActivity extends BaseActivity {
         call.enqueue(new RetrofitCallback<QiNiuTokenListEntity>() {
             @Override
             public void onSuccess(Call<QiNiuTokenListEntity> call, Response<QiNiuTokenListEntity> response) {
-
+                QiNiuTokenListEntity qiNiuTokenListEntity = response.body();
+                if (qiNiuTokenListEntity != null) {
+                    int code = qiNiuTokenListEntity.getCode();
+                    String msg = qiNiuTokenListEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        QiNiuTokenListEntity.DataEntity dataEntity = qiNiuTokenListEntity.getData();
+                        if (dataEntity != null) {
+                            List<QiNiuTokenItemEntity> list = dataEntity.getList();
+                            if (list != null && list.size() > 0) {
+                                QiNiuTokenItemEntity itemEntity = list.get(0);
+                                if (itemEntity != null) {
+                                    String key = itemEntity.getKey();
+                                    String token = itemEntity.getToken();
+                                    if (curHeaderFile != null && !TextUtils.isEmpty(token)) {
+                                        uploadImg(curHeaderFile, key, token);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             @Override
@@ -379,8 +506,18 @@ public class EditProfileActivity extends BaseActivity {
             public void complete(String key, ResponseInfo info, JSONObject response) {
                 if (info.isOK()) {
                     Logger.i("--->Upload Success");
+
+
+                    //                                        Glide.with(EditProfileActivity.this)
+//                                                .load(file)
+//                                                .dontAnimate()
+//                                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+//                                                .placeholder(R.mipmap.icon_default_portrait)
+//                                                .transform(new GlideCircleTransform(EditProfileActivity.this))
+//                                                .centerCrop()
+//                                                .into(ivHeader);
                 } else {
-                    Logger.i("--->Upload Fail");
+                    Logger.i("--->Upload Fail" + info.toString());
                     //如果失败，这里可以把info信息上报自己的服务器，便于后面分析上传错误原因
                 }
                 Logger.i("--->" + key + ",\r\n " + info + ",\r\n " + response);
@@ -393,19 +530,24 @@ public class EditProfileActivity extends BaseActivity {
         }, null));
     }
 
-
     //保存个人信息
     private void saveMemberInfo() {
+        String username = etUsername.getText().toString().trim();
+        String introduction = etAbout.getText().toString().trim();
+
         Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("username", "");
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("username", username);
         param.put("profile_image", "");
-        param.put("gender", ""); //性别:1-男，2-女
+        param.put("gender", curGender + ""); //性别:1-男，2-女
         param.put("location", "");
+        param.put("country", "");
+        param.put("province", "");
+        param.put("city", "");
         param.put("latitude", "");
         param.put("longitude", "");
-        param.put("introduction", "");
+        param.put("introduction", introduction);
         Call<SaveMemberEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .saveMemberInfo(ParamHelper.formatData(param));
         call.enqueue(new RetrofitCallback<SaveMemberEntity>() {

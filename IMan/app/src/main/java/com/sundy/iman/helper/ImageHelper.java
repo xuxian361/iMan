@@ -8,6 +8,8 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.sundy.iman.R;
 
+import java.io.File;
+
 /**
  * 图片显示Helper
  * Created by sundy on 17/9/21.
@@ -20,7 +22,16 @@ public class ImageHelper {
         Glide.with(context)
                 .load(localPath)
                 .dontAnimate()
-                .centerCrop()
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .placeholder(R.drawable.default_image)
+                .into(imageView);
+    }
+
+    //显示本地图片
+    public static void displayImageLocal(Context context, File file, ImageView imageView) {
+        Glide.with(context)
+                .load(file)
+                .dontAnimate()
                 .diskCacheStrategy(DiskCacheStrategy.ALL)
                 .placeholder(R.drawable.default_image)
                 .into(imageView);

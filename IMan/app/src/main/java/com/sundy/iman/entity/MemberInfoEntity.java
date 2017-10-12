@@ -26,6 +26,9 @@ public class MemberInfoEntity extends BaseResEntity {
         private String profile_image;//用户头像地址
         private String language; //语言en-英文,sc-简体中文,tc-繁体中文
         private String gender;//性别1-男，2-女
+        private String country; //国家
+        private String province; //省份
+        private String city; //城市
         private String location; //位置
         private String latitude; //纬度
         private String longitude; //经度

@@ -40,15 +40,17 @@
                 android:layout_height="150dp"
                 android:visibility="gone">
 
-                <ImageView
+                <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
                     android:id="@+id/iv_header"
-                    android:layout_width="52dp"
-                    android:layout_height="52dp"
+                    android:layout_width="60dp"
+                    android:layout_height="60dp"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:layout_marginLeft="5dp"
                     android:layout_marginRight="10dp"
-                    android:src="@mipmap/icon_default_portrait" />
+                    android:src="@mipmap/icon_default_portrait"
+                    app:civ_border_color="@color/bg_blue"
+                    app:civ_border_width="0dp" />
 
                 <TextView
                     android:id="@+id/tv_username"
@@ -140,7 +142,6 @@
                         android:layout_marginLeft="10dp"
                         android:layout_marginRight="10dp"
                         android:layout_toLeftOf="@+id/iv_arrow_my_imcoin"
-                        android:text="12"
                         android:textColor="@color/txt_gray"
                         android:textSize="13sp" />
 

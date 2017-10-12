@@ -150,16 +150,14 @@ dependencies {
     compile 'com.nineoldandroids:library:2.4.0'
     //图片裁剪
     compile 'com.github.yalantis:ucrop:2.2.1'
-    //图片虚化
-    compile 'jp.wasabeef:blurry:2.1.1'
     //简化实体类
     compile 'org.projectlombok:lombok:1.16.18'
     //缩放图片控件
     compile 'com.github.chrisbanes:PhotoView:2.0.0'
     //图片压缩
     compile 'top.zibin:Luban:1.1.3'
-    //进度条
-    'com.taishi-y:flipprogressdialog:0.1.0'
+    //圆形图片工具
+    compile 'de.hdodenhof:circleimageview:2.2.0'
     //引导介绍页
     compile 'cn.bingoogolapple:bga-banner:2.1.7@aar'
     //权限管理

@@ -33,7 +33,7 @@
             android:layout_height="@dimen/edt_height"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="10dp"
             android:digits="1234567890"
             android:inputType="numberPassword"
             android:maxLength="6"
@@ -57,7 +57,7 @@
             android:layout_height="@dimen/edt_height"
             android:layout_marginLeft="15dp"
             android:layout_marginRight="15dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="10dp"
             android:digits="1234567890"
             android:inputType="numberPassword"
             android:maxLength="6" />

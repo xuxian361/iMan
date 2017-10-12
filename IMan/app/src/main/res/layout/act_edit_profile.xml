@@ -20,48 +20,188 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <ImageView
-                android:id="@+id/iv_header"
-                android:layout_width="55dp"
-                android:layout_height="55dp"
-                android:src="@mipmap/icon_default_portrait" />
+            <RelativeLayout
+                android:id="@+id/rel_header"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="20dp">
+
+                <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/iv_header"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@mipmap/icon_default_portrait"
+                    app:civ_border_color="@color/bg_blue"
+                    app:civ_border_width="0dp" />
+
+                <ImageView
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:scaleType="fitCenter"
+                    android:src="@mipmap/icon_take_picture" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginTop="20dp"
+                android:drawableLeft="@drawable/corner_bg_small_blue"
+                android:drawablePadding="5dp"
+                android:text="@string/name"
+                android:textColor="@color/txt_black"
+                android:textSize="13sp" />
 
             <EditText
                 android:id="@+id/et_username"
+                style="@style/MyEditText"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="@dimen/edt_height"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="10dp"
+                android:focusable="true"
+                android:maxLines="1"
+                android:selectAllOnFocus="true"
+                android:textSize="13sp" />
 
-            <LinearLayout
-                android:id="@+id/ll_location"
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginTop="15dp"
+                android:drawableLeft="@drawable/corner_bg_small_blue"
+                android:drawablePadding="5dp"
+                android:text="@string/location"
+                android:textColor="@color/txt_black"
+                android:textSize="13sp" />
+
+            <RelativeLayout
+                android:id="@+id/rel_location"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="vertical"></LinearLayout>
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="10dp"
+                android:orientation="vertical">
+
+                <ImageView
+                    android:id="@+id/iv_location"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_above="@+id/line_location"
+                    android:layout_alignParentRight="true"
+                    android:layout_marginBottom="5dp"
+                    android:scaleType="fitCenter"
+                    android:src="@mipmap/icon_location_blue" />
+
+                <TextView
+                    android:id="@+id/tv_location"
+                    android:layout_width="match_parent"
+                    android:layout_height="40dp"
+                    android:layout_toLeftOf="@+id/iv_location"
+                    android:maxLines="1"
+                    android:textColor="@color/txt_black"
+                    android:textSize="13sp" />
+
+                <View
+                    android:id="@+id/line_location"
+                    android:layout_width="match_parent"
+                    android:layout_height="1dp"
+                    android:layout_below="@+id/tv_location"
+                    android:background="@color/bg_line_gray" />
+
+            </RelativeLayout>
 
             <RelativeLayout
                 android:id="@+id/rel_gender"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:paddingBottom="10dp"
-                android:paddingTop="10dp">
+                android:layout_height="40dp"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="15dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:drawableLeft="@drawable/corner_bg_small_blue"
+                    android:drawablePadding="5dp"
+                    android:text="@string/gender"
+                    android:textColor="@color/txt_black"
+                    android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/tv_gender"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@string/male" />
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@+id/iv_arrow_gender"
+                    android:text="@string/male"
+                    android:textColor="@color/txt_normal"
+                    android:textSize="13sp" />
+
+                <ImageView
+                    android:id="@+id/iv_arrow_gender"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:scaleType="center"
+                    android:src="@mipmap/icon_graytriangle" />
+
+
             </RelativeLayout>
 
-
-            <EditText
-                android:id="@+id/et_about"
-                android:layout_width="match_parent"
-                android:layout_height="100dp" />
-
-            <Button
-                android:id="@+id/btn_save"
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/save" />
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginTop="15dp"
+                android:drawableLeft="@drawable/corner_bg_small_blue"
+                android:drawablePadding="5dp"
+                android:text="@string/about_me"
+                android:textColor="@color/txt_black"
+                android:textSize="13sp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/corner_bg_edit_gray"
+                android:padding="5dp">
+
+                <EditText
+                    android:id="@+id/et_about"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_above="@+id/tv_bytes"
+                    android:background="@null"
+                    android:focusable="true"
+                    android:gravity="top|left"
+                    android:maxLength="144"
+                    android:selectAllOnFocus="true"
+                    android:textColor="@color/txt_black"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/tv_bytes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:text="(0/144)"
+                    android:textColor="@color/txt_normal"
+                    android:textSize="10sp" />
+
+            </RelativeLayout>
 
         </LinearLayout>
 

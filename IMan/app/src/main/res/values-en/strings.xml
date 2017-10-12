@@ -54,4 +54,8 @@
     <string name="iman">Earthman</string>
     <string name="introduction_default">Hey earthman! Don\'t leave this blank. Write something about yourself here.</string>
     <string name="location_default">Earth Village</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="name">Name</string>
+    <string name="gender">Gender</string>
+    <string name="about_me">About Me</string>
 </resources>

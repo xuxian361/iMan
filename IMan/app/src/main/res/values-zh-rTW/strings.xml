@@ -54,4 +54,8 @@
     <string name="iman">地球人</string>
     <string name="introduction_default">這個地球人也夠懶了，什麼都沒寫！</string>
     <string name="location_default">地球村</string>
+    <string name="edit_profile">Edit Profile</string>
+    <string name="name">Name</string>
+    <string name="gender">Gender</string>
+    <string name="about_me">About Me</string>
 </resources>

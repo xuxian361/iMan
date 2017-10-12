@@ -40,6 +40,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -50,7 +51,7 @@ import retrofit2.Response;
 public class MeFragment extends BaseFragment {
 
     @BindView(R.id.iv_header)
-    ImageView ivHeader;
+    CircleImageView ivHeader;
     Unbinder unbinder;
     @BindView(R.id.tv_login)
     TextView tvLogin;
@@ -214,7 +215,21 @@ public class MeFragment extends BaseFragment {
                 if (TextUtils.isEmpty(location)) {
                     tvLocation.setText(getString(R.string.location_default));
                 } else {
-                    tvLocation.setText(location);
+                    String country = dataEntity.getCountry();
+                    String province = dataEntity.getProvince();
+                    String city = dataEntity.getCity();
+
+                    if (!TextUtils.isEmpty(province) && !TextUtils.isEmpty(city)) {
+                        tvLocation.setText(province + "  " + city);
+                    } else if (TextUtils.isEmpty(province) && TextUtils.isEmpty(city)) {
+                        tvLocation.setText(country);
+                    } else {
+                        if (TextUtils.isEmpty(city)) {
+                            tvLocation.setText(country + " " + province);
+                        } else {
+                            tvLocation.setText(country + " " + city);
+                        }
+                    }
                 }
                 String introduction = dataEntity.getIntroduction();
                 if (TextUtils.isEmpty(introduction)) {
