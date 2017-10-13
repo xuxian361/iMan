@@ -18,6 +18,7 @@ import com.scwang.smartrefresh.layout.listener.OnRefreshListener;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.MemberInfoEntity;
+import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.helper.ImageHelper;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.net.ParamHelper;
@@ -32,6 +33,10 @@ import com.sundy.iman.ui.activity.MyContactsActivity;
 import com.sundy.iman.ui.activity.MyPostActivity;
 import com.sundy.iman.ui.activity.MyPromoteCommunityActivity;
 import com.sundy.iman.ui.activity.SettingsActivity;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -136,6 +141,7 @@ public class MeFragment extends BaseFragment {
         View view = inflater.inflate(R.layout.fragment_me, container, false);
         unbinder = ButterKnife.bind(this, view);
 
+        EventBus.getDefault().register(this);
         init();
         return view;
     }
@@ -365,4 +371,21 @@ public class MeFragment extends BaseFragment {
         UIHelper.jump(mContext, LoginActivity.class);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(MsgEvent event) {
+        if (event != null) {
+            String msg = event.getMsg();
+            switch (msg) {
+                case MsgEvent.EVENT_UPDATE_USER_INFO:
+                    getMemberInfo();
+                    break;
+            }
+        }
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
 }

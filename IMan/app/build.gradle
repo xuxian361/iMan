@@ -37,6 +37,11 @@ android {
         versionCode 1
         versionName "1.0.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        ndk {
+            //设置支持的SO库架构（开发者可以根据需要，选择一个或多个平台的so）
+            abiFilters "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
+        }
         manifestPlaceholders = [
                 EASEMOB_APPKEY: "1185170930178964#iman",
                 GAO_DE_MAP_KEY: "285db644f8bc3cc08439e4a2907816b2"
@@ -145,6 +150,8 @@ dependencies {
     compile 'com.journeyapps:zxing-android-embedded:3.5.0'
     //高德定位
     compile 'com.amap.api:location:latest.integration'
+    compile 'com.amap.api:3dmap:latest.integration'
+    compile 'com.amap.api:search:latest.integration'
     //图片选择器
     compile 'me.iwf.photopicker:PhotoPicker:0.9.5@aar'
     compile 'com.nineoldandroids:library:2.4.0'

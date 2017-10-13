@@ -20,6 +20,8 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.orhanobut.logger.Logger;
@@ -30,9 +32,12 @@ import com.qiniu.android.storage.UpCompletionHandler;
 import com.qiniu.android.storage.UpProgressHandler;
 import com.qiniu.android.storage.UploadManager;
 import com.qiniu.android.storage.UploadOptions;
+import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
+import com.sundy.iman.entity.LocationEntity;
 import com.sundy.iman.entity.MemberInfoEntity;
+import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.QiNiuTokenItemEntity;
 import com.sundy.iman.entity.QiNiuTokenListEntity;
 import com.sundy.iman.entity.SaveMemberEntity;
@@ -45,7 +50,9 @@ import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
 import com.sundy.iman.utils.DeviceUtils;
 import com.sundy.iman.utils.FileUtils;
+import com.sundy.iman.view.GlideCircleTransform;
 import com.sundy.iman.view.TitleBarView;
+import com.sundy.iman.view.dialog.CommonDialog;
 import com.sundy.iman.view.popupwindow.SelectGenderPopup;
 import com.sundy.iman.view.popupwindow.SelectPhotoPopup;
 import com.yalantis.ucrop.UCrop;
@@ -54,6 +61,9 @@ import com.yanzhenjie.permission.Permission;
 import com.yanzhenjie.permission.PermissionNo;
 import com.yanzhenjie.permission.PermissionYes;
 
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -117,14 +127,16 @@ public class EditProfileActivity extends BaseActivity {
     private SelectGenderPopup selectGenderPopup;
     private int curGender = 1; //1:male;2:female
     private File curHeaderFile;
-    private static final int headerSize = 600;
+    private static final int headerSize = 800;
+    private LocationEntity locationEntity;
+    private String profile_image = "";
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_edit_profile);
         ButterKnife.bind(this);
-
+        EventBus.getDefault().register(this);
         initTitle();
         init();
     }
@@ -171,12 +183,34 @@ public class EditProfileActivity extends BaseActivity {
         if (memberInfoEntity != null) {
             MemberInfoEntity.DataEntity dataEntity = memberInfoEntity.getData();
             if (dataEntity != null) {
+                String header = dataEntity.getProfile_image();
                 String username = dataEntity.getUsername();
                 String aboutMe = dataEntity.getIntroduction();
                 String gender = dataEntity.getGender(); //性别1-男，2-女
                 String country = dataEntity.getCountry();
                 String province = dataEntity.getProvince();
                 String city = dataEntity.getCity();
+
+                locationEntity = new LocationEntity();
+                locationEntity.setAddress(dataEntity.getLocation());
+                locationEntity.setCountry(dataEntity.getCountry());
+                locationEntity.setProvince(dataEntity.getProvince());
+                locationEntity.setCity(dataEntity.getCity());
+                String lat = dataEntity.getLatitude();
+                String lng = dataEntity.getLongitude();
+                if (!TextUtils.isEmpty(lat))
+                    locationEntity.setLat(Double.parseDouble(lat));
+                if (!TextUtils.isEmpty(lng))
+                    locationEntity.setLng(Double.parseDouble(lng));
+
+                Glide.with(EditProfileActivity.this)
+                        .load(header)
+                        .dontAnimate()
+                        .diskCacheStrategy(DiskCacheStrategy.ALL)
+                        .placeholder(R.mipmap.icon_default_portrait)
+                        .transform(new GlideCircleTransform(EditProfileActivity.this))
+                        .centerCrop()
+                        .into(ivHeader);
 
                 if (TextUtils.isEmpty(username)) {
                     etUsername.setText(getString(R.string.iman));
@@ -266,6 +300,7 @@ public class EditProfileActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        EventBus.getDefault().unregister(this);
         if (selectPhotoPopup != null) {
             selectPhotoPopup.dismiss();
             selectPhotoPopup = null;
@@ -293,6 +328,7 @@ public class EditProfileActivity extends BaseActivity {
 
     //点击性别
     private void genderClick() {
+        selectGenderPopup.setGenderSelected(curGender);
         selectGenderPopup.setOnGenderClickListener(new SelectGenderPopup.OnGenderClickListener() {
             @Override
             public void onGenderClick(int gender) {
@@ -473,8 +509,10 @@ public class EditProfileActivity extends BaseActivity {
                                 if (itemEntity != null) {
                                     String key = itemEntity.getKey();
                                     String token = itemEntity.getToken();
+                                    String header = itemEntity.getUrl();
+                                    profile_image = itemEntity.getPath();
                                     if (curHeaderFile != null && !TextUtils.isEmpty(token)) {
-                                        uploadImg(curHeaderFile, key, token);
+                                        uploadImg(curHeaderFile, key, token, header);
                                     }
                                 }
                             }
@@ -496,7 +534,7 @@ public class EditProfileActivity extends BaseActivity {
     }
 
     //上传图片
-    private void uploadImg(File data, String key, String token) {
+    private void uploadImg(File data, String key, String token, final String header) {
         Configuration config = new Configuration.Builder()
                 .zone(AutoZone.autoZone)
                 .build();
@@ -506,21 +544,21 @@ public class EditProfileActivity extends BaseActivity {
             public void complete(String key, ResponseInfo info, JSONObject response) {
                 if (info.isOK()) {
                     Logger.i("--->Upload Success");
-
-
-                    //                                        Glide.with(EditProfileActivity.this)
-//                                                .load(file)
-//                                                .dontAnimate()
-//                                                .diskCacheStrategy(DiskCacheStrategy.ALL)
-//                                                .placeholder(R.mipmap.icon_default_portrait)
-//                                                .transform(new GlideCircleTransform(EditProfileActivity.this))
-//                                                .centerCrop()
-//                                                .into(ivHeader);
+                    Glide.with(EditProfileActivity.this)
+                            .load(header)
+                            .dontAnimate()
+                            .diskCacheStrategy(DiskCacheStrategy.ALL)
+                            .placeholder(R.mipmap.icon_default_portrait)
+                            .transform(new GlideCircleTransform(EditProfileActivity.this))
+                            .centerCrop()
+                            .into(ivHeader);
+                    //删除头像截图
+                    if (curHeaderFile.exists())
+                        curHeaderFile.delete();
                 } else {
                     Logger.i("--->Upload Fail" + info.toString());
                     //如果失败，这里可以把info信息上报自己的服务器，便于后面分析上传错误原因
                 }
-                Logger.i("--->" + key + ",\r\n " + info + ",\r\n " + response);
             }
         }, new UploadOptions(null, null, false, new UpProgressHandler() {
             @Override
@@ -532,28 +570,52 @@ public class EditProfileActivity extends BaseActivity {
 
     //保存个人信息
     private void saveMemberInfo() {
-        String username = etUsername.getText().toString().trim();
-        String introduction = etAbout.getText().toString().trim();
+        final String username = etUsername.getText().toString().trim();
+        final String introduction = etAbout.getText().toString().trim();
 
+        String country = "";
+        String province = "";
+        String city = "";
+        String latitude = "";
+        String longitude = "";
+        String addressStr = "";
+        if (locationEntity != null) {
+            country = locationEntity.getCountry();
+            province = locationEntity.getProvince();
+            city = locationEntity.getCity();
+            latitude = locationEntity.getLat() + "";
+            longitude = locationEntity.getLng() + "";
+            addressStr = locationEntity.getAddress();
+        }
         Map<String, String> param = new HashMap<>();
         param.put("mid", PaperUtils.getMId());
         param.put("session_key", PaperUtils.getSessionKey());
         param.put("username", username);
-        param.put("profile_image", "");
+        param.put("profile_image", profile_image);
         param.put("gender", curGender + ""); //性别:1-男，2-女
-        param.put("location", "");
-        param.put("country", "");
-        param.put("province", "");
-        param.put("city", "");
-        param.put("latitude", "");
-        param.put("longitude", "");
+        param.put("location", addressStr);
+        param.put("country", country);
+        param.put("province", province);
+        param.put("city", city);
+        param.put("latitude", latitude);
+        param.put("longitude", longitude);
         param.put("introduction", introduction);
         Call<SaveMemberEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .saveMemberInfo(ParamHelper.formatData(param));
         call.enqueue(new RetrofitCallback<SaveMemberEntity>() {
             @Override
             public void onSuccess(Call<SaveMemberEntity> call, Response<SaveMemberEntity> response) {
-
+                SaveMemberEntity saveMemberEntity = response.body();
+                if (saveMemberEntity != null) {
+                    int code = saveMemberEntity.getCode();
+                    String msg = saveMemberEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        sendUpdateSuccessEvent();
+                        showUpdateSuccessDialog();
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
             }
 
             @Override
@@ -566,6 +628,56 @@ public class EditProfileActivity extends BaseActivity {
 
             }
         });
+    }
+
+    //发送更新用户信息成功Event
+    private void sendUpdateSuccessEvent() {
+        MsgEvent msgEvent = new MsgEvent();
+        msgEvent.setMsg(MsgEvent.EVENT_UPDATE_USER_INFO);
+        EventBus.getDefault().post(msgEvent);
+    }
+
+    //显示更新用户信息成功弹框
+    private void showUpdateSuccessDialog() {
+        final CommonDialog dialog = new CommonDialog(this);
+        dialog.getTitle().setVisibility(View.GONE);
+        dialog.getContent().setText(getString(R.string.success));
+        dialog.getBtnCancel().setVisibility(View.GONE);
+        dialog.setOnBtnClick(new CommonDialog.OnBtnClick() {
+            @Override
+            public void onOkClick() {
+                dialog.dismiss();
+                finish();
+            }
+        });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(MsgEvent event) {
+        if (event != null) {
+            String msg = event.getMsg();
+            switch (msg) {
+                case MsgEvent.EVENT_GET_LOCATION:
+                    locationEntity = (LocationEntity) event.getObj();
+                    if (locationEntity != null) {
+                        String country = locationEntity.getCountry();
+                        String province = locationEntity.getProvince();
+                        String city = locationEntity.getCity();
+                        if (!TextUtils.isEmpty(province) && !TextUtils.isEmpty(city)) {
+                            tvLocation.setText(province + " " + city);
+                        } else if (TextUtils.isEmpty(province) && TextUtils.isEmpty(city)) {
+                            tvLocation.setText(country);
+                        } else {
+                            if (TextUtils.isEmpty(province)) {
+                                tvLocation.setText(city);
+                            } else {
+                                tvLocation.setText(province);
+                            }
+                        }
+                    }
+                    break;
+            }
+        }
     }
 
 }

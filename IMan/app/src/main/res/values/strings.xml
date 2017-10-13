@@ -57,4 +57,5 @@
     <string name="name">Name</string>
     <string name="gender">Gender</string>
     <string name="about_me">About Me</string>
+    <string name="map">Map</string>
 </resources>
