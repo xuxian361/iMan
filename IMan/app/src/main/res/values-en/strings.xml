@@ -59,4 +59,6 @@
     <string name="gender">Gender</string>
     <string name="about_me">About Me</string>
     <string name="map">Map</string>
+    <string name="about_community">About the community</string>
+    <string name="tags_hint">Tags (separate multiple tags by ,)</string>
 </resources>

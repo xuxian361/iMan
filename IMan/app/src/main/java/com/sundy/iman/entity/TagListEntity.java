@@ -20,7 +20,15 @@ public class TagListEntity extends BaseResEntity {
 
     @Data
     public static class DataEntity implements Serializable {
-        private List<TagListItemEntity> list;
+        private List<ListEntity> list;
+    }
+
+    @Data
+    public static class ListEntity implements Serializable {
+        private String id;
+        private String title;
+        private String total;
+        private List<TagListItemEntity> items;
     }
 
 }

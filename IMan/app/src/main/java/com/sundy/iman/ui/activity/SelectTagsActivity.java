@@ -1,12 +1,18 @@
 package com.sundy.iman.ui.activity;
 
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
+import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.BaseViewHolder;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.TagListEntity;
@@ -16,16 +22,18 @@ import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.view.TitleBarView;
+import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersAdapter;
+import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 import com.zhy.view.flowlayout.FlowLayout;
 import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -37,10 +45,11 @@ public class SelectTagsActivity extends BaseActivity {
 
     @BindView(R.id.title_bar)
     TitleBarView titleBar;
-    @BindView(R.id.btn_confirm)
-    Button btnConfirm;
-    @BindView(R.id.fl_tab)
-    TagFlowLayout flTab;
+    @BindView(R.id.rv_tags)
+    RecyclerView rvTags;
+
+    private TagsListAdapter tagsListAdapter;
+    private List<TagListEntity.ListEntity> listTags = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -49,11 +58,14 @@ public class SelectTagsActivity extends BaseActivity {
         ButterKnife.bind(this);
 
         initTitle();
+        init();
         getTagList();
     }
 
     private void initTitle() {
         titleBar.setBackMode(getString(R.string.select_tags));
+        titleBar.setRightTvText(getString(R.string.save));
+        titleBar.setRightTvVisibility(View.VISIBLE);
         titleBar.setOnClickListener(new OnTitleBarClickListener() {
             @Override
             public void onLeftImgClick() {
@@ -72,7 +84,7 @@ public class SelectTagsActivity extends BaseActivity {
 
             @Override
             public void onRightTxtClick() {
-
+                saveTags();
             }
 
             @Override
@@ -80,6 +92,21 @@ public class SelectTagsActivity extends BaseActivity {
 
             }
         });
+    }
+
+    private void init() {
+        rvTags.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        tagsListAdapter = new TagsListAdapter(R.layout.item_tags_list, listTags);
+        // Add the sticky headers decoration
+        final StickyRecyclerHeadersDecoration headersDecor = new StickyRecyclerHeadersDecoration(tagsListAdapter);
+        rvTags.addItemDecoration(headersDecor);
+
+        rvTags.setAdapter(tagsListAdapter);
+    }
+
+    //保存Tags
+    private void saveTags() {
+
     }
 
     //获取标签列表
@@ -97,9 +124,12 @@ public class SelectTagsActivity extends BaseActivity {
                             if (code == Constants.CODE_SUCCESS) {
                                 TagListEntity.DataEntity dataEntity = entity.getData();
                                 if (dataEntity != null) {
-                                    List<TagListItemEntity> list = dataEntity.getList();
+                                    List<TagListEntity.ListEntity> list = dataEntity.getList();
                                     if (list != null && list.size() > 0) {
-                                        setData(list);
+                                        if (listTags != null)
+                                            listTags.clear();
+                                        listTags.addAll(list);
+                                        setData();
                                     }
                                 }
                             }
@@ -123,25 +153,57 @@ public class SelectTagsActivity extends BaseActivity {
     }
 
     //设置数据
-    private void setData(List<TagListItemEntity> list) {
-        TagAdapter<TagListItemEntity> adapter_Tag = new TagAdapter<TagListItemEntity>(list) {
-            @Override
-            public View getView(FlowLayout parent, int position, TagListItemEntity item) {
-                TextView tv = (TextView) getLayoutInflater().inflate(R.layout.item_tag_can_select,
-                        flTab, false);
-                String title = item.getTitle();
-                if (!TextUtils.isEmpty(title)) {
-                    tv.setText(title);
+    private void setData() {
+        tagsListAdapter.setNewData(listTags);
+        tagsListAdapter.notifyDataSetChanged();
+
+    }
+
+    private class TagsListAdapter extends BaseQuickAdapter<TagListEntity.ListEntity, BaseViewHolder>
+            implements StickyRecyclerHeadersAdapter<RecyclerView.ViewHolder> {
+
+        public TagsListAdapter(@LayoutRes int layoutResId, @Nullable List<TagListEntity.ListEntity> data) {
+            super(layoutResId, data);
+        }
+
+        @Override
+        protected void convert(BaseViewHolder helper, TagListEntity.ListEntity item) {
+            final TagFlowLayout flTab = helper.getView(R.id.fl_tab);
+            TagAdapter<TagListItemEntity> adapter_Tag = new TagAdapter<TagListItemEntity>(item.getItems()) {
+                @Override
+                public View getView(FlowLayout parent, int position, TagListItemEntity item) {
+                    TextView tv = (TextView) getLayoutInflater().inflate(R.layout.item_tag_can_select,
+                            flTab, false);
+                    String title = item.getTitle();
+                    if (!TextUtils.isEmpty(title)) {
+                        tv.setText(title);
+                    }
+                    return tv;
                 }
-                return tv;
-            }
-        };
-        flTab.setAdapter(adapter_Tag);
-        flTab.setEnabled(true);
+            };
+            flTab.setAdapter(adapter_Tag);
+            flTab.setEnabled(true);
+        }
 
+        @Override
+        public long getHeaderId(int position) {
+            return Long.parseLong(getItem(position).getId());
+        }
+
+        @Override
+        public RecyclerView.ViewHolder onCreateHeaderViewHolder(ViewGroup parent) {
+            View view = LayoutInflater.from(parent.getContext())
+                    .inflate(R.layout.view_tags_header, parent, false);
+            return new RecyclerView.ViewHolder(view) {
+            };
+        }
+
+        @Override
+        public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder, int position) {
+            TextView textView = (TextView) holder.itemView;
+            textView.setText(getItem(position).getTitle());
+        }
     }
 
-    @OnClick(R.id.btn_confirm)
-    public void onViewClicked() {
-    }
+
 }
