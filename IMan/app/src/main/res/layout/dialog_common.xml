@@ -33,7 +33,9 @@
                 android:lineSpacingMultiplier="1.3"
                 android:text="Title"
                 android:textColor="@color/txt_black"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"/>
 
             <TextView
                 android:id="@+id/tv_dialog_content"
@@ -46,6 +48,8 @@
                 android:maxHeight="200dp"
                 android:minHeight="40dp"
                 android:text="Content"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
                 android:textColor="@color/txt_normal"
                 android:textSize="13sp" />
         </LinearLayout>

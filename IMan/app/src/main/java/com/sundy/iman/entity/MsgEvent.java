@@ -57,6 +57,8 @@ public class MsgEvent {
     public static final String EVENT_GET_COUNTRY_CODE = "Event_Get_Country_Code";
     //获取位置信息成功
     public static final String EVENT_GET_LOCATION = "Event_Get_Location";
+    //获取标签列表成功
+    public static final String EVENT_GET_TAGS = "Event_Get_Tags";
     //登录成功
     public static final String EVENT_LOGIN_SUCCESS = "Event_Login_Success";
     //登出成功

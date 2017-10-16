@@ -1,8 +1,10 @@
 package com.sundy.iman.ui.activity;
 
+import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -13,8 +15,11 @@ import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
+import com.orhanobut.logger.Logger;
+import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
+import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.TagListEntity;
 import com.sundy.iman.entity.TagListItemEntity;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
@@ -27,6 +32,8 @@ import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 import com.zhy.view.flowlayout.FlowLayout;
 import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -49,7 +56,8 @@ public class SelectTagsActivity extends BaseActivity {
     RecyclerView rvTags;
 
     private TagsListAdapter tagsListAdapter;
-    private List<TagListEntity.ListEntity> listTags = new ArrayList<>();
+    private List<TagListEntity.ListEntity> listTags = new ArrayList<>(); //所有列表数据
+    private List<String> selectedTags = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -57,9 +65,18 @@ public class SelectTagsActivity extends BaseActivity {
         setContentView(R.layout.act_select_tags);
         ButterKnife.bind(this);
 
+        initData();
         initTitle();
         init();
         getTagList();
+    }
+
+    private void initData() {
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            selectedTags = bundle.getStringArrayList("selectedTags");
+            Logger.e("------>tag size =" + selectedTags.size());
+        }
     }
 
     private void initTitle() {
@@ -106,7 +123,25 @@ public class SelectTagsActivity extends BaseActivity {
 
     //保存Tags
     private void saveTags() {
+        try {
+            if (selectedTags != null) {
+                Logger.e("----->select size =" + selectedTags.size());
+                if (selectedTags.size() == 0) {
+                    MainApp.getInstance().showToast(getString(R.string.please_select_tags));
+                } else if (selectedTags.size() > 5) {
+                    MainApp.getInstance().showToast(getString(R.string.select_tags_more_than_5));
+                } else {
+                    MsgEvent msgEvent = new MsgEvent();
+                    msgEvent.setMsg(MsgEvent.EVENT_GET_TAGS);
+                    msgEvent.setObj(selectedTags);
+                    EventBus.getDefault().post(msgEvent);
 
+                    finish();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     //获取标签列表
@@ -167,22 +202,55 @@ public class SelectTagsActivity extends BaseActivity {
         }
 
         @Override
-        protected void convert(BaseViewHolder helper, TagListEntity.ListEntity item) {
-            final TagFlowLayout flTab = helper.getView(R.id.fl_tab);
-            TagAdapter<TagListItemEntity> adapter_Tag = new TagAdapter<TagListItemEntity>(item.getItems()) {
-                @Override
-                public View getView(FlowLayout parent, int position, TagListItemEntity item) {
-                    TextView tv = (TextView) getLayoutInflater().inflate(R.layout.item_tag_can_select,
-                            flTab, false);
-                    String title = item.getTitle();
-                    if (!TextUtils.isEmpty(title)) {
-                        tv.setText(title);
+        protected void convert(final BaseViewHolder helper, final TagListEntity.ListEntity item) {
+            try {
+                final List<TagListItemEntity> listItemEntities = item.getItems();
+                final TagFlowLayout flTab = helper.getView(R.id.fl_tab);
+                final TagAdapter<TagListItemEntity> adapter_Tag = new TagAdapter<TagListItemEntity>(listItemEntities) {
+                    @Override
+                    public View getView(FlowLayout parent, int position, TagListItemEntity item) {
+                        TextView tv = (TextView) getLayoutInflater().inflate(R.layout.item_tag_can_select,
+                                flTab, false);
+                        String title = item.getTitle();
+                        if (!TextUtils.isEmpty(title)) {
+                            tv.setText(title);
+                        }
+
+                        if (selectedTags != null && selectedTags.size() > 0) {
+                            for (int i = 0; i < selectedTags.size(); i++) {
+                                String selectStr = selectedTags.get(i);
+                                if (!TextUtils.isEmpty(selectStr)) {
+                                    if (selectStr.equals(title)) {
+                                        tv.setBackgroundResource(R.drawable.corner_tag_blue);
+                                        tv.setTextColor(ContextCompat.getColor(SelectTagsActivity.this, R.color.txt_white));
+                                    }
+                                }
+                            }
+                        }
+                        return tv;
                     }
-                    return tv;
-                }
-            };
-            flTab.setAdapter(adapter_Tag);
-            flTab.setEnabled(true);
+                };
+                flTab.setAdapter(adapter_Tag);
+                flTab.setEnabled(true);
+                flTab.setOnTagClickListener(new TagFlowLayout.OnTagClickListener() {
+                    @Override
+                    public boolean onTagClick(View view, int position, FlowLayout parent) {
+                        TagListItemEntity selectItem = listItemEntities.get(position);
+                        String title = selectItem.getTitle();
+                        if (!selectedTags.contains(title)) {
+                            selectedTags.add(title);
+                        } else {
+                            selectedTags.remove(title);
+                        }
+                        Logger.e("==>" + selectedTags.size());
+                        adapter_Tag.notifyDataChanged();
+                        return false;
+                    }
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
         }
 
         @Override
@@ -202,6 +270,7 @@ public class SelectTagsActivity extends BaseActivity {
         public void onBindHeaderViewHolder(RecyclerView.ViewHolder holder, int position) {
             TextView textView = (TextView) holder.itemView;
             textView.setText(getItem(position).getTitle());
+            textView.setBackgroundColor(Color.parseColor("#D8FFFFFF"));
         }
     }
 

@@ -29,6 +29,8 @@ public class TagListEntity extends BaseResEntity {
         private String title;
         private String total;
         private List<TagListItemEntity> items;
+
+        private List<Integer> selectedPosition;
     }
 
 }

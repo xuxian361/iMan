@@ -60,14 +60,14 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "String", "SERVER_URL", "\"http://39.108.238.138/api/\""
+            buildConfigField "String", "SERVER_URL", "\"http://39.108.238.138/iman/api/\""
             minifyEnabled false
             zipAlignEnabled false
             shrinkResources false
             signingConfig signingConfigs.debug
         }
         release {
-            buildConfigField "String", "SERVER_URL", "\"http://39.108.238.138/api/\""
+            buildConfigField "String", "SERVER_URL", "\"http://39.108.238.138/iman/api/\""
             minifyEnabled true
             zipAlignEnabled true
             shrinkResources true

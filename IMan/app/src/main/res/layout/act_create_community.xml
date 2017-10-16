@@ -17,13 +17,14 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginBottom="30dp"
+            android:layout_marginTop="15dp"
             android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/layout_margin_size"
-                android:layout_marginTop="15dp"
                 android:drawableLeft="@drawable/corner_bg_small_blue"
                 android:drawablePadding="5dp"
                 android:text="@string/community_name"
@@ -88,15 +89,67 @@
 
             </RelativeLayout>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginTop="15dp"
+                android:drawableLeft="@drawable/corner_bg_small_blue"
+                android:drawablePadding="5dp"
+                android:text="@string/tags"
+                android:textColor="@color/txt_black"
+                android:textSize="13sp" />
+
             <RelativeLayout
                 android:layout_width="match_parent"
-                android:layout_height="40dp"
+                android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/layout_margin_size"
                 android:layout_marginRight="@dimen/layout_margin_size"
-                android:layout_marginTop="20dp">
+                android:layout_marginTop="10dp">
+
+                <EditText
+                    android:id="@+id/et_tags"
+                    style="@style/MyEditText"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/edt_height"
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@+id/btn_add_tag"
+                    android:focusable="true"
+                    android:hint="@string/tags_edti_hint"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true"
+                    android:maxLength="20"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/btn_add_tag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/corner_tag_gray"
+                    android:gravity="center"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="5dp"
+                    android:text="@string/add_tags"
+                    android:textColor="@color/txt_normal"
+                    android:textSize="10dp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="5dp">
 
                 <com.zhy.view.flowlayout.TagFlowLayout
-                    android:id="@+id/fl_tab"
+                    android:id="@+id/fl_tags"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
@@ -105,33 +158,20 @@
 
                 <TextView
                     android:id="@+id/btn_more_tag"
-                    android:layout_width="40dp"
-                    android:layout_height="18dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
                     android:background="@drawable/corner_tag_gray"
-                    android:gravity="center"
-                    android:text="..."
-                    android:textColor="@color/txt_black"
-                    android:textSize="10dp"
-                    android:textStyle="bold" />
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="5dp"
+                    android:text="@string/select_tags"
+                    android:textColor="@color/txt_normal"
+                    android:textSize="10dp" />
 
             </RelativeLayout>
-
-            <EditText
-                android:id="@+id/et_tags"
-                android:layout_width="match_parent"
-                android:layout_height="@dimen/edt_height"
-                android:layout_marginLeft="@dimen/layout_margin_size"
-                android:layout_marginRight="@dimen/layout_margin_size"
-                android:layout_marginTop="10dp"
-                android:background="@drawable/corner_bg_edit_gray"
-                android:focusable="true"
-                android:hint="@string/tags_hint"
-                android:maxLines="1"
-                android:padding="10dp"
-                android:selectAllOnFocus="true"
-                android:textSize="12sp" />
 
             <RelativeLayout
                 android:id="@+id/rel_location"
@@ -160,7 +200,7 @@
                     android:gravity="center_vertical"
                     android:maxLines="1"
                     android:textColor="@color/txt_black"
-                    android:textSize="13sp" />
+                    android:textSize="11sp" />
 
                 <View
                     android:id="@+id/line_location"

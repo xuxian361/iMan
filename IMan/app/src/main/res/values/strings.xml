@@ -60,4 +60,13 @@
     <string name="map">Map</string>
     <string name="about_community">About the community</string>
     <string name="tags_hint">Tags (separate multiple tags by ,)</string>
+    <string name="tags">Tags</string>
+    <string name="tags_limit">你最多可拥有5个标签</string>
+    <string name="please_select_tags">你还没有选择标签</string>
+    <string name="select_tags_more_than_5">最多可以选择5个标签</string>
+    <string name="add_tags">Add tag</string>
+    <string name="if_confirm_to_delete">Are you confirm to delete this tag?</string>
+    <string name="tags_edti_hint">你可以写上自己想到的标签</string>
+    <string name="congratulations">Congratulations</string>
+    <string name="create_community_success">创建社区成功，现在你可以在社区里面做你喜欢做的事了.</string>
 </resources>

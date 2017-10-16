@@ -9,7 +9,9 @@
     android:paddingRight="8dp"
     android:paddingTop="5dp"
     android:text="HelloWorld"
+    android:button="@null"
     android:textColor="@drawable/selector_tag_text_color"
-    android:textSize="10sp">
+    android:textSize="10sp"
+    android:id="@+id/tv_tag">
 
 </TextView>

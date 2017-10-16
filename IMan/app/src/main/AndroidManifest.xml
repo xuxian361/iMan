@@ -126,7 +126,7 @@
             android:name=".ui.activity.CreateCommunityActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ui.activity.SelectTagsActivity"
             android:launchMode="singleTop"
