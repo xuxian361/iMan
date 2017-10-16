@@ -27,6 +27,7 @@
     <color name="txt_white">#ffffff</color>
     <color name="transparent">#00000000</color>
     <color name="half_transparent">#33000000</color>
+    <color name="half_white">#8affffff</color>
 
 
 </resources>

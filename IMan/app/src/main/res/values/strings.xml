@@ -69,4 +69,8 @@
     <string name="tags_edti_hint">你可以写上自己想到的标签</string>
     <string name="congratulations">Congratulations</string>
     <string name="create_community_success">创建社区成功，现在你可以在社区里面做你喜欢做的事了.</string>
+    <string name="search_contact_hint">Search by name</string>
+    <string name="community_introduction_default">地球人都很懒，什么都没有写!</string>
+    <string name="loading_hint">Loading...</string>
+    <string name="load_failed_hint">Load fail</string>
 </resources>
