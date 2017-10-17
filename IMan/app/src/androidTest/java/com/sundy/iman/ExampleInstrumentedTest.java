@@ -9,7 +9,6 @@ import com.sundy.iman.entity.CollectAdvertisingEntity;
 import com.sundy.iman.entity.CommunityInfoEntity;
 import com.sundy.iman.entity.DeletePostEntity;
 import com.sundy.iman.entity.GetPostInfoEntity;
-import com.sundy.iman.entity.JoinCommunityEntity;
 import com.sundy.iman.entity.JoinPromoteCommunityEntity;
 import com.sundy.iman.entity.UpdatePostEntity;
 import com.sundy.iman.net.ParamHelper;
@@ -25,7 +24,7 @@ import java.util.Map;
 import retrofit2.Call;
 import retrofit2.Response;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 /**
  * Instrumentation test, which will execute on an Android device.
@@ -40,33 +39,6 @@ public class ExampleInstrumentedTest {
         Context appContext = InstrumentationRegistry.getTargetContext();
 
         assertEquals("com.sundy.iman", appContext.getPackageName());
-    }
-
-    //加入或退出社区
-    private void joinCommunity() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("type", ""); //类型: 0-加入，1-退出
-        param.put("community_id", "");
-        Call<JoinCommunityEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .joinCommunity(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<JoinCommunityEntity>() {
-            @Override
-            public void onSuccess(Call<JoinCommunityEntity> call, Response<JoinCommunityEntity> response) {
-
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<JoinCommunityEntity> call, Throwable t) {
-
-            }
-        });
     }
 
     //删除Post

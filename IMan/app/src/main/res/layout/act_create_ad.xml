@@ -10,92 +10,358 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <RelativeLayout
+    <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <ScrollView
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/btn_post">
+            android:layout_marginBottom="30dp"
+            android:layout_marginTop="15dp"
+            android:orientation="vertical">
 
-            <LinearLayout
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:drawableLeft="@drawable/corner_bg_small_blue"
+                android:drawablePadding="5dp"
+                android:text="@string/subject"
+                android:textColor="@color/txt_black"
+                android:textSize="13sp" />
+
+            <EditText
+                android:id="@+id/et_subject"
+                style="@style/MyEditText"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="@dimen/edt_height"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="10dp"
+                android:focusable="true"
+                android:maxLines="1"
+                android:selectAllOnFocus="true"
+                android:textSize="13sp" />
 
-                <EditText
-                    android:id="@+id/et_subject"
-                    android:layout_width="match_parent"
-                    android:layout_height="40dp" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginTop="15dp"
+                android:drawableLeft="@drawable/corner_bg_small_blue"
+                android:drawablePadding="5dp"
+                android:text="@string/detail"
+                android:textColor="@color/txt_black"
+                android:textSize="13sp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/corner_bg_edit_gray"
+                android:padding="5dp"
+                android:visibility="visible">
 
                 <EditText
                     android:id="@+id/et_detail"
                     android:layout_width="match_parent"
-                    android:layout_height="120dp" />
-
-
-                <Button
-                    android:id="@+id/btn_select_community"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="+ Select Community" />
-
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/rv_community"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="match_parent"
+                    android:layout_above="@+id/tv_bytes"
+                    android:background="@null"
+                    android:focusable="true"
+                    android:gravity="top|left"
+                    android:maxLength="144"
+                    android:selectAllOnFocus="true"
+                    android:textColor="@color/txt_black"
+                    android:textSize="11sp" />
 
                 <TextView
-                    android:id="@+id/tv_total_user"
+                    android:id="@+id/tv_bytes"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Total Users: 0" />
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:text="(0/144)"
+                    android:textColor="@color/txt_normal"
+                    android:textSize="10sp" />
+
+            </RelativeLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="15dp"
+                android:background="@color/bg_light_gray" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_media"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:minHeight="65dp"
+                android:visibility="visible" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="10dp"
+                android:background="@color/bg_light_gray" />
+
+            <RelativeLayout
+                android:id="@+id/rel_select_community"
+                android:layout_width="wrap_content"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/semi_bg_gray_stroke">
 
                 <TextView
-                    android:id="@+id/tv_total_cost"
+                    android:id="@+id/tv_select_community"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Total cost(imcoin): 0" />
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="30dp"
+                    android:layout_marginRight="10dp"
+                    android:gravity="center"
+                    android:text="@string/select_communities"
+                    android:textColor="@color/txt_black"
+                    android:textSize="12sp" />
 
-                <RelativeLayout
-                    android:id="@+id/rel_tab"
+                <ImageView
+                    android:layout_width="20dp"
+                    android:layout_height="20dp"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="30dp"
+                    android:layout_toRightOf="@+id/tv_select_community"
+                    android:scaleType="fitCenter"
+                    android:src="@mipmap/icon_add_black" />
+
+            </RelativeLayout>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_community"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="5dp"
+                android:visibility="visible" />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="10dp"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="10dp"
+                android:background="@color/bg_line_gray" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size">
+
+                <TextView
+                    android:id="@+id/tv_total_user_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/total_uesrs"
+                    android:textColor="@color/txt_normal"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_total_user_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:text="0"
+                    android:textColor="@color/txt_blue"
+                    android:textSize="14sp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="5dp">
+
+                <TextView
+                    android:id="@+id/tv_total_cost_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/total_cost"
+                    android:textColor="@color/txt_normal"
+                    android:textSize="12sp" />
+
+                <TextView
+                    android:id="@+id/tv_total_cost_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:text="0.0"
+                    android:textColor="@color/txt_blue"
+                    android:textSize="14sp" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="5dp"
+                android:background="@color/bg_desc"
+                android:orientation="vertical">
+
+                <LinearLayout
+                    android:id="@+id/ll_state"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="@dimen/layout_margin_size"
+                    android:layout_marginRight="@dimen/layout_margin_size"
+                    android:layout_marginTop="10dp"
+                    android:orientation="vertical" />
 
-                    <com.zhy.view.flowlayout.TagFlowLayout
-                        android:id="@+id/fl_tab"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_toLeftOf="@+id/btn_more_tag" />
+            </LinearLayout>
 
-                    <Button
-                        android:id="@+id/btn_more_tag"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentRight="true"
-                        android:text="..." />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginTop="15dp"
+                android:drawableLeft="@drawable/corner_bg_small_blue"
+                android:drawablePadding="5dp"
+                android:text="@string/tags"
+                android:textColor="@color/txt_black"
+                android:textSize="13sp" />
 
-                </RelativeLayout>
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="10dp">
 
                 <EditText
                     android:id="@+id/et_tags"
+                    style="@style/MyEditText"
                     android:layout_width="match_parent"
-                    android:layout_height="40dp"
-                    android:hint="Tags (separate multiple tags by ,)" />
+                    android:layout_height="@dimen/edt_height"
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@+id/btn_add_tag"
+                    android:focusable="true"
+                    android:hint="@string/tags_edti_hint"
+                    android:maxLength="20"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:selectAllOnFocus="true"
+                    android:singleLine="true"
+                    android:textSize="11sp" />
+
+                <TextView
+                    android:id="@+id/btn_add_tag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/corner_tag_gray"
+                    android:gravity="center"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="5dp"
+                    android:text="@string/add_tags"
+                    android:textColor="@color/txt_normal"
+                    android:textSize="10dp" />
+
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="5dp">
+
+                <com.zhy.view.flowlayout.TagFlowLayout
+                    android:id="@+id/fl_tags"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="10dp"
+                    android:layout_toLeftOf="@+id/btn_more_tag" />
+
+                <TextView
+                    android:id="@+id/btn_more_tag"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:background="@drawable/corner_tag_gray"
+                    android:paddingBottom="5dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="5dp"
+                    android:text="@string/select_tags"
+                    android:textColor="@color/txt_normal"
+                    android:textSize="10dp" />
+
+            </RelativeLayout>
+
+            <LinearLayout
+                android:id="@+id/ll_how_get_imcoin"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="30dp"
+                android:gravity="center|left"
+                android:orientation="horizontal">
+
+                <ImageView
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginRight="10dp"
+                    android:scaleType="fitCenter"
+                    android:src="@mipmap/icon_doubt_gray" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/how_get_imcoin"
+                    android:textColor="@color/txt_normal"
+                    android:textSize="11sp" />
 
 
             </LinearLayout>
 
-        </ScrollView>
+            <TextView
+                android:id="@+id/btn_confirm"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/button_height"
+                android:layout_gravity="center"
+                android:layout_marginTop="30dp"
+                android:background="@drawable/selector_btn_blue_gray"
+                android:gravity="center"
+                android:minWidth="@dimen/button_min_width"
+                android:text="@string/post_ad_now"
+                android:textColor="@color/txt_white"
+                android:textSize="14sp" />
 
-        <Button
-            android:id="@+id/btn_post"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_alignParentBottom="true"
-            android:text="Post Ad Now" />
+        </LinearLayout>
 
-    </RelativeLayout>
+    </ScrollView>
 
 </LinearLayout>

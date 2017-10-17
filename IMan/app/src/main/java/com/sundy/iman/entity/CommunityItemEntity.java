@@ -23,5 +23,7 @@ public class CommunityItemEntity implements Serializable {
     private String tags; //标签
     private String is_creator; //是否是作者: 1-是，0-否
     private String is_join; //是否加入社区: 1-是，0-否
+    private String create_time; //创建时间
+    private String url;
 
 }

@@ -9,6 +9,7 @@
     <color name="main_bg">#F5F5F5</color>
     <color name="main_white">#FFFFFF</color>
     <color name="main_red">#FF493B</color>
+    <color name="bg_red">#f93b2c</color>
     <color name="white">#ffffff</color>
     <color name="bg_light_gray">#f1f2f4</color>
     <color name="bg_line_gray">#e3e3e4</color>
@@ -28,6 +29,7 @@
     <color name="transparent">#00000000</color>
     <color name="half_transparent">#33000000</color>
     <color name="half_white">#8affffff</color>
+    <color name="bg_desc">#f2f9fa</color>
 
 
 </resources>

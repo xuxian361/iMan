@@ -64,7 +64,7 @@
     <string name="tags">Tags</string>
     <string name="tags_limit">你最多可拥有5个标签</string>
     <string name="please_select_tags">你还没有选择标签</string>
-    <string name="select_tags_more_than_5">最多可以选择5个标签</string>
+    <string name="select_tags_more_than_5">拥有的标签不能超过5个</string>
     <string name="add_tags">Add tag</string>
     <string name="if_confirm_to_delete">Are you confirm to delete this tag?</string>
     <string name="tags_edti_hint">你可以写上自己想到的标签</string>
@@ -74,4 +74,18 @@
     <string name="community_introduction_default">地球人都很懒，什么都没有写!</string>
     <string name="loading_hint">Loading...</string>
     <string name="load_failed_hint">Load fail</string>
+    <string name="tag_cannot_contain_dot">标签不能包含\" , \"哦</string>
+    <string name="exit">退出</string>
+    <string name="quit">退出</string>
+    <string name="if_confirm_quit_community">确定退出该社区吗?</string>
+    <string name="subject">Subject</string>
+    <string name="detail">Detail</string>
+    <string name="select_communities">Select communities</string>
+    <string name="total_uesrs">Total Users:</string>
+    <string name="total_cost">Total Cost(imcoin):</string>
+    <string name="post_ad_now">Post Ad now</string>
+    <string name="how_get_imcoin">How to get imcoin?</string>
+    <string name="advertise">Advertise</string>
+    <string name="if_return">返回后编辑的内容将会丢失，确认返回?</string>
+    <string name="search_community_hint">Search by community name, tag</string>
 </resources>

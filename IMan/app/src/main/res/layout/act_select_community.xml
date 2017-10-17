@@ -10,10 +10,77 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
+    <include
+        layout="@layout/view_search_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <RelativeLayout
+        android:id="@+id/rel_location"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="12dp"
+        android:layout_marginLeft="@dimen/layout_margin_size"
+        android:layout_marginRight="@dimen/layout_margin_size"
+        android:layout_marginTop="10dp">
+
+        <TextView
+            android:id="@+id/tv_location_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@mipmap/icon_dot_blue"
+            android:drawablePadding="5dp"
+            android:text="@string/location"
+            android:textColor="@color/txt_normal"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/tv_location"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_toLeftOf="@+id/iv_location"
+            android:layout_toRightOf="@+id/tv_location_title"
+            android:gravity="right"
+            android:textColor="@color/txt_black"
+            android:textSize="12sp" />
+
+        <ImageView
+            android:id="@+id/iv_location"
+            android:layout_width="16dp"
+            android:layout_height="16dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@mipmap/icon_location_blue" />
+
+    </RelativeLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
-        
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_community"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@+id/tv_total_user"
+            android:paddingBottom="15dp"
+            android:paddingTop="10dp" />
+
+        <TextView
+            android:id="@+id/tv_total_user"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:background="@color/half_white"
+            android:gravity="center"
+            android:paddingBottom="10dp"
+            android:paddingTop="10dp"
+            android:text="Total: 0 Users"
+            android:textColor="@color/txt_black"
+            android:textSize="10sp" />
 
     </RelativeLayout>
 

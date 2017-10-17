@@ -1,41 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
+    android:id="@+id/swipe">
+    <!-- Bottom View Start-->
+    <LinearLayout
+        android:id="@+id/bottom_wrapper"
+        android:layout_width="80dp"
+        android:layout_height="match_parent"
+        android:background="@color/bg_red"
+        android:weightSum="1">
 
-    <TextView
-        android:id="@+id/tv_community_name"
+        <TextView
+            android:id="@+id/tv_item_del"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="@null"
+            android:gravity="center"
+            android:text="@string/quit"
+            android:textColor="@color/txt_white"
+            android:textSize="11sp" />
+
+        <!--What you want to show-->
+    </LinearLayout>
+    <!-- Bottom View End-->
+
+    <!-- Surface View Start -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/layout_margin_size"
-        android:layout_marginRight="@dimen/layout_margin_size"
-        android:layout_marginTop="10dp"
-        android:textColor="@color/txt_black"
-        android:textSize="13sp" />
+        android:background="@color/white"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tv_community_introduction"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/layout_margin_size"
-        android:layout_marginRight="@dimen/layout_margin_size"
-        android:layout_marginTop="3dp"
-        android:textColor="@color/txt_gray"
-        android:textSize="11sp" />
+        <TextView
+            android:id="@+id/tv_community_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/layout_margin_size"
+            android:layout_marginRight="@dimen/layout_margin_size"
+            android:layout_marginTop="10dp"
+            android:textColor="@color/txt_black"
+            android:textSize="13sp" />
 
-    <com.zhy.view.flowlayout.TagFlowLayout
-        android:id="@+id/fl_tab"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginLeft="@dimen/layout_margin_size"
-        android:layout_marginRight="@dimen/layout_margin_size"
-        android:layout_marginTop="3dp" />
+        <TextView
+            android:id="@+id/tv_community_introduction"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="@dimen/layout_margin_size"
+            android:layout_marginRight="@dimen/layout_margin_size"
+            android:layout_marginTop="3dp"
+            android:textColor="@color/txt_gray"
+            android:textSize="11sp" />
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_marginTop="5dp"
-        android:background="@color/bg_light_gray" />
+        <com.zhy.view.flowlayout.TagFlowLayout
+            android:id="@+id/fl_tab"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="@dimen/layout_margin_size"
+            android:layout_marginRight="@dimen/layout_margin_size"
+            android:layout_marginTop="3dp" />
 
-</LinearLayout>
+    </LinearLayout>
+    <!-- Surface View End -->
+</com.daimajia.swipe.SwipeLayout>

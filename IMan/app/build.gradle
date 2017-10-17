@@ -141,7 +141,7 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:25.2.0'
     compile 'com.github.CymChad:BaseRecyclerViewAdapterHelper:2.9.30'
     //SwipeLayout
-    compile 'com.daimajia.swipelayout:library:1.2.0@aar'
+    compile "com.daimajia.swipelayout:library:1.2.0@aar"
     //图片显示
     compile 'com.github.bumptech.glide:glide:3.8.0'
     //Tab Layout

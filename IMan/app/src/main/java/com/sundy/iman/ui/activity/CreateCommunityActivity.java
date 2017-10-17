@@ -264,6 +264,11 @@ public class CreateCommunityActivity extends BaseActivity {
         if (TextUtils.isEmpty(tag)) {
             return;
         }
+        if (tag.contains(",")) {
+            MainApp.getInstance().showToast(getString(R.string.tag_cannot_contain_dot));
+            return;
+        }
+
         if (selectedTags != null) {
             if (selectedTags.contains(tag)) {
                 return;
