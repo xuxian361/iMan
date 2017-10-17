@@ -28,7 +28,7 @@
         android:maxWidth="90dp"
         android:text="Left"
         android:textColor="@color/txt_gray"
-        android:textSize="11sp"
+        android:textSize="12sp"
         android:visibility="gone" />
 
     <TextView
@@ -58,7 +58,7 @@
         android:maxWidth="90dp"
         android:text="Right"
         android:textColor="@color/txt_black"
-        android:textSize="11sp"
+        android:textSize="12sp"
         android:visibility="gone" />
 
 

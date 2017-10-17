@@ -135,7 +135,7 @@
             android:name=".ui.activity.MyContactsActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan"/>
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.MyPostActivity"
             android:launchMode="singleTop"
@@ -143,7 +143,8 @@
         <activity
             android:name=".ui.activity.SelectCommunityActivity"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
         <activity
             android:name=".ui.activity.CreateAdvertisingActivity"
             android:launchMode="singleTop"

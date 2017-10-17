@@ -15,7 +15,7 @@
         android:paddingTop="15dp"
         android:text="China (+86)"
         android:textColor="@drawable/selector_gender_text"
-        android:textSize="12sp" />
+        android:textSize="13sp" />
 
     <ImageView
         android:id="@+id/iv_check"

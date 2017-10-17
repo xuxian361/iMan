@@ -110,7 +110,7 @@
             android:paddingRight="10dp"
             android:text="@string/get_code"
             android:textColor="@color/txt_white"
-            android:textSize="10sp" />
+            android:textSize="12sp" />
 
     </RelativeLayout>
 

@@ -2,14 +2,17 @@ package com.sundy.iman.ui.activity;
 
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -20,20 +23,33 @@ import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.CommunityItemEntity;
 import com.sundy.iman.entity.CommunityListEntity;
+import com.sundy.iman.entity.LocationEntity;
 import com.sundy.iman.entity.MsgEvent;
+import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.utils.DateUtils;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
+import com.sundy.iman.view.popupwindow.SelectedCommunityPopup;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
+import com.yanzhenjie.permission.PermissionNo;
+import com.yanzhenjie.permission.PermissionYes;
+import com.yanzhenjie.permission.Rationale;
+import com.yanzhenjie.permission.RationaleListener;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,6 +65,8 @@ import retrofit2.Response;
  */
 
 public class SelectCommunityActivity extends BaseActivity {
+
+    private static final int REQUEST_CODE_PERMISSION_LOCATION = 100;
 
     @BindView(R.id.title_bar)
     TitleBarView titleBar;
@@ -70,6 +88,10 @@ public class SelectCommunityActivity extends BaseActivity {
     RecyclerView rvCommunity;
     @BindView(R.id.tv_total_user)
     TextView tvTotalUser;
+    @BindView(R.id.iv_detail)
+    ImageView ivDetail;
+    @BindView(R.id.ll_bottom)
+    LinearLayout llBottom;
 
     private ArrayList<String> selectedCommunity = new ArrayList<>(); //已选择的社区列表
     private List<CommunityItemEntity> listCommunity = new ArrayList<>();
@@ -80,12 +102,18 @@ public class SelectCommunityActivity extends BaseActivity {
 
     private CommunityAdapter communityAdapter;
 
+    private LocationEntity locationEntity;
+
+    private SelectedCommunityPopup selectedCommunityPopup;
+    private boolean isBottomShow = false;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_select_community);
         ButterKnife.bind(this);
 
+        EventBus.getDefault().register(this);
         initData();
         initTitle();
         init();
@@ -95,6 +123,7 @@ public class SelectCommunityActivity extends BaseActivity {
     }
 
     private void init() {
+        ivDetail.setSelected(true);
         etSearch.setHint(getString(R.string.search_community_hint));
         etSearch.addTextChangedListener(textWatcher);
 
@@ -108,6 +137,8 @@ public class SelectCommunityActivity extends BaseActivity {
         communityAdapter.setEnableLoadMore(true);
         communityAdapter.setOnLoadMoreListener(onLoadMoreListener, rvCommunity);
         rvCommunity.setAdapter(communityAdapter);
+
+        selectedCommunityPopup = new SelectedCommunityPopup(this);
     }
 
     private void initData() {
@@ -167,20 +198,36 @@ public class SelectCommunityActivity extends BaseActivity {
             page = 1;
             if (listCommunity != null)
                 listCommunity.clear();
+            communityAdapter.notifyDataSetChanged();
             getCommunityList();
         }
     };
 
     //获取社区列表
     private void getCommunityList() {
+        String country = "";
+        String province = "";
+        String city = "";
+        String latitude = "";
+        String longitude = "";
+        String addressStr = "";
+        if (locationEntity != null) {
+            country = locationEntity.getCountry();
+            province = locationEntity.getProvince();
+            city = locationEntity.getCity();
+            latitude = locationEntity.getLat() + "";
+            longitude = locationEntity.getLng() + "";
+            addressStr = locationEntity.getAddress();
+        }
+
         Map<String, String> param = new HashMap<>();
         param.put("type", "3"); //1-全部社区, 2-我的社区, 3-发布广告的社区搜索, 4-加入推广社区搜索，5-我的推广社区
         param.put("mid", PaperUtils.getMId());
         param.put("session_key", PaperUtils.getSessionKey());
         param.put("keyword", keyword);
         param.put("tags", "");
-        param.put("province", "");
-        param.put("city", "");
+        param.put("province", province);
+        param.put("city", city);
         param.put("page", page + ""); //当前页码
         param.put("perpage", perpage + ""); //每页显示条数
         Call<CommunityListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
@@ -246,8 +293,71 @@ public class SelectCommunityActivity extends BaseActivity {
         finish();
     }
 
-    @OnClick(R.id.rel_location)
-    public void onViewClicked() {
+    @PermissionYes(REQUEST_CODE_PERMISSION_LOCATION)
+    private void getPermissionLocationYes(@NonNull List<String> grantedPermissions) {
+        Logger.e("位置权限申请成功!");
+        goSelectLocationByMap();
+    }
+
+    @PermissionNo(REQUEST_CODE_PERMISSION_LOCATION)
+    private void getPermissionLocationNo(@NonNull List<String> deniedPermissions) {
+        Logger.e("位置权限申请失败!");
+
+    }
+
+    //获取定位全向
+    private void getLocationPermission() {
+        AndPermission.with(this)
+                .requestCode(REQUEST_CODE_PERMISSION_LOCATION)
+                .permission(Permission.LOCATION)
+                .callback(this)
+                .rationale(new RationaleListener() {
+                    @Override
+                    public void showRequestPermissionRationale(int requestCode, Rationale rationale) {
+                        // 这里的对话框可以自定义，只要调用rationale.resume()就可以继续申请。
+                        AndPermission.rationaleDialog(SelectCommunityActivity.this, rationale).show();
+                    }
+                })
+                .start();
+    }
+
+    //跳转地图获取位置信息
+    private void goSelectLocationByMap() {
+        UIHelper.jump(this, SelectLocationByMapActivity.class);
+    }
+
+    @OnClick({R.id.rel_location, R.id.ll_bottom})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.rel_location:
+                getLocationPermission();
+                break;
+            case R.id.ll_bottom:
+                if (!isBottomShow) {
+                    showBottom();
+                } else {
+                    hideBottom();
+                }
+                break;
+        }
+    }
+
+    //显示底部View
+    private void showBottom() {
+        if (selectedCommunityPopup != null) {
+            isBottomShow = true;
+            ivDetail.setSelected(false);
+            selectedCommunityPopup.showUp(llBottom);
+        }
+    }
+
+    //关闭底部View
+    private void hideBottom() {
+        if (selectedCommunityPopup != null) {
+            isBottomShow = false;
+            ivDetail.setSelected(true);
+            selectedCommunityPopup.dismiss();
+        }
     }
 
     private class CommunityAdapter extends BaseQuickAdapter<CommunityItemEntity, BaseViewHolder> {
@@ -271,7 +381,13 @@ public class SelectCommunityActivity extends BaseActivity {
 
             tv_community_name.setText(community_name);
             tv_desc.setText(introduction);
-            tv_create_date.setText(create_time);
+            if (create_time != null) {
+                Date date = DateUtils.formatTimeStamp2Date(Long.parseLong(create_time) * 1000);
+                tv_create_date.setText(getString(R.string.created) + DateUtils.formatDate2String(date, "yyyy/MM/dd"));
+            } else {
+                tv_create_date.setText("");
+            }
+
             tv_num.setText(members);
 
         }
@@ -288,5 +404,53 @@ public class SelectCommunityActivity extends BaseActivity {
         }
     };
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(MsgEvent event) {
+        if (event != null) {
+            String msg = event.getMsg();
+            switch (msg) {
+                case MsgEvent.EVENT_GET_LOCATION:
+                    locationEntity = (LocationEntity) event.getObj();
+                    setLocation(locationEntity);
+                    page = 1;
+                    if (listCommunity != null)
+                        listCommunity.clear();
+                    communityAdapter.notifyDataSetChanged();
+                    getCommunityList();
+                    break;
+            }
+        }
+    }
+
+    //设置选择回来的位置
+    private void setLocation(LocationEntity locationEntity) {
+        if (locationEntity != null) {
+            String country = locationEntity.getCountry();
+            String province = locationEntity.getProvince();
+            String city = locationEntity.getCity();
+            if (!TextUtils.isEmpty(province) && !TextUtils.isEmpty(city)) {
+                tvLocation.setText(province + " " + city);
+            } else if (TextUtils.isEmpty(province) && TextUtils.isEmpty(city)) {
+                tvLocation.setText(country);
+            } else {
+                if (TextUtils.isEmpty(province)) {
+                    tvLocation.setText(city);
+                } else {
+                    tvLocation.setText(province);
+                }
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+        if (selectedCommunityPopup != null) {
+            isBottomShow = false;
+            selectedCommunityPopup.dismiss();
+            selectedCommunityPopup = null;
+        }
+    }
 
 }

@@ -190,7 +190,7 @@
                     android:maxLength="144"
                     android:selectAllOnFocus="true"
                     android:textColor="@color/txt_black"
-                    android:textSize="11sp" />
+                    android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/tv_bytes"
@@ -200,7 +200,7 @@
                     android:layout_alignParentRight="true"
                     android:text="(0/144)"
                     android:textColor="@color/txt_normal"
-                    android:textSize="10sp" />
+                    android:textSize="13sp" />
 
             </RelativeLayout>
 

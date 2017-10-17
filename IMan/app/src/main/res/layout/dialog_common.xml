@@ -33,7 +33,7 @@
                 android:lineSpacingMultiplier="1.3"
                 android:text="Title"
                 android:textColor="@color/txt_black"
-                android:textSize="11sp"
+                android:textSize="13sp"
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"/>
 
@@ -51,7 +51,7 @@
                 android:layout_marginLeft="10dp"
                 android:layout_marginRight="10dp"
                 android:textColor="@color/txt_normal"
-                android:textSize="10sp" />
+                android:textSize="12sp" />
         </LinearLayout>
 
         <ImageView

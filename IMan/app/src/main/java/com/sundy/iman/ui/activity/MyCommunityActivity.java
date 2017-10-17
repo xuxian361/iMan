@@ -150,6 +150,7 @@ public class MyCommunityActivity extends BaseActivity {
             page = 1;
             if (listCommunity != null)
                 listCommunity.clear();
+            communityAdapter.notifyDataSetChanged();
             getCommunityList();
         }
     };

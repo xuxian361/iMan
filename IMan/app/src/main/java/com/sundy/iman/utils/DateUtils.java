@@ -1,5 +1,7 @@
 package com.sundy.iman.utils;
 
+import com.orhanobut.logger.Logger;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
@@ -113,5 +115,35 @@ public class DateUtils {
         }
         return 0;
     }
+
+    /**
+     * 时间戳 转 日期
+     *
+     * @param timeStamp
+     * @return
+     */
+    public static Date formatTimeStamp2Date(long timeStamp) {
+        Date date = new Date(timeStamp);
+        Logger.e("----->date = " + date.toString());
+        return date;
+    }
+
+    /**
+     * 日期转字符串
+     *
+     * @param date
+     * @return
+     */
+    public static String formatDate2String(Date date, String format) {
+        String str = "";
+        try {
+            SimpleDateFormat sdf = new SimpleDateFormat(format);
+            str = sdf.format(date);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return str;
+    }
+
 
 }

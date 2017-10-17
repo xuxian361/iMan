@@ -17,7 +17,7 @@
         android:singleLine="true"
         android:text="Community Name"
         android:textColor="@color/txt_black"
-        android:textSize="12sp" />
+        android:textSize="13sp" />
 
     <TextView
         android:id="@+id/tv_desc"

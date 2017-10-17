@@ -76,7 +76,7 @@
                     android:maxLength="144"
                     android:selectAllOnFocus="true"
                     android:textColor="@color/txt_black"
-                    android:textSize="11sp" />
+                    android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/tv_bytes"
@@ -86,7 +86,7 @@
                     android:layout_alignParentRight="true"
                     android:text="(0/144)"
                     android:textColor="@color/txt_normal"
-                    android:textSize="10sp" />
+                    android:textSize="13sp" />
 
             </RelativeLayout>
 
@@ -135,7 +135,7 @@
                     android:gravity="center"
                     android:text="@string/select_communities"
                     android:textColor="@color/txt_black"
-                    android:textSize="12sp" />
+                    android:textSize="13sp" />
 
                 <ImageView
                     android:layout_width="20dp"
@@ -178,7 +178,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/total_uesrs"
                     android:textColor="@color/txt_normal"
-                    android:textSize="12sp" />
+                    android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/tv_total_user_value"
@@ -204,7 +204,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/total_cost"
                     android:textColor="@color/txt_normal"
-                    android:textSize="12sp" />
+                    android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/tv_total_cost_value"
@@ -268,7 +268,7 @@
                     android:paddingRight="10dp"
                     android:selectAllOnFocus="true"
                     android:singleLine="true"
-                    android:textSize="11sp" />
+                    android:textSize="13sp" />
 
                 <TextView
                     android:id="@+id/btn_add_tag"
@@ -342,7 +342,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/how_get_imcoin"
                     android:textColor="@color/txt_normal"
-                    android:textSize="11sp" />
+                    android:textSize="13sp" />
 
 
             </LinearLayout>

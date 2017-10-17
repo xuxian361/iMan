@@ -30,6 +30,6 @@
         tl:tl_iconWidth="20dp"
         tl:tl_textSelectColor="@color/txt_blue"
         tl:tl_textUnselectColor="@color/txt_gray"
-        tl:tl_textsize="8sp" />
+        tl:tl_textsize="11sp" />
 
 </RelativeLayout>

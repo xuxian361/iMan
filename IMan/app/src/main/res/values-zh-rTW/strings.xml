@@ -88,4 +88,5 @@
     <string name="advertise">Advertise</string>
     <string name="if_return">返回后编辑的内容将会丢失，确认返回?</string>
     <string name="search_community_hint">Search by community name, tag</string>
+    <string name="created">Created:</string>
 </resources>

@@ -77,7 +77,7 @@
                     android:maxLines="1"
                     android:text="@string/location"
                     android:textColor="@color/txt_gray"
-                    android:textSize="10sp" />
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/tv_introduction"
@@ -90,7 +90,7 @@
                     android:maxLines="1"
                     android:text="@string/introduction"
                     android:textColor="@color/txt_normal"
-                    android:textSize="10sp" />
+                    android:textSize="12sp" />
 
             </RelativeLayout>
 
@@ -109,7 +109,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/wallet"
                     android:textColor="@color/txt_light_gray"
-                    android:textSize="10sp" />
+                    android:textSize="12sp" />
 
                 <View
                     android:layout_width="match_parent"
@@ -212,7 +212,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/use_my_wallet"
                     android:textColor="@color/txt_light_gray"
-                    android:textSize="10sp" />
+                    android:textSize="12sp" />
 
                 <View
                     android:layout_width="match_parent"
@@ -338,7 +338,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/account"
                     android:textColor="@color/txt_light_gray"
-                    android:textSize="10sp" />
+                    android:textSize="12sp" />
 
                 <View
                     android:layout_width="match_parent"
