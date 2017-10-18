@@ -169,8 +169,8 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/layout_margin_size"
-                android:layout_marginRight="@dimen/layout_margin_size">
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp">
 
                 <TextView
                     android:id="@+id/tv_total_user_title"
@@ -194,8 +194,8 @@
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/layout_margin_size"
-                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginLeft="40dp"
+                android:layout_marginRight="40dp"
                 android:layout_marginTop="5dp">
 
                 <TextView

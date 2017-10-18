@@ -3,15 +3,19 @@ package com.sundy.iman.ui.activity;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
+import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -20,10 +24,13 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
+import com.chad.library.adapter.base.BaseQuickAdapter;
+import com.chad.library.adapter.base.BaseViewHolder;
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
+import com.sundy.iman.entity.CommunityItemEntity;
 import com.sundy.iman.entity.CreateAdvertisingEntity;
 import com.sundy.iman.entity.LocationEntity;
 import com.sundy.iman.entity.MsgEvent;
@@ -54,6 +61,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -117,7 +125,8 @@ public class CreateAdvertisingActivity extends BaseActivity {
     private LocationEntity locationEntity;
 
     private final static int AGING = 48; //广告默认48小时消失
-    private ArrayList<String> listCommunities = new ArrayList<>(); //选择的社区
+    private ArrayList<CommunityItemEntity> selectedCommunities = new ArrayList<>(); //选择的社区
+    private CommunityAdapter communityAdapter;
     private ArrayList<String> selectedTags = new ArrayList<>(); //已选择的标签列表
 
 
@@ -178,6 +187,26 @@ public class CreateAdvertisingActivity extends BaseActivity {
 
         etSubject.addTextChangedListener(textWatcher);
         etDetail.addTextChangedListener(etDetailWatcher);
+
+        geocoder = new Geocoder(this, Locale.getDefault());
+
+        communityAdapter = new CommunityAdapter(R.layout.item_selected_community, selectedCommunities);
+        rvCommunity.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        rvCommunity.setAdapter(communityAdapter);
+
+        llState.removeAllViews();
+        String[] stateArr = getResources().getStringArray(R.array.ad_charge_state);
+        for (String state : stateArr) {
+            TextView tvState = new TextView(this);
+            tvState.setText(state);
+            tvState.setTextSize(10);
+            tvState.setTextColor(ContextCompat.getColor(this, R.color.txt_gray));
+            LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT);
+            params.setMargins(0, 5, 0, 5);
+            tvState.setLayoutParams(params);
+            llState.addView(tvState);
+        }
     }
 
     @Override
@@ -248,7 +277,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
     //判断可否点击确认按钮
     private void canBtnClick() {
         String subject = etSubject.getText().toString().trim();
-        if (TextUtils.isEmpty(subject) || listCommunities == null || listCommunities.size() == 0) {
+        if (TextUtils.isEmpty(subject) || selectedCommunities == null || selectedCommunities.size() == 0) {
             btnConfirm.setSelected(false);
             btnConfirm.setEnabled(false);
         } else {
@@ -281,7 +310,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
     //跳转选择社区
     private void goSelectCommunity() {
         Bundle bundle = new Bundle();
-        bundle.putStringArrayList("selectedCommunity", listCommunities);
+        bundle.putSerializable("selectedCommunity", selectedCommunities);
         UIHelper.jump(this, SelectCommunityActivity.class, bundle);
     }
 
@@ -525,7 +554,33 @@ public class CreateAdvertisingActivity extends BaseActivity {
 
     //设置显示选择的社区列表
     private void setCommunityList() {
+        try {
+            communityAdapter.setNewData(selectedCommunities);
+            communityAdapter.notifyDataSetChanged();
 
+            setCommunityValue();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    //设置所选社区的计数
+    private void setCommunityValue() {
+        int totalUser = 0;
+        for (int i = 0; i < selectedCommunities.size(); i++) {
+            CommunityItemEntity communityItemEntity = selectedCommunities.get(i);
+            if (communityItemEntity != null) {
+                String members = communityItemEntity.getMembers();
+                if (!TextUtils.isEmpty(members)) {
+                    int num = Integer.parseInt(members);
+                    totalUser = totalUser + num;
+                }
+            }
+        }
+
+        tvTotalUserValue.setText(String.valueOf(totalUser));
+        tvTotalCostValue.setText(String.valueOf(totalUser));
     }
 
     //创建广告
@@ -539,6 +594,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
         String latitude = "";
         String longitude = "";
         String addressStr = "";
+        String location = "";
         if (locationEntity != null) {
             country = locationEntity.getCountry();
             province = locationEntity.getProvince();
@@ -546,16 +602,32 @@ public class CreateAdvertisingActivity extends BaseActivity {
             latitude = locationEntity.getLat() + "";
             longitude = locationEntity.getLng() + "";
             addressStr = locationEntity.getAddress();
+
+            if (!TextUtils.isEmpty(province) && !TextUtils.isEmpty(city)) {
+                location = province + " " + city;
+            } else if (TextUtils.isEmpty(province) && TextUtils.isEmpty(city)) {
+                location = country;
+            } else {
+                if (TextUtils.isEmpty(province)) {
+                    location = city;
+                } else {
+                    location = province;
+                }
+            }
         }
 
+        Logger.e("---->selectedCommunities = " + selectedCommunities.size());
         String communitys = "";
-        if (listCommunities != null && listCommunities.size() > 0) {
-            for (int i = 0; i < listCommunities.size(); i++) {
-                String communityId = listCommunities.get(i);
-                if (i == listCommunities.size() - 1) {
-                    communitys = communityId;
-                } else {
-                    communitys = communityId + ",";
+        if (selectedCommunities != null && selectedCommunities.size() > 0) {
+            for (int i = 0; i < selectedCommunities.size(); i++) {
+                CommunityItemEntity communityItemEntity = selectedCommunities.get(i);
+                if (communityItemEntity != null) {
+                    String communityId = communityItemEntity.getId();
+                    if (i == selectedCommunities.size() - 1) {
+                        communitys = communitys + communityId;
+                    } else {
+                        communitys = communitys + communityId + ",";
+                    }
                 }
             }
         }
@@ -576,9 +648,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
             }
             tags = sb.toString();
         }
-
         Logger.e("---->tags = " + tags);
-
 
         Map<String, String> param = new HashMap<>();
         param.put("mid", PaperUtils.getMId());
@@ -586,28 +656,53 @@ public class CreateAdvertisingActivity extends BaseActivity {
         param.put("title", title); //post标题
         param.put("detail", detail); //post详情
         param.put("tags", tags); //标签
-        param.put("location", longitude);
+        param.put("location", location);
         param.put("latitude", latitude);
-        param.put("longitude", addressStr);
+        param.put("longitude", longitude);
         param.put("communitys", communitys); //社区ID:多个社区ID以“,”作为分隔符
         param.put("aging", AGING + ""); //时效
         param.put("attachment", ""); //附件 json格式数据:att_type为附件类型，1-图片，2-视频 url：附件存放路径
+        showProgress();
         Call<CreateAdvertisingEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .createAdvertising(ParamHelper.formatData(param));
         call.enqueue(new RetrofitCallback<CreateAdvertisingEntity>() {
             @Override
             public void onSuccess(Call<CreateAdvertisingEntity> call, Response<CreateAdvertisingEntity> response) {
-
+                CreateAdvertisingEntity createAdvertisingEntity = response.body();
+                if (createAdvertisingEntity != null) {
+                    int code = createAdvertisingEntity.getCode();
+                    String msg = createAdvertisingEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        showCreateAdSuccessDialog();
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
             }
 
             @Override
             public void onAfter() {
-
+                hideProgress();
             }
 
             @Override
             public void onFailure(Call<CreateAdvertisingEntity> call, Throwable t) {
 
+            }
+        });
+    }
+
+    //显示成功创建广告弹框
+    private void showCreateAdSuccessDialog() {
+        final CommonDialog dialog = new CommonDialog(this);
+        dialog.getTitle().setText(getString(R.string.success));
+        dialog.getContent().setText(getString(R.string.ad_post_success_tips));
+        dialog.getBtnCancel().setVisibility(View.GONE);
+        dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                finish();
             }
         });
     }
@@ -618,8 +713,8 @@ public class CreateAdvertisingActivity extends BaseActivity {
             String msg = event.getMsg();
             switch (msg) {
                 case MsgEvent.EVENT_GET_COMMUNITIES:
-                    listCommunities = (ArrayList<String>) event.getObj();
-                    if (listCommunities != null && listCommunities.size() > 0) {
+                    selectedCommunities = (ArrayList<CommunityItemEntity>) event.getObj();
+                    if (selectedCommunities != null && selectedCommunities.size() > 0) {
                         setCommunityList();
                     }
                     canBtnClick();
@@ -632,6 +727,30 @@ public class CreateAdvertisingActivity extends BaseActivity {
                     canBtnClick();
                     break;
             }
+        }
+    }
+
+    private class CommunityAdapter extends BaseQuickAdapter<CommunityItemEntity, BaseViewHolder> {
+
+        public CommunityAdapter(@LayoutRes int layoutResId, @Nullable List<CommunityItemEntity> data) {
+            super(layoutResId, data);
+        }
+
+        @Override
+        protected void convert(final BaseViewHolder helper, final CommunityItemEntity item) {
+            TextView tv_community_name = helper.getView(R.id.tv_community_name);
+            tv_community_name.setText(item.getName() + " (" + item.getMembers() + ")");
+
+            ImageView iv_delete = helper.getView(R.id.iv_delete);
+            iv_delete.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    selectedCommunities.remove(item);
+                    notifyItemRemoved(helper.getPosition());
+
+                    setCommunityValue();
+                }
+            });
         }
     }
 

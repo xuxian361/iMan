@@ -88,4 +88,15 @@
     <string name="if_return">返回后编辑的内容将会丢失，确认返回?</string>
     <string name="search_community_hint">Search by community name, tag</string>
     <string name="created">Created:</string>
+    <string name="ad_post_success_tips">您的广告已成功发布到选择的社区!</string>
+    <string name="total">Total:</string>
+    <string name="users">Users</string>
+    <string-array name="ad_charge_state">
+        <item>
+            * 70% imcoins will be distributed to users.
+        </item>
+        <item>
+            * Your post will valid for 48 hours, undistributed imcoins will be returned to your wallet.
+        </item>
+    </string-array>
 </resources>

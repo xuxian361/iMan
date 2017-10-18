@@ -124,7 +124,6 @@ public class DateUtils {
      */
     public static Date formatTimeStamp2Date(long timeStamp) {
         Date date = new Date(timeStamp);
-        Logger.e("----->date = " + date.toString());
         return date;
     }
 

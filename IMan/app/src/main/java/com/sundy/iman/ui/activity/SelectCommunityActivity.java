@@ -13,6 +13,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -93,7 +94,7 @@ public class SelectCommunityActivity extends BaseActivity {
     @BindView(R.id.ll_bottom)
     LinearLayout llBottom;
 
-    private ArrayList<String> selectedCommunity = new ArrayList<>(); //已选择的社区列表
+    private ArrayList<CommunityItemEntity> selectedCommunity = new ArrayList<>(); //已选择的社区列表(存放社区ID)
     private List<CommunityItemEntity> listCommunity = new ArrayList<>();
     private String keyword = "";
     private int page = 1; //当前页码
@@ -138,13 +139,33 @@ public class SelectCommunityActivity extends BaseActivity {
         communityAdapter.setOnLoadMoreListener(onLoadMoreListener, rvCommunity);
         rvCommunity.setAdapter(communityAdapter);
 
+        setCommunityValue();
+
         selectedCommunityPopup = new SelectedCommunityPopup(this);
+        selectedCommunityPopup.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                isBottomShow = false;
+                ivDetail.setSelected(true);
+            }
+        });
+        selectedCommunityPopup.setOnDataChangeListener(new SelectedCommunityPopup.OnDataChangeListener() {
+            @Override
+            public void onDataChange(ArrayList<CommunityItemEntity> list) {
+                Logger.e("------>onDataChange");
+                if (list != null) {
+                    selectedCommunity = list;
+                    communityAdapter.notifyDataSetChanged();
+                    setCommunityValue();
+                }
+            }
+        });
     }
 
     private void initData() {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            selectedCommunity = bundle.getStringArrayList("selectedCommunity");
+            selectedCommunity = (ArrayList<CommunityItemEntity>) bundle.getSerializable("selectedCommunity");
             Logger.e("----->selectedCommunity = " + selectedCommunity.size());
         }
     }
@@ -334,6 +355,8 @@ public class SelectCommunityActivity extends BaseActivity {
                 break;
             case R.id.ll_bottom:
                 if (!isBottomShow) {
+                    if (selectedCommunity.size() == 0)
+                        return;
                     showBottom();
                 } else {
                     hideBottom();
@@ -347,6 +370,7 @@ public class SelectCommunityActivity extends BaseActivity {
         if (selectedCommunityPopup != null) {
             isBottomShow = true;
             ivDetail.setSelected(false);
+            selectedCommunityPopup.setData(selectedCommunity);
             selectedCommunityPopup.showUp(llBottom);
         }
     }
@@ -354,8 +378,6 @@ public class SelectCommunityActivity extends BaseActivity {
     //关闭底部View
     private void hideBottom() {
         if (selectedCommunityPopup != null) {
-            isBottomShow = false;
-            ivDetail.setSelected(true);
             selectedCommunityPopup.dismiss();
         }
     }
@@ -367,12 +389,13 @@ public class SelectCommunityActivity extends BaseActivity {
         }
 
         @Override
-        protected void convert(BaseViewHolder helper, CommunityItemEntity item) {
+        protected void convert(final BaseViewHolder helper, final CommunityItemEntity item) {
             TextView tv_community_name = helper.getView(R.id.tv_community_name);
             TextView tv_desc = helper.getView(R.id.tv_desc);
             TextView tv_num = helper.getView(R.id.tv_num);
             TextView tv_create_date = helper.getView(R.id.tv_create_date);
-            ImageView iv_check = helper.getView(R.id.iv_check);
+            final ImageView iv_check = helper.getView(R.id.iv_check);
+            RelativeLayout rel_item = helper.getView(R.id.rel_item);
 
             String community_name = item.getName();
             String introduction = item.getIntroduction();
@@ -390,7 +413,44 @@ public class SelectCommunityActivity extends BaseActivity {
 
             tv_num.setText(members);
 
+            if (selectedCommunity.contains(item)) {
+                iv_check.setSelected(true);
+            } else {
+                iv_check.setSelected(false);
+            }
+
+            rel_item.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (selectedCommunity.contains(item)) {
+                        selectedCommunity.remove(item);
+                    } else {
+                        selectedCommunity.add(item);
+                    }
+                    notifyItemChanged(helper.getPosition());
+
+                    setCommunityValue();
+                }
+            });
         }
+    }
+
+    //设置所选社区的计数
+    private void setCommunityValue() {
+        int totalUser = 0;
+        for (int i = 0; i < selectedCommunity.size(); i++) {
+            CommunityItemEntity communityItemEntity = selectedCommunity.get(i);
+            if (communityItemEntity != null) {
+                String members = communityItemEntity.getMembers();
+                if (!TextUtils.isEmpty(members)) {
+                    int num = Integer.parseInt(members);
+                    totalUser = totalUser + num;
+                }
+            }
+        }
+        tvTotalUser.setText(getString(R.string.total) + " " +
+                String.valueOf(totalUser) + " " +
+                getString(R.string.users));
     }
 
     private BaseQuickAdapter.RequestLoadMoreListener onLoadMoreListener = new BaseQuickAdapter.RequestLoadMoreListener() {
@@ -447,7 +507,6 @@ public class SelectCommunityActivity extends BaseActivity {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
         if (selectedCommunityPopup != null) {
-            isBottomShow = false;
             selectedCommunityPopup.dismiss();
             selectedCommunityPopup = null;
         }
