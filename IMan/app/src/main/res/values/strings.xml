@@ -91,6 +91,9 @@
     <string name="ad_post_success_tips">您的广告已成功发布到选择的社区!</string>
     <string name="total">Total:</string>
     <string name="users">Users</string>
+    <string name="photo">Photo</string>
+    <string name="video_record">Video record</string>
+    <string name="video">Video</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

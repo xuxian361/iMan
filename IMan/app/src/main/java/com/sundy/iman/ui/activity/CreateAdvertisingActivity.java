@@ -1,5 +1,6 @@
 package com.sundy.iman.ui.activity;
 
+import android.content.Intent;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -8,10 +9,14 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
+import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -26,14 +31,26 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.orhanobut.logger.Logger;
+import com.qiniu.android.common.AutoZone;
+import com.qiniu.android.http.ResponseInfo;
+import com.qiniu.android.storage.Configuration;
+import com.qiniu.android.storage.UpCompletionHandler;
+import com.qiniu.android.storage.UpProgressHandler;
+import com.qiniu.android.storage.UploadManager;
+import com.qiniu.android.storage.UploadOptions;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
+import com.sundy.iman.adapter.PhotoAdapter;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.CommunityItemEntity;
 import com.sundy.iman.entity.CreateAdvertisingEntity;
 import com.sundy.iman.entity.LocationEntity;
 import com.sundy.iman.entity.MsgEvent;
+import com.sundy.iman.entity.QiNiuTokenItemEntity;
+import com.sundy.iman.entity.QiNiuTokenListEntity;
 import com.sundy.iman.entity.StaticContentEntity;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
@@ -41,8 +58,10 @@ import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.utils.FileUtils;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
+import com.sundy.iman.view.popupwindow.SelectMediaPopup;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
 import com.yanzhenjie.permission.PermissionNo;
@@ -56,7 +75,9 @@ import com.zhy.view.flowlayout.TagFlowLayout;
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONObject;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -67,8 +88,12 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import me.iwf.photopicker.PhotoPicker;
+import me.iwf.photopicker.PhotoPreview;
 import retrofit2.Call;
 import retrofit2.Response;
+import top.zibin.luban.Luban;
+import top.zibin.luban.OnCompressListener;
 
 /**
  * Created by sundy on 17/10/5.
@@ -77,6 +102,7 @@ import retrofit2.Response;
 public class CreateAdvertisingActivity extends BaseActivity {
 
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 100;
+    private static final int REQUEST_CODE_PERMISSION_PHOTO = 200;
 
     @BindView(R.id.title_bar)
     TitleBarView titleBar;
@@ -121,6 +147,8 @@ public class CreateAdvertisingActivity extends BaseActivity {
     public AMapLocationClient locationClient = null;
     //声明AMapLocationClientOption对象
     public AMapLocationClientOption locationOption = null;
+    @BindView(R.id.ll_content)
+    LinearLayout llContent;
     private Geocoder geocoder;
     private LocationEntity locationEntity;
 
@@ -129,6 +157,11 @@ public class CreateAdvertisingActivity extends BaseActivity {
     private CommunityAdapter communityAdapter;
     private ArrayList<String> selectedTags = new ArrayList<>(); //已选择的标签列表
 
+    private PhotoAdapter photoAdapter;
+    private ArrayList<String> selectedPhotos = new ArrayList<>(); //已选择的图片列表
+
+    private SelectMediaPopup selectMediaPopup;
+    private boolean isVideoUploaded = false; //判断是否已经选择上传了视频，因为最多可上传一个视频，媒体（图片+视频）只能最多9个
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -138,6 +171,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
 
         EventBus.getDefault().register(this);
         initTitle();
+        getLocationPermission();
         init();
     }
 
@@ -146,17 +180,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
         titleBar.setOnClickListener(new OnTitleBarClickListener() {
             @Override
             public void onLeftImgClick() {
-                final CommonDialog dialog = new CommonDialog(CreateAdvertisingActivity.this);
-                dialog.getTitle().setVisibility(View.GONE);
-                dialog.getContent().setText(getString(R.string.if_return));
-                dialog.setCancelable(true);
-                dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dialog.dismiss();
-                        finish();
-                    }
-                });
+               showBackTipsDialog();
             }
 
             @Override
@@ -177,6 +201,21 @@ public class CreateAdvertisingActivity extends BaseActivity {
             @Override
             public void onTitleClick() {
 
+            }
+        });
+    }
+
+    //返回上一页提示弹框
+    private void showBackTipsDialog() {
+        final CommonDialog dialog = new CommonDialog(CreateAdvertisingActivity.this);
+        dialog.getTitle().setVisibility(View.GONE);
+        dialog.getContent().setText(getString(R.string.if_return));
+        dialog.setCancelable(true);
+        dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                finish();
             }
         });
     }
@@ -207,12 +246,34 @@ public class CreateAdvertisingActivity extends BaseActivity {
             tvState.setLayoutParams(params);
             llState.addView(tvState);
         }
-    }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-        getLocationPermission();
+        photoAdapter = new PhotoAdapter(this, selectedPhotos);
+        rvMedia.setLayoutManager(new StaggeredGridLayoutManager(5, OrientationHelper.VERTICAL));
+        photoAdapter.setOnItemClickListener(new PhotoAdapter.OnItemClickListener() {
+            @Override
+            public void onAddClick(PhotoAdapter.PhotoViewHolder holder, int position) {
+                getFilePermission();
+            }
+
+            @Override
+            public void onDeleteClick(PhotoAdapter.PhotoViewHolder holder, int position) {
+                if (selectedPhotos != null) {
+                    selectedPhotos.remove(position);
+                    photoAdapter.notifyDataSetChanged();
+                }
+            }
+
+            @Override
+            public void onImageClick(PhotoAdapter.PhotoViewHolder holder, int position) {
+                PhotoPreview.builder()
+                        .setPhotos(selectedPhotos)
+                        .setCurrentItem(position)
+                        .start(CreateAdvertisingActivity.this);
+            }
+        });
+        rvMedia.setAdapter(photoAdapter);
+
+        selectMediaPopup = new SelectMediaPopup(this);
     }
 
     private TextWatcher textWatcher = new TextWatcher() {
@@ -272,6 +333,173 @@ public class CreateAdvertisingActivity extends BaseActivity {
                     }
                 })
                 .start();
+    }
+
+    //获取文件权限
+    private void getFilePermission() {
+        AndPermission.with(this)
+                .requestCode(REQUEST_CODE_PERMISSION_PHOTO)
+                .permission(Permission.STORAGE, Permission.CAMERA)
+                .callback(this)
+                .start();
+    }
+
+    //选择媒体弹框
+    private void showMediaPopup() {
+        selectMediaPopup.setOnClickListener(new SelectMediaPopup.OnClickListener() {
+            @Override
+            public void clickPhoto() {
+                selectMediaPopup.dismiss();
+                pickPhoto();
+            }
+
+            @Override
+            public void clickVideo() {
+                selectMediaPopup.dismiss();
+
+            }
+        });
+        selectMediaPopup.showAtLocation(llContent, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+    }
+
+    //图片选择器
+    private void pickPhoto() {
+        int photoCount = 9;
+        if (isVideoUploaded) {
+            photoCount = 8;
+        }
+        PhotoPicker.builder()
+                .setPhotoCount(photoCount)
+                .setShowCamera(true)
+                .setPreviewEnabled(true)
+                .start(this, PhotoPicker.REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case PhotoPicker.REQUEST_CODE: //相册获取图片
+                    if (data != null) {
+                        ArrayList<String> photos =
+                                data.getStringArrayListExtra(PhotoPicker.KEY_SELECTED_PHOTOS);
+                        if (photos != null && photos.size() > 0) {
+                            Logger.i("---->photoPath size = " + photos.size());
+                            String targetDir = FileUtils.getImageCache();
+                            //压缩图片
+                            Luban.with(this)
+                                    .load(photos)                                   // 传人要压缩的图片列表
+                                    .ignoreBy(100)                                  // 忽略不压缩图片的大小
+                                    .setTargetDir(targetDir)                        // 设置压缩后文件存储位置
+                                    .setCompressListener(new OnCompressListener() { //设置回调
+                                        @Override
+                                        public void onStart() {
+                                            // TODO 压缩开始前调用，可以在方法内启动 loading UI
+                                            Logger.i("----->压缩开始");
+                                        }
+
+                                        @Override
+                                        public void onSuccess(File file) {
+                                            // TODO 压缩成功后调用，返回压缩后的图片文件
+                                            if (file != null) {
+                                                Logger.i("----->压缩成功 :" + file.getPath());
+                                                getQiNiuToken(file);
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onError(Throwable e) {
+                                            // TODO 当压缩过程出现问题时调用
+                                            Logger.i("----->压缩失败");
+                                        }
+                                    }).launch();    //启动压缩
+                        }
+                    }
+                    break;
+            }
+        }
+    }
+
+    //获取七牛上传token
+    private void getQiNiuToken(final File file) {
+        JsonArray jsonArray = new JsonArray();
+        JsonObject jsonObject = new JsonObject();
+        jsonObject.addProperty("ext", "jpg");
+        jsonObject.addProperty("width", "1080");
+        jsonObject.addProperty("height", "1920");
+        jsonArray.add(jsonObject);
+        Map<String, String> param = new HashMap<>();
+        param.put("category", "3"); //类型:1-用户头像，2-社区，3-post
+        param.put("upload_params", jsonArray.toString()); //上传参数:json格式的数据:ext-上传文件的格式，width-上传文件的宽度，height-上传文件的高度
+        Call<QiNiuTokenListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .getQiNiuToken(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<QiNiuTokenListEntity>() {
+            @Override
+            public void onSuccess(Call<QiNiuTokenListEntity> call, Response<QiNiuTokenListEntity> response) {
+                QiNiuTokenListEntity qiNiuTokenListEntity = response.body();
+                if (qiNiuTokenListEntity != null) {
+                    int code = qiNiuTokenListEntity.getCode();
+                    String msg = qiNiuTokenListEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        QiNiuTokenListEntity.DataEntity dataEntity = qiNiuTokenListEntity.getData();
+                        if (dataEntity != null) {
+                            List<QiNiuTokenItemEntity> list = dataEntity.getList();
+                            if (list != null && list.size() > 0) {
+                                QiNiuTokenItemEntity itemEntity = list.get(0);
+                                if (itemEntity != null) {
+                                    String key = itemEntity.getKey();
+                                    String token = itemEntity.getToken();
+                                    String header = itemEntity.getUrl();
+                                    String path = itemEntity.getPath();
+                                    if (file != null && !TextUtils.isEmpty(token)) {
+                                        uploadImg(file, key, token);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<QiNiuTokenListEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //上传图片
+    private void uploadImg(final File data, String key, String token) {
+        Configuration config = new Configuration.Builder()
+                .zone(AutoZone.autoZone)
+                .build();
+        UploadManager uploadManager = new UploadManager(config);
+        uploadManager.put(data, key, token, new UpCompletionHandler() {
+            @Override
+            public void complete(String key, ResponseInfo info, JSONObject response) {
+                if (info.isOK()) {
+                    Logger.i("--->Upload Success");
+                    if (selectedPhotos != null) {
+                        selectedPhotos.add(data.getPath());
+                        photoAdapter.notifyDataSetChanged();
+                    }
+                } else {
+                    Logger.i("--->Upload Fail" + info.toString());
+                    //如果失败，这里可以把info信息上报自己的服务器，便于后面分析上传错误原因
+                }
+            }
+        }, new UploadOptions(null, null, false, new UpProgressHandler() {
+            @Override
+            public void progress(String key, double percent) {
+                Logger.i("--->percent : " + percent);
+            }
+        }, null));
     }
 
     //判断可否点击确认按钮
@@ -425,7 +653,6 @@ public class CreateAdvertisingActivity extends BaseActivity {
         UIHelper.jump(this, WebActivity.class, bundle);
     }
 
-
     @PermissionYes(REQUEST_CODE_PERMISSION_LOCATION)
     private void getPermissionLocationYes(@NonNull List<String> grantedPermissions) {
         Logger.e("位置权限申请成功!");
@@ -436,6 +663,17 @@ public class CreateAdvertisingActivity extends BaseActivity {
     @PermissionNo(REQUEST_CODE_PERMISSION_LOCATION)
     private void getPermissionLocationNo(@NonNull List<String> deniedPermissions) {
         Logger.e("位置权限申请失败!");
+    }
+
+    @PermissionYes(REQUEST_CODE_PERMISSION_PHOTO)
+    private void getPermissionStorageYes(@NonNull List<String> grantedPermissions) {
+        Logger.e("文件操作权限申请成功!");
+        showMediaPopup();
+    }
+
+    @PermissionNo(REQUEST_CODE_PERMISSION_PHOTO)
+    private void getPermissionStorageNo(@NonNull List<String> deniedPermissions) {
+        Logger.e("文件操作权限申请失败!");
     }
 
     //初始化定位
@@ -765,5 +1003,19 @@ public class CreateAdvertisingActivity extends BaseActivity {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
         destroyLocation();
+        if (selectMediaPopup != null) {
+            selectMediaPopup.dismiss();
+            selectMediaPopup = null;
+        }
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        Logger.i("-------->onKeyDown");
+        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
+            showBackTipsDialog();
+            return true;
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }
