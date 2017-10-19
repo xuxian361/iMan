@@ -51,7 +51,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         return new PhotoViewHolder(itemView);
     }
 
-
     @Override
     public void onBindViewHolder(final PhotoViewHolder holder, final int position) {
         try {
@@ -84,7 +83,6 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
                         }
                     }
                 });
-
             } else {
                 holder.iv_add.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -95,6 +93,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
                     }
                 });
             }
+
         } catch (Exception e) {
             e.printStackTrace();
         }

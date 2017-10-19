@@ -179,4 +179,6 @@ dependencies {
     compile 'com.scwang.smartrefresh:SmartRefreshLayout:1.0.3'
     //Sticky RecycleView
     compile 'com.timehop.stickyheadersrecyclerview:library:0.4.3@aar'
+    //数字进度条
+    compile 'com.daimajia.numberprogressbar:library:1.4@aar'
 }

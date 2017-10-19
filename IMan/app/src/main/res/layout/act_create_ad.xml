@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/ll_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    android:orientation="vertical"
-    android:id="@+id/ll_content">
+    android:orientation="vertical">
 
     <com.sundy.iman.view.TitleBarView
         android:id="@+id/title_bar"
@@ -108,6 +108,25 @@
                 android:layout_marginRight="@dimen/layout_margin_size"
                 android:minHeight="65dp"
                 android:visibility="visible" />
+
+            <com.daimajia.numberprogressbar.NumberProgressBar xmlns:custom="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/v_progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="10dp"
+                android:visibility="gone"
+                custom:progress_current="0"
+                custom:progress_max="100"
+                custom:progress_reached_bar_height="1.5dp"
+                custom:progress_reached_color="#3498DB"
+                custom:progress_text_color="#3498DB"
+                custom:progress_text_offset="1dp"
+                custom:progress_text_size="10sp"
+                custom:progress_text_visibility="visible"
+                custom:progress_unreached_bar_height="0.75dp"
+                custom:progress_unreached_color="#CCCCCC" />
 
             <View
                 android:layout_width="match_parent"

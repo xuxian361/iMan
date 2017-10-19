@@ -16,4 +16,6 @@ public class SelectedMediaEntity implements Serializable {
     private String path; //要上传的服务器图片路径
     private String localVideoPath; //本地视频资源存放路径
 
+    private double percent; //上传进度
+
 }

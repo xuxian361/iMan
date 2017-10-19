@@ -35,6 +35,7 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
+import com.daimajia.numberprogressbar.NumberProgressBar;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.orhanobut.logger.Logger;
@@ -160,6 +161,8 @@ public class CreateAdvertisingActivity extends BaseActivity {
     public AMapLocationClientOption locationOption = null;
     @BindView(R.id.ll_content)
     LinearLayout llContent;
+    @BindView(R.id.v_progress)
+    NumberProgressBar vProgress;
     private Geocoder geocoder;
     private LocationEntity locationEntity;
 
@@ -172,6 +175,8 @@ public class CreateAdvertisingActivity extends BaseActivity {
     private ArrayList<SelectedMediaEntity> selectedPhotos = new ArrayList<>(); //已选择的本地图片列表
 
     private SelectMediaPopup selectMediaPopup;
+    private UploadManager uploadManager;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -233,6 +238,11 @@ public class CreateAdvertisingActivity extends BaseActivity {
     private void init() {
         btnConfirm.setSelected(false);
         btnConfirm.setEnabled(false);
+
+        Configuration config = new Configuration.Builder()
+                .zone(AutoZone.autoZone)
+                .build();
+        uploadManager = new UploadManager(config);
 
         etSubject.addTextChangedListener(textWatcher);
         etDetail.addTextChangedListener(etDetailWatcher);
@@ -588,46 +598,36 @@ public class CreateAdvertisingActivity extends BaseActivity {
     }
 
     //上传图片
-    private void uploadImg(final File data, String key, String token, final String path) {
-        Configuration config = new Configuration.Builder()
-                .zone(AutoZone.autoZone)
-                .build();
-        UploadManager uploadManager = new UploadManager(config);
-        uploadManager.put(data, key, token, new UpCompletionHandler() {
+    private void uploadImg(final File file, String key, String token, final String path) {
+        uploadManager.put(file, key, token, new UpCompletionHandler() {
             @Override
             public void complete(String key, ResponseInfo info, JSONObject response) {
+                vProgress.setVisibility(View.GONE);
                 if (info.isOK()) {
                     Logger.i("--->Upload Success");
-                    boolean isVideo = MediaFileUtils.isVideoFileType(data.getPath());
-                    String att_type = "1"; //图片
-                    if (isVideo) {
-                        att_type = "2"; //视频
-                        if (selectedPhotos != null) {
-                            Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(data.getPath(), MediaStore.Images.Thumbnails.MINI_KIND);
+
+                    if (selectedPhotos != null) {
+                        SelectedMediaEntity selectedMediaEntity = new SelectedMediaEntity();
+                        boolean isVideo = MediaFileUtils.isVideoFileType(file.getPath());
+                        String att_type = "1"; //图片
+                        if (isVideo) {
+                            att_type = "2"; //视频
+                            Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(file.getPath(), MediaStore.Images.Thumbnails.MINI_KIND);
                             if (bitmap != null) {
                                 String thumbnailPath = FileUtils.saveBitmapToSD(bitmap);
-
-                                SelectedMediaEntity selectedMediaEntity = new SelectedMediaEntity();
                                 selectedMediaEntity.setLocalPath(thumbnailPath);
-                                selectedMediaEntity.setPath(path);
-                                selectedMediaEntity.setType(att_type);
-                                selectedMediaEntity.setLocalVideoPath(data.getPath());
-
-                                selectedPhotos.add(selectedMediaEntity);
-                                photoAdapter.notifyDataSetChanged();
+                                selectedMediaEntity.setLocalVideoPath(file.getPath());
                             }
+                        } else {
+                            att_type = "1";
+                            selectedMediaEntity.setLocalPath(file.getPath());
                         }
-                    } else {
-                        att_type = "1";
-                        if (selectedPhotos != null) {
-                            SelectedMediaEntity selectedMediaEntity = new SelectedMediaEntity();
-                            selectedMediaEntity.setLocalPath(data.getPath());
-                            selectedMediaEntity.setPath(path);
-                            selectedMediaEntity.setType(att_type);
 
-                            selectedPhotos.add(selectedMediaEntity);
-                            photoAdapter.notifyDataSetChanged();
-                        }
+                        selectedMediaEntity.setPath(path);
+                        selectedMediaEntity.setType(att_type);
+
+                        selectedPhotos.add(selectedMediaEntity);
+                        photoAdapter.notifyDataSetChanged();
                     }
                 } else {
                     Logger.i("--->Upload Fail" + info.toString());
@@ -637,7 +637,9 @@ public class CreateAdvertisingActivity extends BaseActivity {
         }, new UploadOptions(null, null, false, new UpProgressHandler() {
             @Override
             public void progress(String key, double percent) {
-//                Logger.i("--->percent : " + percent);
+//                Logger.e("--->percent : " + percent);
+                vProgress.setVisibility(View.VISIBLE);
+                vProgress.setProgress((int) (percent * 100));
             }
         }, null));
     }
@@ -645,7 +647,8 @@ public class CreateAdvertisingActivity extends BaseActivity {
     //判断可否点击确认按钮
     private void canBtnClick() {
         String subject = etSubject.getText().toString().trim();
-        if (TextUtils.isEmpty(subject) || selectedCommunities == null || selectedCommunities.size() == 0) {
+        if (TextUtils.isEmpty(subject) || selectedCommunities == null
+                || selectedCommunities.size() == 0) {
             btnConfirm.setSelected(false);
             btnConfirm.setEnabled(false);
         } else {
@@ -670,7 +673,13 @@ public class CreateAdvertisingActivity extends BaseActivity {
                 getStaticContent(4);
                 break;
             case R.id.btn_confirm:
-                createAd();
+                int visibility = vProgress.getVisibility();
+                if (visibility == View.GONE) {
+                    createAd();
+                } else {
+                    MainApp.getInstance().showToast(getString(R.string.media_not_yet_finish));
+                    return;
+                }
                 break;
         }
     }
@@ -912,7 +921,6 @@ public class CreateAdvertisingActivity extends BaseActivity {
                     Logger.e("----->区域 = " + district);
                     Logger.e("----->门牌号 = " + addressStr);
 
-
                     locationEntity = new LocationEntity();
                     locationEntity.setCountry(address.getCountryName());
                     locationEntity.setProvince(address.getAdminArea());
@@ -1061,31 +1069,32 @@ public class CreateAdvertisingActivity extends BaseActivity {
         showProgress();
         Call<CreateAdvertisingEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .createAdvertising(ParamHelper.formatData(param));
-//        call.enqueue(new RetrofitCallback<CreateAdvertisingEntity>() {
-//            @Override
-//            public void onSuccess(Call<CreateAdvertisingEntity> call, Response<CreateAdvertisingEntity> response) {
-//                CreateAdvertisingEntity createAdvertisingEntity = response.body();
-//                if (createAdvertisingEntity != null) {
-//                    int code = createAdvertisingEntity.getCode();
-//                    String msg = createAdvertisingEntity.getMsg();
-//                    if (code == Constants.CODE_SUCCESS) {
-//                        showCreateAdSuccessDialog();
-//                    } else {
-//                        MainApp.getInstance().showToast(msg);
-//                    }
-//                }
-//            }
-//
-//            @Override
-//            public void onAfter() {
-//                hideProgress();
-//            }
-//
-//            @Override
-//            public void onFailure(Call<CreateAdvertisingEntity> call, Throwable t) {
-//
-//            }
-//        });
+        call.enqueue(new RetrofitCallback<CreateAdvertisingEntity>() {
+            @Override
+            public void onSuccess(Call<CreateAdvertisingEntity> call, Response<CreateAdvertisingEntity> response) {
+                CreateAdvertisingEntity createAdvertisingEntity = response.body();
+                if (createAdvertisingEntity != null) {
+                    int code = createAdvertisingEntity.getCode();
+                    String msg = createAdvertisingEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        sendUpdateSuccessEvent();
+                        showCreateAdSuccessDialog();
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+                hideProgress();
+            }
+
+            @Override
+            public void onFailure(Call<CreateAdvertisingEntity> call, Throwable t) {
+
+            }
+        });
     }
 
     //显示成功创建广告弹框
@@ -1177,5 +1186,13 @@ public class CreateAdvertisingActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
+    //发送更新用户信息成功Event
+    private void sendUpdateSuccessEvent() {
+        MsgEvent msgEvent = new MsgEvent();
+        msgEvent.setMsg(MsgEvent.EVENT_UPDATE_USER_INFO);
+        EventBus.getDefault().post(msgEvent);
+    }
+
 
 }
