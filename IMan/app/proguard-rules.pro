@@ -96,3 +96,32 @@ public static final int *;
 -keepclassmembers  class **$** extends com.chad.library.adapter.base.BaseViewHolder {
      <init>(...);
 }
+#rxgalleryfinal
+-dontwarn io.reactivex.**
+-keep io.reactivex.**
+-keepclassmembers class io.reactivex.** { *; }
+-dontwarn java.lang.invoke.*
+-keep class uk.co.senab.photoview** { *; }
+-keep interface uk.co.senab.photoview** { *; }
+-keep class cn.finalteam.rxgalleryfinal.ui.widget** { *; }
+-keepclassmembers class * extends android.app.Activity {
+   public void *(android.view.View);
+}
+-keepclassmembers enum * {
+    public static **[] values();
+    public static ** valueOf(java.lang.String);
+}
+-keep class * implements android.os.Parcelable {
+  public static final android.os.Parcelable$Creator *;
+}
+-keepclassmembers class **.R$* {
+    public static <fields>;
+}
+-keepattributes *Annotation*
+-keepclasseswithmembernames class * {
+    native <methods>;
+}
+-keepclassmembers public class * extends android.view.View {
+   void set*(***);
+   *** get*();
+}

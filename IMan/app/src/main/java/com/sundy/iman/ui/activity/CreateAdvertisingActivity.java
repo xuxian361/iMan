@@ -1,9 +1,13 @@
 package com.sundy.iman.ui.activity;
 
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.location.Address;
 import android.location.Geocoder;
+import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -51,6 +55,7 @@ import com.sundy.iman.entity.LocationEntity;
 import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.QiNiuTokenItemEntity;
 import com.sundy.iman.entity.QiNiuTokenListEntity;
+import com.sundy.iman.entity.SelectedMediaEntity;
 import com.sundy.iman.entity.StaticContentEntity;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
@@ -60,6 +65,7 @@ import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.FileUtils;
 import com.sundy.iman.utils.MediaFileUtils;
+import com.sundy.iman.utils.NetWorkUtils;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
 import com.sundy.iman.view.popupwindow.SelectMediaPopup;
@@ -89,6 +95,9 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import cn.finalteam.rxgalleryfinal.RxGalleryFinalApi;
+import cn.finalteam.rxgalleryfinal.rxbus.RxBusResultDisposable;
+import cn.finalteam.rxgalleryfinal.rxbus.event.ImageRadioResultEvent;
 import me.iwf.photopicker.PhotoPicker;
 import me.iwf.photopicker.PhotoPreview;
 import retrofit2.Call;
@@ -104,6 +113,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
 
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 100;
     private static final int REQUEST_CODE_PERMISSION_PHOTO = 200;
+    private static final float VIDEO_MAX_SIZE = 100.0f;
 
     @BindView(R.id.title_bar)
     TitleBarView titleBar;
@@ -159,11 +169,9 @@ public class CreateAdvertisingActivity extends BaseActivity {
     private ArrayList<String> selectedTags = new ArrayList<>(); //已选择的标签列表
 
     private PhotoAdapter photoAdapter;
-    private ArrayList<String> selectedPhotos = new ArrayList<>(); //已选择的本地图片列表
+    private ArrayList<SelectedMediaEntity> selectedPhotos = new ArrayList<>(); //已选择的本地图片列表
 
     private SelectMediaPopup selectMediaPopup;
-    private boolean isVideoUploaded = false; //判断是否已经选择上传了视频，因为最多可上传一个视频，媒体（图片+视频）只能最多9个
-    private JsonArray attachmentArr = new JsonArray(); //要上传附件的Json数组
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -263,8 +271,6 @@ public class CreateAdvertisingActivity extends BaseActivity {
                     if (selectedPhotos != null) {
                         selectedPhotos.remove(position);
                         photoAdapter.notifyDataSetChanged();
-
-                        attachmentArr.remove(position);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -273,11 +279,38 @@ public class CreateAdvertisingActivity extends BaseActivity {
 
             @Override
             public void onImageClick(PhotoAdapter.PhotoViewHolder holder, int position) {
-                PhotoPreview.builder()
-                        .setPhotos(selectedPhotos)
-                        .setCurrentItem(position)
-                        .setShowDeleteButton(false)
-                        .start(CreateAdvertisingActivity.this);
+                Logger.e("----->position = " + position);
+                ArrayList<String> selectList = new ArrayList<>();
+                if (selectedPhotos != null) {
+                    SelectedMediaEntity entity = selectedPhotos.get(position);
+                    String ext_type = entity.getType();
+                    if (ext_type.equals("1")) { //图片
+                        for (int i = 0; i < selectedPhotos.size(); i++) {
+                            SelectedMediaEntity selectedMediaEntity = selectedPhotos.get(i);
+                            if (selectedMediaEntity != null) {
+                                String localPath = selectedMediaEntity.getLocalPath();
+                                String type = selectedMediaEntity.getType();
+                                if (type.equals("1")) { //图片
+                                    selectList.add(localPath);
+                                }
+                            }
+                        }
+                        PhotoPreview.builder()
+                                .setPhotos(selectList)
+                                .setCurrentItem(position)
+                                .setShowDeleteButton(false)
+                                .start(CreateAdvertisingActivity.this);
+                    } else { //视频
+                        try {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            Uri uri = Uri.parse("file://" + entity.getLocalVideoPath());
+                            intent.setDataAndType(uri, "video/mp4");
+                            startActivity(intent);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
             }
         });
         rvMedia.setAdapter(photoAdapter);
@@ -365,18 +398,86 @@ public class CreateAdvertisingActivity extends BaseActivity {
             @Override
             public void clickVideo() {
                 selectMediaPopup.dismiss();
-
+                if (isVideoUploaded()) {
+                    final CommonDialog dialog = new CommonDialog(CreateAdvertisingActivity.this);
+                    dialog.getTitle().setVisibility(View.GONE);
+                    dialog.getContent().setText(getString(R.string.video_already_uploaded));
+                    dialog.getBtnCancel().setVisibility(View.GONE);
+                    dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            dialog.dismiss();
+                        }
+                    });
+                } else {
+                    if (NetWorkUtils.isWifiAvailable(CreateAdvertisingActivity.this)) {
+                        pickVideo();
+                    } else {
+                        final CommonDialog dialog = new CommonDialog(CreateAdvertisingActivity.this);
+                        dialog.getTitle().setVisibility(View.GONE);
+                        dialog.getContent().setText(getString(R.string.not_in_wifi_environment));
+                        dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                dialog.dismiss();
+                                pickVideo();
+                            }
+                        });
+                    }
+                }
             }
         });
         selectMediaPopup.showAtLocation(llContent, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
     }
 
+    //判断是否已经上传过视频
+    private boolean isVideoUploaded() {
+        boolean isVideoUploaded = false;
+        if (selectedPhotos != null && selectedPhotos.size() > 0) {
+            for (int i = 0; i < selectedPhotos.size(); i++) {
+                SelectedMediaEntity selectedMediaEntity = selectedPhotos.get(i);
+                if (selectedMediaEntity != null) {
+                    String videoPath = selectedMediaEntity.getLocalVideoPath();
+                    if (!TextUtils.isEmpty(videoPath)) {
+                        isVideoUploaded = true;
+                        break;
+                    }
+                }
+            }
+        }
+        return isVideoUploaded;
+    }
+
+    //视频选择器
+    private void pickVideo() {
+        RxGalleryFinalApi
+                .getInstance(this)
+                .setType(RxGalleryFinalApi.SelectRXType.TYPE_VIDEO, RxGalleryFinalApi.SelectRXType.TYPE_SELECT_RADIO)
+                .setVDRadioResultEvent(new RxBusResultDisposable<ImageRadioResultEvent>() {
+                    @Override
+                    protected void onEvent(ImageRadioResultEvent imageRadioResultEvent) throws Exception {
+                        String videoPath = imageRadioResultEvent.getResult().getOriginalPath();
+                        Logger.e("----->videoPath =" + videoPath);
+                        if (!TextUtils.isEmpty(videoPath)) {
+                            File file = new File(videoPath);
+                            if (file.exists()) {
+                                long fileSize = FileUtils.getFileSize(file); //单位：B
+                                float fileSizeMb = fileSize / 1024.0f / 1024.0f;
+                                if (fileSizeMb > VIDEO_MAX_SIZE) {
+                                    MainApp.getInstance().showToast(getString(R.string.video_size_more_than_100));
+                                    return;
+                                }
+                                getQiNiuToken(file);
+                            }
+                        }
+                    }
+                })
+                .open();
+    }
+
     //图片选择器
     private void pickPhoto() {
-        int photoCount = 9;
-        if (isVideoUploaded) {
-            photoCount = 8;
-        }
+        int photoCount = 9 - selectedPhotos.size();
         PhotoPicker.builder()
                 .setPhotoCount(photoCount)
                 .setShowCamera(true)
@@ -394,7 +495,6 @@ public class CreateAdvertisingActivity extends BaseActivity {
                         ArrayList<String> photos =
                                 data.getStringArrayListExtra(PhotoPicker.KEY_SELECTED_PHOTOS);
                         if (photos != null && photos.size() > 0) {
-                            Logger.i("---->photoPath size = " + photos.size());
                             String targetDir = FileUtils.getImageCache();
                             //压缩图片
                             Luban.with(this)
@@ -498,25 +598,35 @@ public class CreateAdvertisingActivity extends BaseActivity {
             public void complete(String key, ResponseInfo info, JSONObject response) {
                 if (info.isOK()) {
                     Logger.i("--->Upload Success");
-                    if (selectedPhotos != null) {
-                        selectedPhotos.add(data.getPath());
-                        photoAdapter.notifyDataSetChanged();
+                    boolean isVideo = MediaFileUtils.isVideoFileType(data.getPath());
+                    String att_type = "1"; //图片
+                    if (isVideo) {
+                        att_type = "2"; //视频
+                        if (selectedPhotos != null) {
+                            Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(data.getPath(), MediaStore.Images.Thumbnails.MINI_KIND);
+                            if (bitmap != null) {
+                                String thumbnailPath = FileUtils.saveBitmapToSD(bitmap);
 
-                        //保存上传图片的Json对象
-                        try {
-                            //附件​ ​json格式 数据 att_type为附件 类型,1-图片, 2-视频 url:附件存放 路径
-                            JsonObject attachment = new JsonObject();
-                            String att_type = "1"; //图片
-                            boolean isVideo = MediaFileUtils.isVideoFileType(data.getPath());
-                            if (isVideo) {
-                                att_type = "2"; //视频
+                                SelectedMediaEntity selectedMediaEntity = new SelectedMediaEntity();
+                                selectedMediaEntity.setLocalPath(thumbnailPath);
+                                selectedMediaEntity.setPath(path);
+                                selectedMediaEntity.setType(att_type);
+                                selectedMediaEntity.setLocalVideoPath(data.getPath());
+
+                                selectedPhotos.add(selectedMediaEntity);
+                                photoAdapter.notifyDataSetChanged();
                             }
-                            attachment.addProperty("att_type", att_type);
-                            attachment.addProperty("url", path);
+                        }
+                    } else {
+                        att_type = "1";
+                        if (selectedPhotos != null) {
+                            SelectedMediaEntity selectedMediaEntity = new SelectedMediaEntity();
+                            selectedMediaEntity.setLocalPath(data.getPath());
+                            selectedMediaEntity.setPath(path);
+                            selectedMediaEntity.setType(att_type);
 
-                            attachmentArr.add(attachment);
-                        } catch (Exception e) {
-                            e.printStackTrace();
+                            selectedPhotos.add(selectedMediaEntity);
+                            photoAdapter.notifyDataSetChanged();
                         }
                     }
                 } else {
@@ -916,9 +1026,25 @@ public class CreateAdvertisingActivity extends BaseActivity {
         }
 
         String attachment = "";
-        if (attachmentArr != null && attachmentArr.size() > 0) {
+        if (selectedPhotos != null && selectedPhotos.size() > 0) {
+            JsonArray attachmentArr = new JsonArray();
+            for (int i = 0; i < selectedPhotos.size(); i++) {
+                SelectedMediaEntity selectedMediaEntity = selectedPhotos.get(i);
+                if (selectedMediaEntity != null) {
+
+                    String type = selectedMediaEntity.getType();
+                    String path = selectedMediaEntity.getPath();
+
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("att_type", type);
+                    jsonObject.addProperty("url", path);
+                    attachmentArr.add(jsonObject);
+                }
+            }
+
             attachment = attachmentArr.toString();
         }
+
         Map<String, String> param = new HashMap<>();
         param.put("mid", PaperUtils.getMId());
         param.put("session_key", PaperUtils.getSessionKey());
@@ -935,31 +1061,31 @@ public class CreateAdvertisingActivity extends BaseActivity {
         showProgress();
         Call<CreateAdvertisingEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .createAdvertising(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<CreateAdvertisingEntity>() {
-            @Override
-            public void onSuccess(Call<CreateAdvertisingEntity> call, Response<CreateAdvertisingEntity> response) {
-                CreateAdvertisingEntity createAdvertisingEntity = response.body();
-                if (createAdvertisingEntity != null) {
-                    int code = createAdvertisingEntity.getCode();
-                    String msg = createAdvertisingEntity.getMsg();
-                    if (code == Constants.CODE_SUCCESS) {
-                        showCreateAdSuccessDialog();
-                    } else {
-                        MainApp.getInstance().showToast(msg);
-                    }
-                }
-            }
-
-            @Override
-            public void onAfter() {
-                hideProgress();
-            }
-
-            @Override
-            public void onFailure(Call<CreateAdvertisingEntity> call, Throwable t) {
-
-            }
-        });
+//        call.enqueue(new RetrofitCallback<CreateAdvertisingEntity>() {
+//            @Override
+//            public void onSuccess(Call<CreateAdvertisingEntity> call, Response<CreateAdvertisingEntity> response) {
+//                CreateAdvertisingEntity createAdvertisingEntity = response.body();
+//                if (createAdvertisingEntity != null) {
+//                    int code = createAdvertisingEntity.getCode();
+//                    String msg = createAdvertisingEntity.getMsg();
+//                    if (code == Constants.CODE_SUCCESS) {
+//                        showCreateAdSuccessDialog();
+//                    } else {
+//                        MainApp.getInstance().showToast(msg);
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public void onAfter() {
+//                hideProgress();
+//            }
+//
+//            @Override
+//            public void onFailure(Call<CreateAdvertisingEntity> call, Throwable t) {
+//
+//            }
+//        });
     }
 
     //显示成功创建广告弹框

@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 
 import com.sundy.iman.R;
+import com.sundy.iman.entity.SelectedMediaEntity;
 import com.sundy.iman.helper.ImageHelper;
 
 import java.util.ArrayList;
@@ -20,7 +21,7 @@ import me.iwf.photopicker.widget.SquareItemLayout;
 
 public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHolder> {
 
-    private ArrayList<String> photoPaths = new ArrayList<String>();
+    private ArrayList<SelectedMediaEntity> selectedMediaEntities = new ArrayList<>();
     private LayoutInflater inflater;
 
     private Context mContext;
@@ -30,8 +31,8 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     public final static int MAX = 9;
 
-    public PhotoAdapter(Context mContext, ArrayList<String> photoPaths) {
-        this.photoPaths = photoPaths;
+    public PhotoAdapter(Context mContext, ArrayList<SelectedMediaEntity> selectedMediaEntities) {
+        this.selectedMediaEntities = selectedMediaEntities;
         this.mContext = mContext;
         inflater = LayoutInflater.from(mContext);
     }
@@ -55,7 +56,18 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     public void onBindViewHolder(final PhotoViewHolder holder, final int position) {
         try {
             if (getItemViewType(position) == TYPE_PHOTO) {
-                ImageHelper.displayImageLocal(mContext, photoPaths.get(position), holder.ivPhoto);
+                SelectedMediaEntity selectedMediaEntity = selectedMediaEntities.get(position);
+                if (selectedMediaEntity != null) {
+                    ImageHelper.displayImageLocal(mContext, selectedMediaEntity.getLocalPath(), holder.ivPhoto);
+
+                    String type = selectedMediaEntity.getType();
+                    if (type.equals("1")) //图片
+                    {
+                        holder.iv_video.setVisibility(View.GONE);
+                    } else { //视频
+                        holder.iv_video.setVisibility(View.VISIBLE);
+                    }
+                }
                 holder.ivPhoto.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
@@ -90,7 +102,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     @Override
     public int getItemCount() {
-        int count = photoPaths.size() + 1;
+        int count = selectedMediaEntities.size() + 1;
         if (count > MAX) {
             count = MAX;
         }
@@ -99,7 +111,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     @Override
     public int getItemViewType(int position) {
-        return (position == photoPaths.size() && position != MAX) ? TYPE_ADD : TYPE_PHOTO;
+        return (position == selectedMediaEntities.size() && position != MAX) ? TYPE_ADD : TYPE_PHOTO;
     }
 
     public static class PhotoViewHolder extends RecyclerView.ViewHolder {
@@ -107,12 +119,14 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
         public ImageView vSelected;
         public ImageView iv_add;
         public SquareItemLayout view_content;
+        public ImageView iv_video;
 
         public PhotoViewHolder(View itemView) {
             super(itemView);
             iv_add = (ImageView) itemView.findViewById(R.id.iv_add);
             ivPhoto = (ImageView) itemView.findViewById(R.id.iv_photo);
             vSelected = (ImageView) itemView.findViewById(R.id.v_selected);
+            iv_video = (ImageView) itemView.findViewById(R.id.iv_video);
             view_content = (SquareItemLayout) itemView.findViewById(R.id.view_content);
         }
     }

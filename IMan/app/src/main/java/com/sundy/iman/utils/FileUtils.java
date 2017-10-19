@@ -2,6 +2,7 @@ package com.sundy.iman.utils;
 
 import android.content.ContentResolver;
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Environment;
 import android.provider.MediaStore;
 
@@ -163,10 +164,9 @@ public class FileUtils {
      * 获取文件指定文件的指定单位的大小
      *
      * @param filePath 文件路径
-     * @param sizeType 获取大小的类型1为B、2为KB、3为MB、4为GB
      * @return double值的大小
      */
-    public static String getFileOrFilesSize(String filePath, int sizeType) {
+    public static String getFileOrFilesSize(String filePath) {
         File file = new File(filePath);
         long blockSize = 0;
         try {
@@ -209,7 +209,7 @@ public class FileUtils {
      * @return
      * @throws Exception
      */
-    private static long getFileSize(File file) throws Exception {
+    public static long getFileSize(File file) throws Exception {
         long size = 0;
         if (file.exists()) {
             FileInputStream fis = null;
@@ -306,5 +306,22 @@ public class FileUtils {
             e.printStackTrace();
         }
     }
+
+    //保存Bitmap 到缓存文件夹
+    public static String saveBitmapToSD(Bitmap bitmap) {
+        String path = "";
+        try {
+            File file = new File(getImageCache(), System.currentTimeMillis() + ".jpg");
+            path = file.getPath();
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return path;
+    }
+
 
 }

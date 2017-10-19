@@ -95,6 +95,9 @@
     <string name="photo">Photo</string>
     <string name="video_record">Video record</string>
     <string name="video">Video</string>
+    <string name="video_size_more_than_100">所选的视频文件不能大于100MB!</string>
+    <string name="not_in_wifi_environment">您不是在wifi情况下会耗费比较大的流量，是否继续?</string>
+    <string name="video_already_uploaded">最多能够上传一个视频文件</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.
