@@ -12,7 +12,6 @@ import com.sundy.iman.helper.ImageHelper;
 
 import java.util.ArrayList;
 
-import me.iwf.photopicker.utils.AndroidLifecycleUtils;
 import me.iwf.photopicker.widget.SquareItemLayout;
 
 /**
@@ -56,10 +55,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     public void onBindViewHolder(final PhotoViewHolder holder, final int position) {
         try {
             if (getItemViewType(position) == TYPE_PHOTO) {
-                boolean canLoadImage = AndroidLifecycleUtils.canLoadImage(holder.ivPhoto.getContext());
-                if (canLoadImage) {
-                    ImageHelper.displayImageLocal(mContext, photoPaths.get(position), holder.ivPhoto);
-                }
+                ImageHelper.displayImageLocal(mContext, photoPaths.get(position), holder.ivPhoto);
                 holder.ivPhoto.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {

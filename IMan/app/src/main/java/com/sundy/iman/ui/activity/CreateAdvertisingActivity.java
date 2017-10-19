@@ -59,6 +59,7 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.FileUtils;
+import com.sundy.iman.utils.MediaFileUtils;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
 import com.sundy.iman.view.popupwindow.SelectMediaPopup;
@@ -158,10 +159,11 @@ public class CreateAdvertisingActivity extends BaseActivity {
     private ArrayList<String> selectedTags = new ArrayList<>(); //已选择的标签列表
 
     private PhotoAdapter photoAdapter;
-    private ArrayList<String> selectedPhotos = new ArrayList<>(); //已选择的图片列表
+    private ArrayList<String> selectedPhotos = new ArrayList<>(); //已选择的本地图片列表
 
     private SelectMediaPopup selectMediaPopup;
     private boolean isVideoUploaded = false; //判断是否已经选择上传了视频，因为最多可上传一个视频，媒体（图片+视频）只能最多9个
+    private JsonArray attachmentArr = new JsonArray(); //要上传附件的Json数组
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -180,7 +182,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
         titleBar.setOnClickListener(new OnTitleBarClickListener() {
             @Override
             public void onLeftImgClick() {
-               showBackTipsDialog();
+                showBackTipsDialog();
             }
 
             @Override
@@ -257,9 +259,15 @@ public class CreateAdvertisingActivity extends BaseActivity {
 
             @Override
             public void onDeleteClick(PhotoAdapter.PhotoViewHolder holder, int position) {
-                if (selectedPhotos != null) {
-                    selectedPhotos.remove(position);
-                    photoAdapter.notifyDataSetChanged();
+                try {
+                    if (selectedPhotos != null) {
+                        selectedPhotos.remove(position);
+                        photoAdapter.notifyDataSetChanged();
+
+                        attachmentArr.remove(position);
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
 
@@ -268,6 +276,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
                 PhotoPreview.builder()
                         .setPhotos(selectedPhotos)
                         .setCurrentItem(position)
+                        .setShowDeleteButton(false)
                         .start(CreateAdvertisingActivity.this);
             }
         });
@@ -425,7 +434,11 @@ public class CreateAdvertisingActivity extends BaseActivity {
     private void getQiNiuToken(final File file) {
         JsonArray jsonArray = new JsonArray();
         JsonObject jsonObject = new JsonObject();
-        jsonObject.addProperty("ext", "jpg");
+        String fileExtension = FileUtils.getFileExtension(file.getPath());
+        if (TextUtils.isEmpty(fileExtension)) {
+            fileExtension = "jpg";
+        }
+        jsonObject.addProperty("ext", fileExtension);
         jsonObject.addProperty("width", "1080");
         jsonObject.addProperty("height", "1920");
         jsonArray.add(jsonObject);
@@ -453,7 +466,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
                                     String header = itemEntity.getUrl();
                                     String path = itemEntity.getPath();
                                     if (file != null && !TextUtils.isEmpty(token)) {
-                                        uploadImg(file, key, token);
+                                        uploadImg(file, key, token, path);
                                     }
                                 }
                             }
@@ -475,7 +488,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
     }
 
     //上传图片
-    private void uploadImg(final File data, String key, String token) {
+    private void uploadImg(final File data, String key, String token, final String path) {
         Configuration config = new Configuration.Builder()
                 .zone(AutoZone.autoZone)
                 .build();
@@ -488,6 +501,23 @@ public class CreateAdvertisingActivity extends BaseActivity {
                     if (selectedPhotos != null) {
                         selectedPhotos.add(data.getPath());
                         photoAdapter.notifyDataSetChanged();
+
+                        //保存上传图片的Json对象
+                        try {
+                            //附件​ ​json格式 数据 att_type为附件 类型,1-图片, 2-视频 url:附件存放 路径
+                            JsonObject attachment = new JsonObject();
+                            String att_type = "1"; //图片
+                            boolean isVideo = MediaFileUtils.isVideoFileType(data.getPath());
+                            if (isVideo) {
+                                att_type = "2"; //视频
+                            }
+                            attachment.addProperty("att_type", att_type);
+                            attachment.addProperty("url", path);
+
+                            attachmentArr.add(attachment);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 } else {
                     Logger.i("--->Upload Fail" + info.toString());
@@ -497,7 +527,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
         }, new UploadOptions(null, null, false, new UpProgressHandler() {
             @Override
             public void progress(String key, double percent) {
-                Logger.i("--->percent : " + percent);
+//                Logger.i("--->percent : " + percent);
             }
         }, null));
     }
@@ -854,7 +884,6 @@ public class CreateAdvertisingActivity extends BaseActivity {
             }
         }
 
-        Logger.e("---->selectedCommunities = " + selectedCommunities.size());
         String communitys = "";
         if (selectedCommunities != null && selectedCommunities.size() > 0) {
             for (int i = 0; i < selectedCommunities.size(); i++) {
@@ -869,7 +898,6 @@ public class CreateAdvertisingActivity extends BaseActivity {
                 }
             }
         }
-        Logger.e("---->communitys = " + communitys);
 
         String tags = "";
         if (selectedTags != null && selectedTags.size() > 0) {
@@ -886,8 +914,11 @@ public class CreateAdvertisingActivity extends BaseActivity {
             }
             tags = sb.toString();
         }
-        Logger.e("---->tags = " + tags);
 
+        String attachment = "";
+        if (attachmentArr != null && attachmentArr.size() > 0) {
+            attachment = attachmentArr.toString();
+        }
         Map<String, String> param = new HashMap<>();
         param.put("mid", PaperUtils.getMId());
         param.put("session_key", PaperUtils.getSessionKey());
@@ -899,7 +930,8 @@ public class CreateAdvertisingActivity extends BaseActivity {
         param.put("longitude", longitude);
         param.put("communitys", communitys); //社区ID:多个社区ID以“,”作为分隔符
         param.put("aging", AGING + ""); //时效
-        param.put("attachment", ""); //附件 json格式数据:att_type为附件类型，1-图片，2-视频 url：附件存放路径
+        param.put("attachment", attachment); //附件 json格式数据:att_type为附件类型，1-图片，2-视频 url：附件存放路径
+        //[{"att_type":"1"," url":"post/20170 9/74c06ef7f40ac a08bce37c0403 d08521.png"}]
         showProgress();
         Call<CreateAdvertisingEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .createAdvertising(ParamHelper.formatData(param));
@@ -1007,6 +1039,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
             selectMediaPopup.dismiss();
             selectMediaPopup = null;
         }
+        FileUtils.clearFileCache(FileUtils.getImageCache());
     }
 
     @Override
@@ -1018,4 +1051,5 @@ public class CreateAdvertisingActivity extends BaseActivity {
         }
         return super.onKeyDown(keyCode, event);
     }
+
 }

@@ -285,4 +285,26 @@ public class FileUtils {
         fos.write(bytes);
         fos.close();
     }
+
+    //获取文件后缀名
+    public static String getFileExtension(String filePath) {
+        int lastDot = filePath.lastIndexOf(".");
+        if (lastDot < 0)
+            return null;
+        return filePath.substring(lastDot + 1);
+    }
+
+    //清理文件
+    public static void clearFileCache(String fileDir) {
+        try {
+            //清理图片压缩文件夹
+            File file = new File(fileDir);
+            if (file.exists()) {
+                FileUtils.deleteAllFiles(file);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 }

@@ -3,10 +3,10 @@
     android:id="@+id/view_content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_marginRight="6dp"
+    android:layout_marginBottom="2dp"
+    android:layout_marginRight="5dp"
     android:background="@drawable/square_gray_stroke"
-    android:gravity="center"
-    android:padding="1dp">
+    android:gravity="center">
 
     <ImageView
         android:id="@+id/iv_add"

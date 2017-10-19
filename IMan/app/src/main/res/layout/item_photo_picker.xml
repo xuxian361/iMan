@@ -2,7 +2,9 @@
 <me.iwf.photopicker.widget.SquareItemLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:id="@+id/view_content">
+    android:id="@+id/view_content"
+    android:layout_marginRight="5dp"
+    android:layout_marginBottom="2dp">
 
     <ImageView
         android:id="@+id/iv_photo"
@@ -10,9 +12,6 @@
         android:layout_height="match_parent"
         android:layout_gravity="center"
         android:adjustViewBounds="true"
-        android:background="@drawable/default_image"
-        android:padding="5dp"
-        android:layout_marginRight="6dp"
         android:scaleType="centerCrop" />
 
     <ImageView
