@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rel_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:paddingBottom="12dp"
+    android:paddingLeft="@dimen/layout_margin_size"
+    android:paddingRight="@dimen/layout_margin_size"
+    android:paddingTop="12dp">
+
+    <TextView
+        android:id="@+id/tv_community_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="10dp"
+        android:layout_toLeftOf="@+id/tv_join"
+        android:singleLine="true"
+        android:text="Community Name"
+        android:textColor="@color/txt_black"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tv_join"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:background="@drawable/semi_bg_blue"
+        android:paddingBottom="2dp"
+        android:paddingLeft="10dp"
+        android:paddingRight="10dp"
+        android:paddingTop="2dp"
+        android:text="@string/join_and_promote"
+        android:textColor="@color/txt_white"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_members"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_join"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dp"
+        android:layout_toLeftOf="@+id/tv_create_date"
+        android:singleLine="true"
+        android:text="Members: 101"
+        android:textColor="@color/txt_normal"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_create_date"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/tv_join"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dp"
+        android:singleLine="true"
+        android:text="Created: 2017/10/20"
+        android:textColor="@color/txt_gray"
+        android:textSize="10sp" />
+
+</RelativeLayout>

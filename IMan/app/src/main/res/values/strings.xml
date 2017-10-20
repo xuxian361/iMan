@@ -100,6 +100,18 @@
     <string name="media_not_finish_upload">媒体资源尚未完成上传，继续操作将丢失未上传的内容，是否继续?</string>
     <string name="continue_str">继续</string>
     <string name="media_not_yet_finish">资源上传尚未完成!</string>
+    <string name="specification">Specification</string>
+    <string name="id_str">ID:</string>
+    <string name="acquired_users">Acquired Users:</string>
+    <string name="promoting">Promoting</string>
+    <string name="since">Since:</string>
+    <string name="invite_you">邀请您加入</string>
+    <string name="invitation">邀请函</string>
+    <string name="choose_email_client">Choose Email Client</string>
+    <string name="search_promote_community_hint">Search by community name, ID</string>
+    <string name="join_and_promote"><![CDATA[Join & Promote]]></string>
+    <string name="members">Members:</string>
+    <string name="joined">Joined</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

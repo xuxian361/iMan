@@ -158,13 +158,13 @@ public class SettingsActivity extends BaseActivity {
                 goChangeLanguage();
                 break;
             case R.id.rel_term_of_use:
-                getStaticContent(1);
+                getStaticContent(Constants.TYPE_TERMS_OF_CONDITION);
                 break;
             case R.id.rel_privacy:
-                getStaticContent(2);
+                getStaticContent(Constants.TYPE_PRIVACY);
                 break;
             case R.id.rel_contact_us:
-                getStaticContent(3);
+                getStaticContent(Constants.TYPE_CONTACT_US);
                 break;
             case R.id.rel_version:
                 showUpdateDialog();

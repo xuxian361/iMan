@@ -20,5 +20,19 @@ public class Constants {
     //API 响应Code
     public static final int CODE_SUCCESS = 0; //0代表成功
 
+    //静态内容请求Type:
+    //类型:
+    // 1-使用条款,
+    // 2-隐私条例,
+    // 3-联系我们,
+    // 4-如何获取imcoin,
+    // 5-推广社区疑问
+    public static final int TYPE_TERMS_OF_CONDITION = 1;
+    public static final int TYPE_PRIVACY = 2;
+    public static final int TYPE_CONTACT_US = 3;
+    public static final int TYPE_HOW_GET_IMCOIN = 4;
+    public static final int TYPE_PROMOTE_COMMUNITY_QUESTION = 5;
+
+
 
 }

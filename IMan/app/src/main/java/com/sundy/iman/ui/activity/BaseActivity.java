@@ -86,8 +86,9 @@ public class BaseActivity extends AppCompatActivity {
      * 隐藏Progress
      */
     public void hideProgress() {
-        if (slow != null)
+        if (slow != null) {
             slow.dismissAllowingStateLoss();
+        }
     }
 
     //自动弹出键盘

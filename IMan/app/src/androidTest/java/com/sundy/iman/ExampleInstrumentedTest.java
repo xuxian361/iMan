@@ -6,10 +6,8 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.sundy.iman.entity.CancelPostEntity;
 import com.sundy.iman.entity.CollectAdvertisingEntity;
-import com.sundy.iman.entity.CommunityInfoEntity;
 import com.sundy.iman.entity.DeletePostEntity;
 import com.sundy.iman.entity.GetPostInfoEntity;
-import com.sundy.iman.entity.JoinPromoteCommunityEntity;
 import com.sundy.iman.entity.UpdatePostEntity;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
@@ -183,57 +181,7 @@ public class ExampleInstrumentedTest {
         });
     }
 
-    //加入推广社区
-    private void joinPromoteCommunity() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("community_id", ""); //社区ID
-        param.put("promoter_id", ""); //推广者ID
-        Call<JoinPromoteCommunityEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .joinPromoteCommunity(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<JoinPromoteCommunityEntity>() {
-            @Override
-            public void onSuccess(Call<JoinPromoteCommunityEntity> call, Response<JoinPromoteCommunityEntity> response) {
 
-            }
 
-            @Override
-            public void onAfter() {
 
-            }
-
-            @Override
-            public void onFailure(Call<JoinPromoteCommunityEntity> call, Throwable t) {
-
-            }
-        });
-    }
-
-    //社区详情
-    private void getCommunityInfo() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("community_id", ""); //社区ID
-        param.put("type", ""); //类型: 1-普通社区，2-推广社区
-        Call<CommunityInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getCommunityInfo(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<CommunityInfoEntity>() {
-            @Override
-            public void onSuccess(Call<CommunityInfoEntity> call, Response<CommunityInfoEntity> response) {
-
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<CommunityInfoEntity> call, Throwable t) {
-
-            }
-        });
-    }
 }

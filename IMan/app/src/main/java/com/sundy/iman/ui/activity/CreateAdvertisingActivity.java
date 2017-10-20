@@ -670,7 +670,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
                 goSelectTags();
                 break;
             case R.id.ll_how_get_imcoin:
-                getStaticContent(4);
+                getStaticContent(Constants.TYPE_HOW_GET_IMCOIN);
                 break;
             case R.id.btn_confirm:
                 int visibility = vProgress.getVisibility();
@@ -785,15 +785,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
     //跳转Web View显示H5
     private void goWebView(StaticContentEntity.DataEntity dataEntity) {
         String url = dataEntity.getUrl();
-        String title = "";
-        String type = dataEntity.getType(); //类型 1-​使用条款 ,2-隐私条 例,3-联系 我们
-        if (type.equals("1")) {
-            title = getString(R.string.terms_of_use);
-        } else if (type.equals("2")) {
-            title = getString(R.string.privacy);
-        } else if (type.equals("3")) {
-            title = getString(R.string.contact_us);
-        }
+        String title = getString(R.string.how_get_imcoin);
         if (TextUtils.isEmpty(url))
             return;
         Bundle bundle = new Bundle();
