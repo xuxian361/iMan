@@ -84,7 +84,7 @@ public class MyPromoteCommunityActivity extends BaseActivity {
         rvCommunity.setLayoutManager(new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         rvCommunity.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
-        communityAdapter = new MyCommunityAdapter(R.layout.item_my_community, listCommunity);
+        communityAdapter = new MyCommunityAdapter(R.layout.item_my_promote_community, listCommunity);
         communityAdapter.openLoadAnimation();
         communityAdapter.isFirstOnly(false);
         communityAdapter.setLoadMoreView(new CustomLoadMoreView());
@@ -260,7 +260,7 @@ public class MyPromoteCommunityActivity extends BaseActivity {
                 String create_time = item.getCreate_time();
                 if (create_time != null) {
                     Date date = DateUtils.formatTimeStamp2Date(Long.parseLong(create_time) * 1000);
-                    tv_create_date.setText(getString(R.string.since) + DateUtils.formatDate2String(date, "yyyy/MM/dd"));
+                    tv_create_date.setText(getString(R.string.since) + " " + DateUtils.formatDate2String(date, "yyyy/MM/dd"));
                 } else {
                     tv_create_date.setText("");
                 }

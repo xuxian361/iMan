@@ -180,12 +180,12 @@ public class CommunityDetailActivity extends BaseActivity {
 
     private void showData(CommunityInfoEntity.DataEntity dataEntity) {
         tvCommunityName.setText(dataEntity.getName());
-        tvCommunityId.setText(getString(R.string.id_str) + ": " + dataEntity.getId());
+        tvCommunityId.setText(getString(R.string.id_str) + " " + dataEntity.getId());
 
         String create_time = dataEntity.getCreate_time();
         if (create_time != null) {
             Date date = DateUtils.formatTimeStamp2Date(Long.parseLong(create_time) * 1000);
-            tvCreateDate.setText(getString(R.string.since) + DateUtils.formatDate2String(date, "yyyy/MM/dd"));
+            tvCreateDate.setText(getString(R.string.since) + " " + DateUtils.formatDate2String(date, "yyyy/MM/dd"));
         } else {
             tvCreateDate.setText("");
         }
@@ -216,5 +216,11 @@ public class CommunityDetailActivity extends BaseActivity {
         float f = 230 / 255.0F;
         localLayoutParams.screenBrightness = f;
         localWindow.setAttributes(localLayoutParams);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        FileUtils.clearFileCache(FileUtils.getImageCache());
     }
 }

@@ -286,7 +286,7 @@ public class JoinPromoteCommunityActivity extends BaseActivity {
             String create_time = item.getCreate_time();
             if (create_time != null) {
                 Date date = DateUtils.formatTimeStamp2Date(Long.parseLong(create_time) * 1000);
-                tv_create_date.setText(getString(R.string.created) + DateUtils.formatDate2String(date, "yyyy/MM/dd"));
+                tv_create_date.setText(getString(R.string.created) + " " + DateUtils.formatDate2String(date, "yyyy/MM/dd"));
             } else {
                 tv_create_date.setText("");
             }
