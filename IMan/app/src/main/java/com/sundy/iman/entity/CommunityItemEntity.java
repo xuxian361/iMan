@@ -11,7 +11,7 @@ import lombok.Data;
 @Data
 public class CommunityItemEntity implements Serializable {
 
-    private String id;
+    private String id; //社区id
     private String name; //社区名字
     private String introduction; //社区介绍
     private String province; //省份

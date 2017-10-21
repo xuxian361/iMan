@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -27,6 +28,7 @@ import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.CommunityItemEntity;
 import com.sundy.iman.entity.CommunityListEntity;
 import com.sundy.iman.entity.JoinCommunityEntity;
+import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
@@ -231,6 +233,7 @@ public class MyCommunityActivity extends BaseActivity {
 
         @Override
         protected void convert(BaseViewHolder helper, CommunityItemEntity item) {
+            LinearLayout ll_item = helper.getView(R.id.ll_item);
             TextView tvCommunityName = helper.getView(R.id.tv_community_name);
             TextView tvIntroduction = helper.getView(R.id.tv_community_introduction);
             tvCommunityName.setText(item.getName());
@@ -271,6 +274,9 @@ public class MyCommunityActivity extends BaseActivity {
 
             helper.setOnClickListener(R.id.tv_item_del, this);
             helper.setTag(R.id.tv_item_del, R.id.item_tag, itemData);
+
+            helper.setOnClickListener(R.id.ll_item, this);
+            helper.setTag(R.id.ll_item, R.id.item_tag, itemData);
         }
 
         @Override
@@ -339,6 +345,10 @@ public class MyCommunityActivity extends BaseActivity {
                         showQuitDialog(itemData);
                     }
                     break;
+                case R.id.ll_item:
+                    Logger.e("----->点击Item");
+                    goCommunityDetail(itemData.getItem().getId());
+                    break;
             }
         }
 
@@ -349,6 +359,14 @@ public class MyCommunityActivity extends BaseActivity {
             private CommunityItemEntity item;
 
         }
+    }
+
+    //跳转社区详情
+    private void goCommunityDetail(String community_id) {
+        Bundle bundle = new Bundle();
+        bundle.putString("community_id", community_id);
+        bundle.putString("type", "1"); //类型 1-普通社区,2- 推广社区
+        UIHelper.jump(this, CommunityDetailActivity.class, bundle);
     }
 
     //退出社区弹框提醒

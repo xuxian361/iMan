@@ -24,8 +24,9 @@
                 android:layout_width="150dp"
                 android:layout_height="150dp"
                 android:layout_gravity="center"
-                android:layout_marginTop="30dp"
-                android:scaleType="fitCenter" />
+                android:layout_marginTop="50dp"
+                android:scaleType="fitCenter"
+                android:background="@color/white"/>
 
             <TextView
                 android:id="@+id/tv_community_name"
@@ -50,13 +51,24 @@
                 android:textSize="14sp" />
 
             <TextView
-                android:id="@+id/tv_create_date"
+                android:id="@+id/tv_introduction"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:layout_marginLeft="@dimen/layout_margin_size"
                 android:layout_marginRight="@dimen/layout_margin_size"
                 android:layout_marginTop="40dp"
+                android:textColor="@color/txt_gray"
+                android:textSize="10sp" />
+
+            <TextView
+                android:id="@+id/tv_create_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="5dp"
                 android:textColor="@color/txt_gray"
                 android:textSize="10sp" />
 

@@ -75,6 +75,13 @@ public class MyPromoteCommunityActivity extends BaseActivity {
 
         initTitle();
         init();
+
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        page = 1;
         if (listCommunity != null)
             listCommunity.clear();
         getMyPromoteCommunity();

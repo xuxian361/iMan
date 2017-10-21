@@ -6,6 +6,9 @@ package com.sundy.iman.config;
 
 public class Constants {
 
+    //App 下载链接
+    public static final String DOWNLOAD_LINK = "http://www.baidu.com";
+
     //默认定位：纬度
     public static final double DEFAULT_LOCATION_LAT = 23.133834;
 
@@ -32,7 +35,6 @@ public class Constants {
     public static final int TYPE_CONTACT_US = 3;
     public static final int TYPE_HOW_GET_IMCOIN = 4;
     public static final int TYPE_PROMOTE_COMMUNITY_QUESTION = 5;
-
 
 
 }

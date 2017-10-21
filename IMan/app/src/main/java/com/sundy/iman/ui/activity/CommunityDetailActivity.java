@@ -5,6 +5,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.view.View;
@@ -15,10 +16,12 @@ import android.widget.TextView;
 
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
+import com.orhanobut.logger.Logger;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.CommunityInfoEntity;
+import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
@@ -28,13 +31,20 @@ import com.sundy.iman.utils.DateUtils;
 import com.sundy.iman.utils.FileUtils;
 import com.sundy.iman.utils.QRCodeUtils;
 import com.sundy.iman.view.TitleBarView;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
+import com.yanzhenjie.permission.PermissionNo;
+import com.yanzhenjie.permission.PermissionYes;
 
+import java.io.File;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -43,6 +53,8 @@ import retrofit2.Response;
  */
 
 public class CommunityDetailActivity extends BaseActivity {
+
+    private final int REQUEST_CODE_PERMISSION_STORAGE = 100;
 
     @BindView(R.id.title_bar)
     TitleBarView titleBar;
@@ -56,12 +68,14 @@ public class CommunityDetailActivity extends BaseActivity {
     TextView tvCreateDate;
     @BindView(R.id.tv_acquired_uesrs)
     TextView tvAcquiredUesrs;
+    @BindView(R.id.tv_introduction)
+    TextView tvIntroduction;
 
     private String community_id;
     private String type;
+    private String qrCodePath;
 
     private CommunityInfoEntity.DataEntity dataEntity;
-    private String qrCodePath;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -99,7 +113,7 @@ public class CommunityDetailActivity extends BaseActivity {
 
             @Override
             public void onRightImgClick() {
-                sendEmail();
+                getFilePermission();
             }
 
             @Override
@@ -114,24 +128,56 @@ public class CommunityDetailActivity extends BaseActivity {
         });
     }
 
+    @PermissionYes(REQUEST_CODE_PERMISSION_STORAGE)
+    private void getPermissionStorageYes(@NonNull List<String> grantedPermissions) {
+        Logger.e("文件操作权限申请成功!");
+        sendEmail();
+    }
+
+    @PermissionNo(REQUEST_CODE_PERMISSION_STORAGE)
+    private void getPermissionStorageNo(@NonNull List<String> deniedPermissions) {
+        Logger.e("文件操作权限申请失败!");
+
+    }
+
+    //获取操作文件权限
+    private void getFilePermission() {
+        AndPermission.with(this)
+                .requestCode(REQUEST_CODE_PERMISSION_STORAGE)
+                .permission(Permission.STORAGE)
+                .callback(this)
+                .start();
+    }
+
     //发送邮件
     private void sendEmail() {
         if (dataEntity == null) {
             return;
         }
+        //截取二维码
+        ivQrCode.setDrawingCacheEnabled(true);
+        ivQrCode.buildDrawingCache();
+        Bitmap bitmap = ivQrCode.getDrawingCache();
+        if (bitmap != null) {
+            //保存二维码到SD card
+            qrCodePath = FileUtils.saveBitmapToSD(bitmap);
+        }
+
         Intent intent = new Intent(Intent.ACTION_SEND);
         String[] tos = {""};
-        String body = getString(R.string.app_name) + " " + getString(R.string.invite_you) + " " + dataEntity.getName();
+        String body = getString(R.string.app_name) + " " + getString(R.string.invite_you) + " " + dataEntity.getName() + "\n\n" + Constants.DOWNLOAD_LINK;
         String subject = getString(R.string.app_name) + " " + getString(R.string.invitation);
+        String path = "";
         if (!TextUtils.isEmpty(qrCodePath)) {
+            path = qrCodePath;
             if (!qrCodePath.startsWith("file://"))
-                qrCodePath = "file://" + qrCodePath;
+                path = "file://" + qrCodePath;
         }
 
         intent.putExtra(Intent.EXTRA_EMAIL, tos);
         intent.putExtra(Intent.EXTRA_TEXT, body);
         intent.putExtra(Intent.EXTRA_SUBJECT, subject);
-        intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(qrCodePath));
+        intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(path));
         intent.setType("image/*");
         intent.setType("message/rfc882");
         Intent.createChooser(intent, getString(R.string.choose_email_client));
@@ -181,6 +227,7 @@ public class CommunityDetailActivity extends BaseActivity {
     private void showData(CommunityInfoEntity.DataEntity dataEntity) {
         tvCommunityName.setText(dataEntity.getName());
         tvCommunityId.setText(getString(R.string.id_str) + " " + dataEntity.getId());
+        tvIntroduction.setText(dataEntity.getIntroduction());
 
         String create_time = dataEntity.getCreate_time();
         if (create_time != null) {
@@ -190,7 +237,12 @@ public class CommunityDetailActivity extends BaseActivity {
             tvCreateDate.setText("");
         }
 
-        tvAcquiredUesrs.setText(getString(R.string.acquired_users) + " " + dataEntity.getMembers());
+        if (type.equals("1")) //普通社区
+        {
+            tvAcquiredUesrs.setText(getString(R.string.members) + " " + dataEntity.getMembers());
+        } else { //推广社区
+            tvAcquiredUesrs.setText(getString(R.string.acquired_users) + " " + dataEntity.getMembers());
+        }
 
         String url = dataEntity.getUrl();
         Bitmap bmp = BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher);
@@ -198,9 +250,6 @@ public class CommunityDetailActivity extends BaseActivity {
         try {
             Bitmap qrCode = QRCodeUtils.createQRCode(url, bmp, BarcodeFormat.QR_CODE);
             ivQrCode.setImageBitmap(qrCode);
-
-            //保存二维码到SD card
-            qrCodePath = FileUtils.saveBitmapToSD(qrCode);
         } catch (WriterException e) {
             e.printStackTrace();
         }
@@ -221,6 +270,25 @@ public class CommunityDetailActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        FileUtils.clearFileCache(FileUtils.getImageCache());
+        if (!TextUtils.isEmpty(qrCodePath)) {
+            File file = new File(qrCodePath);
+            if (file.exists()) {
+                file.delete();
+            }
+        }
+    }
+
+    @OnClick(R.id.iv_qr_code)
+    public void onViewClicked() {
+        showScaleQRCode();
+    }
+
+    //显示放大的QR code
+    private void showScaleQRCode() {
+        if (dataEntity == null)
+            return;
+        Bundle bundle = new Bundle();
+        bundle.putString("url", dataEntity.getUrl());
+        UIHelper.jump(this, ScaleQRCodeActivity.class, bundle);
     }
 }
