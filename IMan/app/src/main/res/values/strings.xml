@@ -118,6 +118,10 @@
     <string name="report_description">Report Description</string>
     <string name="submit">Submit</string>
     <string name="report_success">已收到您的举报消息，结果将会通过邮箱反馈给您!</string>
+    <string name="light_on">Light On</string>
+    <string name="light_off">Light Off</string>
+    <string name="scan">Scan</string>
+    <string name="join">Join</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

@@ -27,7 +27,7 @@ public class QRScannerActivity extends BaseActivity implements DecoratedBarcodeV
     @BindView(R.id.title_bar)
     TitleBarView titleBar;
     @BindView(R.id.btn_switch)
-    Button swichLight;
+    Button switchLight;
     @BindView(R.id.dbv_custom)
     DecoratedBarcodeView mDBV;
 
@@ -47,7 +47,7 @@ public class QRScannerActivity extends BaseActivity implements DecoratedBarcodeV
 
         // 如果没有闪光灯功能，就去掉相关按钮
         if (!hasFlash()) {
-            swichLight.setVisibility(View.GONE);
+            switchLight.setVisibility(View.GONE);
         }
 
         //重要代码，初始化捕获
@@ -58,7 +58,7 @@ public class QRScannerActivity extends BaseActivity implements DecoratedBarcodeV
     }
 
     private void initTitle() {
-        titleBar.setBackMode();
+        titleBar.setBackMode(getString(R.string.scan));
         titleBar.setOnClickListener(new OnTitleBarClickListener() {
             @Override
             public void onLeftImgClick() {
@@ -138,8 +138,10 @@ public class QRScannerActivity extends BaseActivity implements DecoratedBarcodeV
     @OnClick(R.id.btn_switch)
     public void switchLight() {
         if (isLightOn) {
+            switchLight.setText(getString(R.string.light_on));
             mDBV.setTorchOff();
         } else {
+            switchLight.setText(getString(R.string.light_off));
             mDBV.setTorchOn();
         }
     }

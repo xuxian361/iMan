@@ -30,7 +30,10 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:layout_margin="10dp"
-            android:text="SwitchLight" />
+            android:background="@null"
+            android:text="@string/light_on"
+            android:textColor="@color/txt_white"
+            android:textSize="12sp" />
 
     </RelativeLayout>
 

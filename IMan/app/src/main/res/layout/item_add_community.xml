@@ -30,7 +30,7 @@
         android:paddingLeft="10dp"
         android:paddingRight="10dp"
         android:paddingTop="2dp"
-        android:text="@string/join_and_promote"
+        android:text="@string/join"
         android:textColor="@color/txt_white"
         android:textSize="12sp" />
 
