@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rel_item"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/white"
+    android:orientation="vertical"
+    android:paddingBottom="12dp"
+    android:paddingLeft="@dimen/layout_margin_size"
+    android:paddingRight="@dimen/layout_margin_size"
+    android:paddingTop="12dp">
+
+    <TextView
+        android:id="@+id/tv_post_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginRight="10dp"
+        android:layout_toLeftOf="@+id/tv_status"
+        android:singleLine="true"
+        android:textColor="@color/txt_black"
+        android:textSize="16sp" />
+
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:text="@string/active"
+        android:textColor="@color/txt_blue"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_post_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_post_name"
+        android:layout_marginRight="10dp"
+        android:layout_marginTop="5dp"
+        android:singleLine="true"
+        android:textColor="@color/txt_gray"
+        android:textSize="12sp" />
+
+    <TextView
+        android:id="@+id/tv_end_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/tv_post_time"
+        android:layout_marginRight="10dp"
+        android:singleLine="true"
+        android:textColor="@color/txt_gray"
+        android:textSize="12sp" />
+
+</RelativeLayout>
