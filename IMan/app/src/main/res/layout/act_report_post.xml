@@ -19,26 +19,89 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <EditText
-                android:id="@+id/et_email"
-                android:layout_width="match_parent"
-                android:layout_height="40dp"
-                android:hint="Your email can receive our feedback."
-                android:textSize="13sp" />
-
-            <EditText
-                android:id="@+id/et_content"
-                android:layout_width="match_parent"
-                android:layout_height="160dp"
-                android:gravity="top"
-                android:hint="Please write your report content."
-                android:textSize="13sp" />
-
-            <Button
-                android:id="@+id/btn_confirm"
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/confirm" />
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginTop="20dp"
+                android:drawableLeft="@drawable/corner_bg_small_blue"
+                android:drawablePadding="5dp"
+                android:text="@string/your_email"
+                android:textColor="@color/txt_black"
+                android:textSize="13sp" />
+
+            <EditText
+                android:id="@+id/et_email"
+                style="@style/MyEditText"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/edt_height"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="10dp"
+                android:focusable="true"
+                android:hint="@string/you_email_hint"
+                android:maxLines="1"
+                android:selectAllOnFocus="true"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginTop="15dp"
+                android:drawableLeft="@drawable/corner_bg_small_blue"
+                android:drawablePadding="5dp"
+                android:text="@string/report_description"
+                android:textColor="@color/txt_black"
+                android:textSize="13sp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="140dp"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/corner_bg_edit_gray"
+                android:padding="5dp">
+
+                <EditText
+                    android:id="@+id/et_content"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_above="@+id/tv_bytes"
+                    android:background="@null"
+                    android:focusable="true"
+                    android:gravity="top|left"
+                    android:hint="@string/report_content_hint"
+                    android:maxLength="300"
+                    android:selectAllOnFocus="true"
+                    android:textColor="@color/txt_black"
+                    android:textSize="13sp" />
+
+                <TextView
+                    android:id="@+id/tv_bytes"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:text="(0/300)"
+                    android:textColor="@color/txt_normal"
+                    android:textSize="13sp" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:id="@+id/btn_confirm"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/button_height"
+                android:layout_gravity="center"
+                android:layout_marginTop="50dp"
+                android:background="@drawable/selector_btn_blue_gray"
+                android:gravity="center"
+                android:minWidth="@dimen/button_min_width"
+                android:text="@string/submit"
+                android:textColor="@color/txt_white"
+                android:textSize="14sp" />
 
 
         </LinearLayout>

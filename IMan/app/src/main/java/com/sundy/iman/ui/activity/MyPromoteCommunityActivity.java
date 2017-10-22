@@ -13,11 +13,18 @@ import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
+import com.daimajia.swipe.SwipeLayout;
+import com.daimajia.swipe.implments.SwipeItemRecyclerMangerImpl;
+import com.daimajia.swipe.interfaces.SwipeAdapterInterface;
+import com.daimajia.swipe.interfaces.SwipeItemMangerInterface;
+import com.daimajia.swipe.util.Attributes;
 import com.orhanobut.logger.Logger;
+import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.MyPromoteCommunityItemEntity;
 import com.sundy.iman.entity.MyPromoteCommunityListEntity;
+import com.sundy.iman.entity.QuitPromoteCommunityEntity;
 import com.sundy.iman.entity.StaticContentEntity;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
@@ -30,7 +37,9 @@ import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
+import com.sundy.iman.view.dialog.CommonDialog;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,6 +49,7 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import lombok.Data;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -249,7 +259,10 @@ public class MyPromoteCommunityActivity extends BaseActivity {
         UIHelper.jump(this, JoinPromoteCommunityActivity.class);
     }
 
-    private class MyCommunityAdapter extends BaseQuickAdapter<MyPromoteCommunityItemEntity, BaseViewHolder> {
+    private class MyCommunityAdapter extends BaseQuickAdapter<MyPromoteCommunityItemEntity, BaseViewHolder>
+            implements SwipeItemMangerInterface, SwipeAdapterInterface, View.OnClickListener {
+
+        public SwipeItemRecyclerMangerImpl mItemManger = new SwipeItemRecyclerMangerImpl(this);
 
         public MyCommunityAdapter(@LayoutRes int layoutResId, @Nullable List<MyPromoteCommunityItemEntity> data) {
             super(layoutResId, data);
@@ -276,17 +289,158 @@ public class MyPromoteCommunityActivity extends BaseActivity {
                 tv_id.setText(getString(R.string.id_str) + " " + item.getId());
                 tv_users.setText(getString(R.string.acquired_users) + " " + item.getMembers());
 
-                rel_item.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        goCommunityDetail(item.getCommunity_id());
-                    }
-                });
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
+            mItemManger.bindView(helper.getConvertView(), helper.getPosition());
+
+            ItemData itemData = new ItemData();
+            itemData.setPosition(helper.getPosition());
+            itemData.setItem(item);
+
+            helper.setOnClickListener(R.id.tv_item_del, this);
+            helper.setTag(R.id.tv_item_del, R.id.item_tag, itemData);
+
+            helper.setOnClickListener(R.id.ll_item, this);
+            helper.setTag(R.id.ll_item, R.id.item_tag, itemData);
+
         }
+
+        @Override
+        public int getSwipeLayoutResourceId(int position) {
+            return R.id.swipe;
+        }
+
+        @Override
+        public void openItem(int position) {
+            mItemManger.openItem(position);
+        }
+
+        @Override
+        public void closeItem(int position) {
+            mItemManger.closeItem(position);
+        }
+
+        @Override
+        public void closeAllExcept(SwipeLayout layout) {
+            mItemManger.closeAllExcept(layout);
+        }
+
+        @Override
+        public void closeAllItems() {
+            mItemManger.closeAllItems();
+        }
+
+        @Override
+        public List<Integer> getOpenItems() {
+            return mItemManger.getOpenItems();
+        }
+
+        @Override
+        public List<SwipeLayout> getOpenLayouts() {
+            return mItemManger.getOpenLayouts();
+        }
+
+        @Override
+        public void removeShownLayouts(SwipeLayout layout) {
+            mItemManger.removeShownLayouts(layout);
+        }
+
+        @Override
+        public boolean isOpen(int position) {
+            return mItemManger.isOpen(position);
+        }
+
+        @Override
+        public Attributes.Mode getMode() {
+            return mItemManger.getMode();
+        }
+
+        @Override
+        public void setMode(Attributes.Mode mode) {
+            mItemManger.setMode(mode);
+        }
+
+        @Override
+        public void onClick(View view) {
+            ItemData itemData = (ItemData) view.getTag(R.id.item_tag);
+            switch (view.getId()) {
+                case R.id.tv_item_del:
+                    Logger.e("----->删除Item");
+                    //删除订单
+                    if (itemData != null) {
+                        showQuitDialog(itemData);
+                    }
+                    break;
+                case R.id.ll_item:
+                    Logger.e("----->点击Item");
+                    goCommunityDetail(itemData.getItem().getCommunity_id());
+                    break;
+            }
+        }
+
+        @Data
+        public class ItemData implements Serializable {
+
+            private int position;
+            private MyPromoteCommunityItemEntity item;
+
+        }
+    }
+
+    //退出推广社区弹框提醒
+    private void showQuitDialog(final MyCommunityAdapter.ItemData itemData) {
+        final CommonDialog dialog = new CommonDialog(this);
+        dialog.getTitle().setVisibility(View.GONE);
+        dialog.getContent().setText(getString(R.string.if_confirm_quit_community));
+        dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                quitCommunity(itemData);
+            }
+        });
+    }
+
+    //退出社区
+    private void quitCommunity(final MyCommunityAdapter.ItemData itemData) {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("community_id", itemData.getItem().getCommunity_id());
+        Call<QuitPromoteCommunityEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .quitPromoteCommunity(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<QuitPromoteCommunityEntity>() {
+            @Override
+            public void onSuccess(Call<QuitPromoteCommunityEntity> call, Response<QuitPromoteCommunityEntity> response) {
+                QuitPromoteCommunityEntity quitPromoteCommunityEntity = response.body();
+                if (quitPromoteCommunityEntity != null) {
+                    int code = quitPromoteCommunityEntity.getCode();
+                    String msg = quitPromoteCommunityEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        try {
+                            listCommunity.remove(itemData.getItem());
+                            communityAdapter.notifyItemRemoved(itemData.getPosition());
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<QuitPromoteCommunityEntity> call, Throwable t) {
+
+            }
+        });
     }
 
     //跳转社区详情

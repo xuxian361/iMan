@@ -74,6 +74,9 @@ public class Apis {
     //加入推广社区接口
     public static final String URL_JOIN_PROMOTE_COMMUNITY = "promoteCommunity/joinPromote";
 
+    //加入推广社区接口
+    public static final String URL_QUIT_PROMOTE_COMMUNITY = "promoteCommunity/quitPromote";
+
     //举报post接口
     public static final String URL_REPORT_POST = "post/reportPost";
 
