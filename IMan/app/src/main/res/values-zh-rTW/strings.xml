@@ -131,6 +131,9 @@
     <string name="expired_title">Expired:</string>
     <string name="add_community">Add Community</string>
     <string name="scanner">扫一扫</string>
+    <string name="community_info">Community Info</string>
+    <string name="post_msg">Post a message</string>
+    <string name="share">Share</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.
