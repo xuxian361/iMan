@@ -95,6 +95,8 @@ public class Apis {
     //获取静态内容接口
     public static final String URL_GET_STATIC_CONTENT = "staticContent/getStaticContent";
 
+    //解析url（二维码值）
+    public static final String URL_PARSE_URL = "url/parse";
 
     //图片上传
     public static final String URL_UPLOAD_IMAGE = "";

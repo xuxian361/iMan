@@ -9,6 +9,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
@@ -27,6 +28,9 @@ import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.CommunityItemEntity;
 import com.sundy.iman.entity.CommunityListEntity;
 import com.sundy.iman.entity.JoinCommunityEntity;
+import com.sundy.iman.entity.JoinPromoteCommunityEntity;
+import com.sundy.iman.entity.ParseUrlEntity;
+import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
@@ -111,7 +115,7 @@ public class AddCommunityActivity extends BaseActivity {
     }
 
     private void initTitle() {
-        titleBar.setBackMode();
+        titleBar.setBackMode(getString(R.string.add_community));
         titleBar.setRightIvVisibility(View.VISIBLE);
         titleBar.setRightIvBg(R.mipmap.icon_scaner);
         titleBar.setOnClickListener(new OnTitleBarClickListener() {
@@ -263,13 +267,61 @@ public class AddCommunityActivity extends BaseActivity {
                 Logger.e("-------->扫描失败");
             } else {
                 // ScanResult 为 获取到的字符串
-                String ScanResult = intentResult.getContents();
-                Logger.e("-------->扫描成功 =" + ScanResult);
-
+                String scanResult = intentResult.getContents();
+                Logger.e("-------->扫描成功 =" + scanResult);
+                //解析二维码
+                parseUrl(scanResult);
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    //解析URL
+    private void parseUrl(String scanResult) {
+        if (TextUtils.isEmpty(scanResult))
+            return;
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("url", scanResult);
+        Call<ParseUrlEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .parseUrl(ParamHelper.formatData(param));
+        showProgress();
+        call.enqueue(new RetrofitCallback<ParseUrlEntity>() {
+            @Override
+            public void onSuccess(Call<ParseUrlEntity> call, Response<ParseUrlEntity> response) {
+                ParseUrlEntity parseUrlEntity = response.body();
+                if (parseUrlEntity != null) {
+                    int code = parseUrlEntity.getCode();
+                    String msg = parseUrlEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        ParseUrlEntity.DataEntity dataEntity = parseUrlEntity.getData();
+                        if (dataEntity != null) {
+                            String type = dataEntity.getUrl_type();
+                            ParseUrlEntity.ParamsEntity paramsEntity = dataEntity.getParams();
+                            if ("join_promote".equals(type)) {
+                                joinPromoteCommunity(paramsEntity);
+                            } else if ("join_community".equals(type)) {
+                                joinCommunity(paramsEntity);
+                            }
+                        }
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+                hideProgress();
+            }
+
+            @Override
+            public void onFailure(Call<ParseUrlEntity> call, Throwable t) {
+
+            }
+        });
     }
 
     private class CommunityAdapter extends BaseQuickAdapter<CommunityItemEntity, BaseViewHolder> {
@@ -356,6 +408,87 @@ public class AddCommunityActivity extends BaseActivity {
 
             }
         });
+    }
+
+    //加入社区
+    private void joinCommunity(final ParseUrlEntity.ParamsEntity paramsEntity) {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("type", "0"); //类型: 0-加入，1-退出
+        param.put("community_id", paramsEntity.getCommunity_id());
+        Call<JoinCommunityEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .joinCommunity(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<JoinCommunityEntity>() {
+            @Override
+            public void onSuccess(Call<JoinCommunityEntity> call, Response<JoinCommunityEntity> response) {
+                JoinCommunityEntity joinCommunityEntity = response.body();
+                if (joinCommunityEntity != null) {
+                    int code = joinCommunityEntity.getCode();
+                    String msg = joinCommunityEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        goCommunityMsgList(paramsEntity.getCommunity_id());
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+            }
+
+            @Override
+            public void onFailure(Call<JoinCommunityEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //加入推广社区
+    private void joinPromoteCommunity(final ParseUrlEntity.ParamsEntity paramsEntity) {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        String community_id = paramsEntity.getCommunity_id();
+        String promoter_id = paramsEntity.getPromoter_id();
+        if (!TextUtils.isEmpty(community_id))
+            param.put("community_id", community_id); //社区ID
+        if (!TextUtils.isEmpty(promoter_id))
+            param.put("promoter_id", promoter_id); //推广者ID
+        Call<JoinPromoteCommunityEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .joinPromoteCommunity(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<JoinPromoteCommunityEntity>() {
+            @Override
+            public void onSuccess(Call<JoinPromoteCommunityEntity> call, Response<JoinPromoteCommunityEntity> response) {
+                JoinPromoteCommunityEntity joinPromoteCommunityEntity = response.body();
+                if (joinPromoteCommunityEntity != null) {
+                    int code = joinPromoteCommunityEntity.getCode();
+                    String msg = joinPromoteCommunityEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        goCommunityMsgList(paramsEntity.getCommunity_id());
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+            }
+
+            @Override
+            public void onFailure(Call<JoinPromoteCommunityEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //跳转该社区消息列表页面
+    private void goCommunityMsgList(String community_id) {
+        Bundle bundle = new Bundle();
+        bundle.putString("community_id", community_id);
+        UIHelper.jump(this, CommunityMsgListActivity.class, bundle);
     }
 
     private BaseQuickAdapter.RequestLoadMoreListener onLoadMoreListener = new BaseQuickAdapter.RequestLoadMoreListener() {

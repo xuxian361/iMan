@@ -347,7 +347,7 @@ public class MyCommunityActivity extends BaseActivity {
                     break;
                 case R.id.ll_item:
                     Logger.e("----->点击Item");
-                    goCommunityDetail(itemData.getItem().getId());
+                    goCommunityMsgList(itemData.getItem().getId());
                     break;
             }
         }
@@ -361,12 +361,11 @@ public class MyCommunityActivity extends BaseActivity {
         }
     }
 
-    //跳转社区详情
-    private void goCommunityDetail(String community_id) {
+    //跳转该社区消息列表页面
+    private void goCommunityMsgList(String community_id) {
         Bundle bundle = new Bundle();
         bundle.putString("community_id", community_id);
-        bundle.putString("type", "1"); //类型 1-普通社区,2- 推广社区
-        UIHelper.jump(this, CommunityDetailActivity.class, bundle);
+        UIHelper.jump(this, CommunityMsgListActivity.class, bundle);
     }
 
     //退出社区弹框提醒

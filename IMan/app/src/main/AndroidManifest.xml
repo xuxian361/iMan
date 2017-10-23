@@ -187,6 +187,10 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:theme="@style/AppTheme.Full" />
+        <activity
+            android:name=".ui.activity.CommunityMsgListActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
 
 
         <activity

@@ -129,6 +129,8 @@
     <string name="posted">Posted:</string>
     <string name="posted_title">Posted:</string>
     <string name="expired_title">Expired:</string>
+    <string name="add_community">Add Community</string>
+    <string name="scanner">扫一扫</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

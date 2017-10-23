@@ -19,6 +19,7 @@ import com.sundy.iman.entity.LoginEntity;
 import com.sundy.iman.entity.LogoutEntity;
 import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.entity.MyPromoteCommunityListEntity;
+import com.sundy.iman.entity.ParseUrlEntity;
 import com.sundy.iman.entity.PostListEntity;
 import com.sundy.iman.entity.QiNiuTokenListEntity;
 import com.sundy.iman.entity.QuitPromoteCommunityEntity;
@@ -124,7 +125,7 @@ public interface ApiService {
      *
      * @return
      */
-    @POST(Apis.URL_COMMUNITY_LIST)
+    @GET(Apis.URL_COMMUNITY_LIST)
     Call<CommunityListEntity> getCommunityList(@QueryMap Map<String, String> map);
 
     /**
@@ -132,7 +133,7 @@ public interface ApiService {
      *
      * @return
      */
-    @POST(Apis.URL_JOIN_COMMUNITY)
+    @GET(Apis.URL_JOIN_COMMUNITY)
     Call<JoinCommunityEntity> joinCommunity(@QueryMap Map<String, String> map);
 
     /**
@@ -271,6 +272,13 @@ public interface ApiService {
     @GET(Apis.URL_GET_STATIC_CONTENT)
     Call<StaticContentEntity> getStaticContent(@QueryMap Map<String, String> map);
 
+    /**
+     * 解析url
+     *
+     * @return
+     */
+    @GET(Apis.URL_PARSE_URL)
+    Call<ParseUrlEntity> parseUrl(@QueryMap Map<String, String> map);
 
     /**
      * 图片上传

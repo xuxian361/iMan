@@ -196,6 +196,40 @@
                     android:layout_height="1px"
                     android:background="@color/bg_line_gray" />
 
+                <RelativeLayout
+                    android:id="@+id/rel_scan"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:paddingBottom="15dp"
+                    android:paddingTop="15dp">
+
+                    <TextView
+                        android:id="@+id/tv_scan"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_centerVertical="true"
+                        android:layout_toLeftOf="@+id/iv_arrow_scan"
+                        android:text="@string/scanner"
+                        android:textColor="@color/txt_black"
+                        android:textSize="14sp" />
+
+                    <ImageView
+                        android:id="@+id/iv_arrow_scan"
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:layout_alignParentRight="true"
+                        android:layout_centerVertical="true"
+                        android:layout_marginRight="15dp"
+                        android:scaleType="center"
+                        android:src="@mipmap/icon_scaner" />
+
+                </RelativeLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="1px"
+                    android:background="@color/bg_line_gray" />
+
             </LinearLayout>
 
             <LinearLayout
