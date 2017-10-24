@@ -7,9 +7,11 @@ import android.view.View;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import com.sundy.iman.R;
+import com.sundy.iman.utils.SizeUtils;
 
 /**
  * Created by sundy on 17/10/24.
@@ -63,6 +65,7 @@ public class SelectExpiryTimePopup extends PopupWindow implements View.OnClickLi
         this.setWidth(WindowManager.LayoutParams.MATCH_PARENT);
         this.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
         this.setAnimationStyle(R.style.popWindow_anim_style);
+
     }
 
     @Override

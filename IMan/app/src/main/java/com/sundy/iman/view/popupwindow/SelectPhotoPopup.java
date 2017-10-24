@@ -5,8 +5,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.orhanobut.logger.Logger;
@@ -34,7 +34,7 @@ public class SelectPhotoPopup extends PopupWindow implements View.OnClickListene
         TextView tv_cancel = (TextView) view.findViewById(R.id.tv_cancel);
         TextView tv_album = (TextView) view.findViewById(R.id.tv_album);
         TextView tv_camera = (TextView) view.findViewById(R.id.tv_camera);
-        RelativeLayout rel_content = (RelativeLayout) view.findViewById(R.id.rel_content);
+        LinearLayout rel_content = (LinearLayout) view.findViewById(R.id.rel_content);
 
         tv_camera.setOnClickListener(this);
         tv_album.setOnClickListener(this);
@@ -49,7 +49,7 @@ public class SelectPhotoPopup extends PopupWindow implements View.OnClickListene
         this.setFocusable(true);
         this.setOutsideTouchable(true);
         this.setWidth(WindowManager.LayoutParams.MATCH_PARENT);
-        this.setHeight(WindowManager.LayoutParams.MATCH_PARENT);
+        this.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
         this.setAnimationStyle(R.style.popWindow_anim_style);
     }
 

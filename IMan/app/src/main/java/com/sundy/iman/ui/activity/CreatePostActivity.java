@@ -18,7 +18,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.Gravity;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -193,7 +192,7 @@ public class CreatePostActivity extends BaseActivity {
         titleBar.setOnClickListener(new OnTitleBarClickListener() {
             @Override
             public void onLeftImgClick() {
-                showBackTipsDialog();
+                finish();
             }
 
             @Override
@@ -218,24 +217,11 @@ public class CreatePostActivity extends BaseActivity {
         });
     }
 
-    //返回上一页提示弹框
-    private void showBackTipsDialog() {
-        final CommonDialog dialog = new CommonDialog(CreatePostActivity.this);
-        dialog.getTitle().setVisibility(View.GONE);
-        dialog.getContent().setText(getString(R.string.if_return));
-        dialog.setCancelable(true);
-        dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-                finish();
-            }
-        });
-    }
-
     private void init() {
         btnConfirm.setSelected(false);
         btnConfirm.setEnabled(false);
+
+        tvExpireTime.setText(getString(R.string.hour_48));
 
         Configuration config = new Configuration.Builder()
                 .zone(AutoZone.autoZone)
@@ -247,7 +233,7 @@ public class CreatePostActivity extends BaseActivity {
 
         geocoder = new Geocoder(this, Locale.getDefault());
 
-        photoAdapter = new PhotoAdapter(this, selectedPhotos);
+        photoAdapter = new PhotoAdapter(this, selectedPhotos, 1);
         photoLayoutManager = new StaggeredGridLayoutManager(5, OrientationHelper.VERTICAL);
         rvImage.setLayoutManager(photoLayoutManager);
         photoAdapter.setOnItemClickListener(new PhotoAdapter.OnItemClickListener() {
@@ -449,7 +435,7 @@ public class CreatePostActivity extends BaseActivity {
                 .with(this)
                 .image()
                 .multiple()
-                .maxSize(9)
+                .maxSize(1)
                 .imageLoader(ImageLoaderType.GLIDE)
                 .subscribe(new RxBusResultDisposable<ImageMultipleResultEvent>() {
                     @Override
@@ -1017,16 +1003,6 @@ public class CreatePostActivity extends BaseActivity {
                     break;
             }
         }
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Logger.i("-------->onKeyDown");
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-            showBackTipsDialog();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
     }
 
     @Override

@@ -19,7 +19,6 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -201,7 +200,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
         titleBar.setOnClickListener(new OnTitleBarClickListener() {
             @Override
             public void onLeftImgClick() {
-                showBackTipsDialog();
+                finish();
             }
 
             @Override
@@ -222,21 +221,6 @@ public class CreateAdvertisingActivity extends BaseActivity {
             @Override
             public void onTitleClick() {
 
-            }
-        });
-    }
-
-    //返回上一页提示弹框
-    private void showBackTipsDialog() {
-        final CommonDialog dialog = new CommonDialog(CreateAdvertisingActivity.this);
-        dialog.getTitle().setVisibility(View.GONE);
-        dialog.getContent().setText(getString(R.string.if_return));
-        dialog.setCancelable(true);
-        dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-                finish();
             }
         });
     }
@@ -1178,16 +1162,6 @@ public class CreateAdvertisingActivity extends BaseActivity {
         EventBus.getDefault().unregister(this);
         destroyLocation();
         FileUtils.clearFileCache(FileUtils.getImageCache());
-    }
-
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        Logger.i("-------->onKeyDown");
-        if (keyCode == KeyEvent.KEYCODE_BACK && event.getAction() == KeyEvent.ACTION_DOWN) {
-            showBackTipsDialog();
-            return true;
-        }
-        return super.onKeyDown(keyCode, event);
     }
 
     //发送更新用户信息成功Event

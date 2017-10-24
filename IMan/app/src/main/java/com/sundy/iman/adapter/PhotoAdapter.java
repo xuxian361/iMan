@@ -29,12 +29,19 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     public final static int TYPE_ADD = 1;
     final static int TYPE_PHOTO = 2;
 
-    public final static int MAX = 9;
+    public int MAX = 9;
 
     public PhotoAdapter(Context mContext, ArrayList<SelectImageEntity> selectedMediaEntities) {
         this.selectedMediaEntities = selectedMediaEntities;
         this.mContext = mContext;
         inflater = LayoutInflater.from(mContext);
+    }
+
+    public PhotoAdapter(Context mContext, ArrayList<SelectImageEntity> selectedMediaEntities, int max) {
+        this.selectedMediaEntities = selectedMediaEntities;
+        this.mContext = mContext;
+        inflater = LayoutInflater.from(mContext);
+        this.MAX = max;
     }
 
     @Override

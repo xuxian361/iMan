@@ -327,11 +327,15 @@ public class MeFragment extends BaseFragment {
 
     //开启相机权限
     private void scanQr() {
-        AndPermission.with(mContext)
-                .requestCode(REQUEST_CODE_PERMISSION)
-                .permission(Permission.CAMERA)
-                .callback(MeFragment.this)
-                .start();
+        if (PaperUtils.isLogin()) {
+            AndPermission.with(mContext)
+                    .requestCode(REQUEST_CODE_PERMISSION)
+                    .permission(Permission.CAMERA)
+                    .callback(MeFragment.this)
+                    .start();
+        } else {
+            goLogin();
+        }
     }
 
     @PermissionYes(REQUEST_CODE_PERMISSION)
