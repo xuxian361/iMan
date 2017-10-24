@@ -16,7 +16,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:layout_above="@+id/view_menu"
-        android:background="@color/bg_light_gray" />
+        android:background="@color/bg_line_gray" />
 
     <com.flyco.tablayout.CommonTabLayout
         android:id="@+id/view_menu"

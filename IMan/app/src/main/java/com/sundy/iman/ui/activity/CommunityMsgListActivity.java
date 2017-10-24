@@ -12,6 +12,8 @@ import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.CommunityInfoEntity;
+import com.sundy.iman.entity.JoinCommunityEntity;
+import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
@@ -19,7 +21,10 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.view.TitleBarView;
+import com.sundy.iman.view.dialog.CommonDialog;
 import com.sundy.iman.view.popupwindow.CommunityMenuPopup;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -152,11 +157,13 @@ public class CommunityMsgListActivity extends BaseActivity {
         @Override
         public void quitClick() {
             communityMenuPopup.dismiss();
+            showQuitDialog(community_id);
         }
 
         @Override
         public void postClick() {
             communityMenuPopup.dismiss();
+            goAddPost();
         }
 
         @Override
@@ -170,6 +177,71 @@ public class CommunityMsgListActivity extends BaseActivity {
             communityMenuPopup.dismiss();
         }
     };
+
+    //跳转发布Post
+    private void goAddPost() {
+        Bundle bundle = new Bundle();
+        bundle.putString("community_id", community_id);
+        UIHelper.jump(this, CreatePostActivity.class, bundle);
+    }
+
+    //退出社区弹框提醒
+    private void showQuitDialog(final String community_id) {
+        final CommonDialog dialog = new CommonDialog(this);
+        dialog.getTitle().setVisibility(View.GONE);
+        dialog.getContent().setText(getString(R.string.if_confirm_quit_community));
+        dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                quitCommunity(community_id);
+            }
+        });
+    }
+
+    //退出社区
+    private void quitCommunity(String community_id) {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("type", "1"); //类型: 0-加入，1-退出
+        param.put("community_id", community_id);
+        Call<JoinCommunityEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .joinCommunity(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<JoinCommunityEntity>() {
+            @Override
+            public void onSuccess(Call<JoinCommunityEntity> call, Response<JoinCommunityEntity> response) {
+                JoinCommunityEntity joinCommunityEntity = response.body();
+                if (joinCommunityEntity != null) {
+                    int code = joinCommunityEntity.getCode();
+                    String msg = joinCommunityEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        sendQuitEvent();
+                        finish();
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<JoinCommunityEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //发送退出社区成功Event, 刷新我的社区列表
+    private void sendQuitEvent() {
+        MsgEvent msgEvent = new MsgEvent();
+        msgEvent.setMsg(MsgEvent.EVENT_QUIT_COMMUNITY_SUCCESS);
+        EventBus.getDefault().post(msgEvent);
+    }
 
     //跳转社区详情
     private void goCommunityDetail(String community_id) {

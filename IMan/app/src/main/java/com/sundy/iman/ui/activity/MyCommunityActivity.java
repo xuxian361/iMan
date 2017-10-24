@@ -28,6 +28,7 @@ import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.CommunityItemEntity;
 import com.sundy.iman.entity.CommunityListEntity;
 import com.sundy.iman.entity.JoinCommunityEntity;
+import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
@@ -42,6 +43,10 @@ import com.sundy.iman.view.dialog.CommonDialog;
 import com.zhy.view.flowlayout.FlowLayout;
 import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -83,6 +88,7 @@ public class MyCommunityActivity extends BaseActivity {
         setContentView(R.layout.act_my_community);
         ButterKnife.bind(this);
 
+        EventBus.getDefault().register(this);
         initTitle();
         init();
         if (listCommunity != null)
@@ -434,4 +440,25 @@ public class MyCommunityActivity extends BaseActivity {
         }
     };
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(MsgEvent event) {
+        if (event != null) {
+            String msg = event.getMsg();
+            switch (msg) {
+                case MsgEvent.EVENT_QUIT_COMMUNITY_SUCCESS:
+                    page = 1;
+                    if (listCommunity != null)
+                        listCommunity.clear();
+                    communityAdapter.notifyDataSetChanged();
+                    getCommunityList();
+                    break;
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+    }
 }

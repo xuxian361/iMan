@@ -76,7 +76,7 @@
     <string name="tag_cannot_contain_dot">标签不能包含\" , \"哦</string>
     <string name="exit">退出</string>
     <string name="quit">退出</string>
-    <string name="if_confirm_quit_community">确定退出该社区吗?</string>
+    <string name="if_confirm_quit_community">退出后将接收不到该社区的消息，确定退出该社区吗?</string>
     <string name="subject">Subject</string>
     <string name="detail">Detail</string>
     <string name="select_communities">Select communities</string>
@@ -133,6 +133,10 @@
     <string name="community_info">Community Info</string>
     <string name="post_msg">Post a message</string>
     <string name="share">Share</string>
+    <string name="post_now">Post Message Now</string>
+    <string name="msg_expire_in">Message expire in</string>
+    <string name="post_message">Post Message</string>
+    <string name="image">Images</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

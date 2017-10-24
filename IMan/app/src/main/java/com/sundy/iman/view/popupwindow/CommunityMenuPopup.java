@@ -52,7 +52,7 @@ public class CommunityMenuPopup extends PopupWindow implements View.OnClickListe
         this.setOutsideTouchable(true);
         this.setWidth(WindowManager.LayoutParams.MATCH_PARENT);
         this.setHeight(WindowManager.LayoutParams.MATCH_PARENT);
-        this.setAnimationStyle(R.style.popWindow_anim_style);
+        this.setAnimationStyle(R.style.popWindow_anim_style_top_in_out);
     }
 
     @Override

@@ -15,18 +15,6 @@
         android:scaleType="centerCrop" />
 
     <ImageView
-        android:id="@+id/iv_video"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_gravity="center"
-        android:adjustViewBounds="true"
-        android:minHeight="20dp"
-        android:minWidth="20dp"
-        android:scaleType="fitCenter"
-        android:src="@mipmap/icon_video_call" />
-
-    <ImageView
         android:id="@+id/v_selected"
         android:layout_width="20dp"
         android:layout_height="16dp"

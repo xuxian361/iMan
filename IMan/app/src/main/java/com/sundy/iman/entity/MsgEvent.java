@@ -61,6 +61,8 @@ public class MsgEvent {
     public static final String EVENT_GET_TAGS = "Event_Get_Tags";
     //选择社区列表成功
     public static final String EVENT_GET_COMMUNITIES = "Event_Get_Communities";
+    //退出某一个社区成功
+    public static final String EVENT_QUIT_COMMUNITY_SUCCESS = "Event_Quit_Community_Success";
     //登录成功
     public static final String EVENT_LOGIN_SUCCESS = "Event_Login_Success";
     //登出成功

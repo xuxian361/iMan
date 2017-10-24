@@ -18,9 +18,9 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginBottom="30dp"
-            android:layout_marginTop="15dp"
-            android:orientation="vertical">
+            android:orientation="vertical"
+            android:paddingBottom="30dp"
+            android:paddingTop="15dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -91,42 +91,47 @@
 
             </RelativeLayout>
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginLeft="@dimen/layout_margin_size"
-                android:layout_marginRight="@dimen/layout_margin_size"
-                android:layout_marginTop="15dp"
-                android:background="@color/bg_light_gray" />
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rv_media"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/layout_margin_size"
-                android:layout_marginRight="@dimen/layout_margin_size"
-                android:minHeight="65dp"
-                android:visibility="visible" />
-
-            <com.daimajia.numberprogressbar.NumberProgressBar xmlns:custom="http://schemas.android.com/apk/res-auto"
-                android:id="@+id/v_progress"
+            <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginTop="15dp"
+                android:drawableLeft="@drawable/corner_bg_small_blue"
+                android:drawablePadding="5dp"
+                android:text="@string/image"
+                android:textColor="@color/txt_black"
+                android:textSize="13sp" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_image"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
                 android:layout_marginRight="@dimen/layout_margin_size"
-                android:layout_marginTop="10dp"
-                android:visibility="gone"
-                custom:progress_current="0"
-                custom:progress_max="100"
-                custom:progress_reached_bar_height="1.5dp"
-                custom:progress_reached_color="#3498DB"
-                custom:progress_text_color="#3498DB"
-                custom:progress_text_offset="1dp"
-                custom:progress_text_size="10sp"
-                custom:progress_text_visibility="visible"
-                custom:progress_unreached_bar_height="0.75dp"
-                custom:progress_unreached_color="#CCCCCC" />
+                android:layout_marginTop="5dp"
+                android:minHeight="60dp"
+                android:visibility="visible" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginTop="15dp"
+                android:drawableLeft="@drawable/corner_bg_small_blue"
+                android:drawablePadding="5dp"
+                android:text="@string/video"
+                android:textColor="@color/txt_black"
+                android:textSize="13sp" />
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_video"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="5dp"
+                android:minHeight="60dp"
+                android:visibility="visible" />
 
             <View
                 android:layout_width="match_parent"
@@ -177,18 +182,10 @@
                 android:layout_marginTop="5dp"
                 android:visibility="visible" />
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginLeft="@dimen/layout_margin_size"
-                android:layout_marginRight="@dimen/layout_margin_size"
-                android:layout_marginTop="10dp"
-                android:background="@color/bg_line_gray" />
-
             <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
                 android:layout_marginLeft="40dp"
                 android:layout_marginRight="40dp">
 

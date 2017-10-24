@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<me.iwf.photopicker.widget.SquareItemLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/view_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginBottom="2dp"
+    android:layout_marginRight="5dp">
+
+    <ImageView
+        android:id="@+id/iv_photo"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:adjustViewBounds="true"
+        android:scaleType="centerCrop"
+        android:src="@drawable/default_image"/>
+
+    <ImageView
+        android:id="@+id/iv_video"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerInParent="true"
+        android:layout_gravity="center"
+        android:adjustViewBounds="true"
+        android:minHeight="20dp"
+        android:minWidth="20dp"
+        android:scaleType="fitCenter"
+        android:src="@mipmap/icon_video_call" />
+
+    <com.daimajia.numberprogressbar.NumberProgressBar xmlns:custom="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/v_progress"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_centerInParent="true"
+        custom:progress_current="0"
+        custom:progress_max="100"
+        custom:progress_reached_bar_height="3.5dp"
+        custom:progress_reached_color="#3498DB"
+        custom:progress_text_color="#3498DB"
+        custom:progress_text_offset="1dp"
+        custom:progress_text_size="10sp"
+        custom:progress_text_visibility="visible"
+        custom:progress_unreached_bar_height="2.75dp"
+        custom:progress_unreached_color="#CCCCCC" />
+
+    <ImageView
+        android:id="@+id/v_selected"
+        android:layout_width="20dp"
+        android:layout_height="16dp"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:scaleType="fitCenter"
+        android:src="@mipmap/icon_remove_red" />
+
+</me.iwf.photopicker.widget.SquareItemLayout>
