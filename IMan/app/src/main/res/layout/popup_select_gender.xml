@@ -1,11 +1,45 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rel_content"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/transparent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_white_shadow_full"
     android:orientation="vertical">
 
+    <TextView
+        android:id="@+id/tv_male"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_marginBottom="1dp"
+        android:background="@color/white"
+        android:gravity="center"
+        android:text="@string/male"
+        android:textColor="@drawable/selector_gender_text"
+        android:textSize="13sp" />
+
+    <View
+        android:id="@+id/line_1"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp"
+        android:background="@color/bg_light_gray" />
+
+    <TextView
+        android:id="@+id/tv_female"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:background="@color/white"
+        android:gravity="center"
+        android:text="@string/female"
+        android:textColor="@drawable/selector_gender_text"
+        android:textSize="13sp" />
+
+    <View
+        android:id="@+id/line_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:background="@color/bg_light_gray" />
 
     <TextView
         android:id="@+id/tv_cancel"
@@ -18,50 +52,4 @@
         android:textColor="@color/txt_black"
         android:textSize="13sp" />
 
-    <View
-        android:id="@+id/line_bottom"
-        android:layout_width="match_parent"
-        android:layout_height="8dp"
-        android:layout_above="@+id/tv_cancel"
-        android:background="@color/bg_light_gray" />
-
-    <TextView
-        android:id="@+id/tv_female"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_above="@+id/line_bottom"
-        android:background="@color/white"
-        android:gravity="center"
-        android:text="@string/female"
-        android:textColor="@drawable/selector_gender_text"
-        android:textSize="13sp" />
-
-    <View
-        android:id="@+id/line_1"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_above="@+id/tv_female"
-        android:layout_marginLeft="15dp"
-        android:layout_marginRight="15dp"
-        android:background="@color/bg_light_gray" />
-
-    <TextView
-        android:id="@+id/tv_male"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:layout_above="@+id/tv_female"
-        android:layout_marginBottom="1dp"
-        android:background="@color/white"
-        android:gravity="center"
-        android:text="@string/male"
-        android:textColor="@drawable/selector_gender_text"
-        android:textSize="13sp" />
-
-    <View
-        android:id="@+id/line_2"
-        android:layout_width="match_parent"
-        android:layout_height="3dp"
-        android:layout_above="@+id/tv_male"
-        android:background="@color/bg_light_gray" />
-
-</RelativeLayout>
+</LinearLayout>

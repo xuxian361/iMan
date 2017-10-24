@@ -36,6 +36,8 @@ import java.util.Map;
 
 import okhttp3.MultipartBody;
 import retrofit2.Call;
+import retrofit2.http.FieldMap;
+import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Multipart;
 import retrofit2.http.POST;
@@ -57,7 +59,7 @@ public interface ApiService {
     Call<VerificationCodeEntity> sendVerificationCode(@QueryMap Map<String, String> map);
 
     /**
-     * 发送验证码
+     * 登录
      *
      * @return
      */
@@ -85,8 +87,9 @@ public interface ApiService {
      *
      * @return
      */
-    @GET(Apis.URL_UPDATE_TRANSFER_PASSWORD)
-    Call<UpdateTransferPwdEntity> updateTransferPwd(@QueryMap Map<String, String> map);
+    @FormUrlEncoded
+    @POST(Apis.URL_UPDATE_TRANSFER_PASSWORD)
+    Call<UpdateTransferPwdEntity> updateTransferPwd(@FieldMap Map<String, String> map);
 
     /**
      * 修改语言接口
@@ -101,24 +104,27 @@ public interface ApiService {
      *
      * @return
      */
+    @FormUrlEncoded
     @POST(Apis.URL_SAVE_MEMBER_INFO)
-    Call<SaveMemberEntity> saveMemberInfo(@QueryMap Map<String, String> map);
+    Call<SaveMemberEntity> saveMemberInfo(@FieldMap Map<String, String> map);
 
     /**
      * 获取七牛上传token接口
      *
      * @return
      */
+    @FormUrlEncoded
     @POST(Apis.URL_GET_QINIU_TOKEN)
-    Call<QiNiuTokenListEntity> getQiNiuToken(@QueryMap Map<String, String> map);
+    Call<QiNiuTokenListEntity> getQiNiuToken(@FieldMap Map<String, String> map);
 
     /**
      * 创建社区接口
      *
      * @return
      */
+    @FormUrlEncoded
     @POST(Apis.URL_CREATE_COMMUNITY)
-    Call<CreateCommunityEntity> createCommunity(@QueryMap Map<String, String> map);
+    Call<CreateCommunityEntity> createCommunity(@FieldMap Map<String, String> map);
 
     /**
      * 社区列表接口
@@ -149,8 +155,9 @@ public interface ApiService {
      *
      * @return
      */
-    @GET(Apis.URL_CREATE_POST)
-    Call<CreatePostEntity> createPost(@QueryMap Map<String, String> map);
+    @FormUrlEncoded
+    @POST(Apis.URL_CREATE_POST)
+    Call<CreatePostEntity> createPost(@FieldMap Map<String, String> map);
 
     /**
      * post列表接口
@@ -165,8 +172,9 @@ public interface ApiService {
      *
      * @return
      */
-    @GET(Apis.URL_CREATE_ADVERTISING)
-    Call<CreateAdvertisingEntity> createAdvertising(@QueryMap Map<String, String> map);
+    @FormUrlEncoded
+    @POST(Apis.URL_CREATE_ADVERTISING)
+    Call<CreateAdvertisingEntity> createAdvertising(@FieldMap Map<String, String> map);
 
     /**
      * 删除post接口
@@ -189,8 +197,9 @@ public interface ApiService {
      *
      * @return
      */
-    @GET(Apis.URL_UPDATE_POST)
-    Call<UpdatePostEntity> updatePost(@QueryMap Map<String, String> map);
+    @FormUrlEncoded
+    @POST(Apis.URL_UPDATE_POST)
+    Call<UpdatePostEntity> updatePost(@FieldMap Map<String, String> map);
 
     /**
      * 获取post信息接口
@@ -229,8 +238,9 @@ public interface ApiService {
      *
      * @return
      */
-    @GET(Apis.URL_REPORT_POST)
-    Call<ReportPostEntity> reportPost(@QueryMap Map<String, String> map);
+    @FormUrlEncoded
+    @POST(Apis.URL_REPORT_POST)
+    Call<ReportPostEntity> reportPost(@FieldMap Map<String, String> map);
 
     /**
      * 我的推广社区列表接口
@@ -277,8 +287,9 @@ public interface ApiService {
      *
      * @return
      */
-    @GET(Apis.URL_PARSE_URL)
-    Call<ParseUrlEntity> parseUrl(@QueryMap Map<String, String> map);
+    @FormUrlEncoded
+    @POST(Apis.URL_PARSE_URL)
+    Call<ParseUrlEntity> parseUrl(@FieldMap Map<String, String> map);
 
     /**
      * 图片上传

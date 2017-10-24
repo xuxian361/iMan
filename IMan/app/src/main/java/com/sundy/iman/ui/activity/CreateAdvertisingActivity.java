@@ -153,17 +153,17 @@ public class CreateAdvertisingActivity extends BaseActivity {
     TextView btnConfirm;
     @BindView(R.id.ll_how_get_imcoin)
     LinearLayout llHowGetImcoin;
-
-    //声明AMapLocationClient类对象
-    public AMapLocationClient locationClient = null;
-    //声明AMapLocationClientOption对象
-    public AMapLocationClientOption locationOption = null;
     @BindView(R.id.ll_content)
     LinearLayout llContent;
     @BindView(R.id.rv_image)
     RecyclerView rvImage;
     @BindView(R.id.rv_video)
     RecyclerView rvVideo;
+
+    //声明AMapLocationClient类对象
+    public AMapLocationClient locationClient = null;
+    //声明AMapLocationClientOption对象
+    public AMapLocationClientOption locationOption = null;
     private Geocoder geocoder;
     private LocationEntity locationEntity;
 

@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -328,6 +329,7 @@ public class EditProfileActivity extends BaseActivity {
 
     //点击性别
     private void genderClick() {
+        ivArrowGender.setImageResource(R.mipmap.icon_graytriangle_up);
         selectGenderPopup.setGenderSelected(curGender);
         selectGenderPopup.setOnGenderClickListener(new SelectGenderPopup.OnGenderClickListener() {
             @Override
@@ -340,6 +342,12 @@ public class EditProfileActivity extends BaseActivity {
                 } else {
                     tvGender.setText(getString(R.string.female));
                 }
+            }
+        });
+        selectGenderPopup.setOnDismissListener(new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                ivArrowGender.setImageResource(R.mipmap.icon_graytriangle);
             }
         });
         selectGenderPopup.showAtLocation(llContent, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);

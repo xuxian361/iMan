@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rel_content"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@drawable/bg_white_shadow_top"
+    android:orientation="vertical">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="140dp"
+        android:background="@color/white"
+        android:scrollbars="vertical">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+
+            <TextView
+                android:id="@+id/tv_hour_48"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="1dp"
+                android:background="@color/white"
+                android:gravity="center"
+                android:text="@string/hour_48"
+                android:textColor="@color/txt_black"
+                android:textSize="13sp" />
+
+            <View
+                android:id="@+id/line_4"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:background="@color/bg_light_gray" />
+
+            <TextView
+                android:id="@+id/tv_hour_24"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="1dp"
+                android:background="@color/white"
+                android:gravity="center"
+                android:text="@string/hour_24"
+                android:textColor="@color/txt_black"
+                android:textSize="13sp" />
+
+            <View
+                android:id="@+id/line_3"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:background="@color/bg_light_gray" />
+
+            <TextView
+                android:id="@+id/tv_hour_12"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_marginBottom="1dp"
+                android:background="@color/white"
+                android:gravity="center"
+                android:text="@string/hour_12"
+                android:textColor="@color/txt_black"
+                android:textSize="13sp" />
+
+            <View
+                android:id="@+id/line_2"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:background="@color/bg_light_gray" />
+
+            <TextView
+                android:id="@+id/tv_hour_6"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:layout_above="@+id/line_1"
+                android:layout_marginBottom="1dp"
+                android:background="@color/white"
+                android:gravity="center"
+                android:text="@string/hour_6"
+                android:textColor="@color/txt_black"
+                android:textSize="13sp" />
+
+            <View
+                android:id="@+id/line_1"
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginLeft="15dp"
+                android:layout_marginRight="15dp"
+                android:background="@color/bg_light_gray" />
+
+            <TextView
+                android:id="@+id/tv_hour_2"
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@color/white"
+                android:gravity="center"
+                android:text="@string/hour_2"
+                android:textColor="@color/txt_black"
+                android:textSize="13sp" />
+
+        </LinearLayout>
+
+    </ScrollView>
+
+    <View
+        android:id="@+id/line_bottom"
+        android:layout_width="match_parent"
+        android:layout_height="8dp"
+        android:layout_above="@+id/tv_cancel"
+        android:background="@color/bg_light_gray" />
+
+    <TextView
+        android:id="@+id/tv_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:layout_alignParentBottom="true"
+        android:background="@color/white"
+        android:gravity="center"
+        android:text="@string/cancel"
+        android:textColor="@color/txt_black"
+        android:textSize="13sp" />
+
+
+</LinearLayout>

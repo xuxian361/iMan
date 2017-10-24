@@ -1,8 +1,23 @@
 package com.sundy.iman.ui.activity;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.location.Address;
+import android.location.Geocoder;
+import android.media.ThumbnailUtils;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.OrientationHelper;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
+import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
@@ -11,28 +26,81 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
+import com.daimajia.numberprogressbar.NumberProgressBar;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.orhanobut.logger.Logger;
+import com.qiniu.android.common.AutoZone;
+import com.qiniu.android.http.ResponseInfo;
+import com.qiniu.android.storage.Configuration;
+import com.qiniu.android.storage.UpCompletionHandler;
+import com.qiniu.android.storage.UpProgressHandler;
+import com.qiniu.android.storage.UploadManager;
+import com.qiniu.android.storage.UploadOptions;
+import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
+import com.sundy.iman.adapter.PhotoAdapter;
+import com.sundy.iman.adapter.VideoAdapter;
+import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.CreatePostEntity;
+import com.sundy.iman.entity.LocationEntity;
+import com.sundy.iman.entity.MsgEvent;
+import com.sundy.iman.entity.QiNiuTokenItemEntity;
+import com.sundy.iman.entity.QiNiuTokenListEntity;
+import com.sundy.iman.entity.SelectImageEntity;
+import com.sundy.iman.entity.SelectVideoEntity;
+import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.utils.FileUtils;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
+import com.sundy.iman.view.popupwindow.SelectExpiryTimePopup;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
+import com.yanzhenjie.permission.PermissionNo;
+import com.yanzhenjie.permission.PermissionYes;
+import com.yanzhenjie.permission.Rationale;
+import com.yanzhenjie.permission.RationaleListener;
+import com.zhy.view.flowlayout.FlowLayout;
+import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+import org.json.JSONObject;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import cn.finalteam.rxgalleryfinal.RxGalleryFinal;
+import cn.finalteam.rxgalleryfinal.RxGalleryFinalApi;
+import cn.finalteam.rxgalleryfinal.bean.MediaBean;
+import cn.finalteam.rxgalleryfinal.imageloader.ImageLoaderType;
+import cn.finalteam.rxgalleryfinal.rxbus.RxBusResultDisposable;
+import cn.finalteam.rxgalleryfinal.rxbus.event.ImageMultipleResultEvent;
+import cn.finalteam.rxgalleryfinal.rxbus.event.ImageRadioResultEvent;
+import me.iwf.photopicker.PhotoPreview;
 import retrofit2.Call;
 import retrofit2.Response;
+import top.zibin.luban.Luban;
+import top.zibin.luban.OnCompressListener;
 
 /**
  * Created by sundy on 17/10/6.
@@ -40,6 +108,9 @@ import retrofit2.Response;
 
 public class CreatePostActivity extends BaseActivity {
 
+    private static final int REQUEST_CODE_PERMISSION_LOCATION = 100;
+    private static final int REQUEST_CODE_PERMISSION_PHOTO = 200;
+    private static final float VIDEO_MAX_SIZE = 50.0f;
 
     @BindView(R.id.title_bar)
     TitleBarView titleBar;
@@ -49,8 +120,6 @@ public class CreatePostActivity extends BaseActivity {
     EditText etDetail;
     @BindView(R.id.tv_bytes)
     TextView tvBytes;
-    @BindView(R.id.rv_media)
-    RecyclerView rvMedia;
     @BindView(R.id.et_tags)
     EditText etTags;
     @BindView(R.id.btn_add_tag)
@@ -69,8 +138,34 @@ public class CreatePostActivity extends BaseActivity {
     TextView btnConfirm;
     @BindView(R.id.ll_content)
     LinearLayout llContent;
+    @BindView(R.id.rv_image)
+    RecyclerView rvImage;
+    @BindView(R.id.rv_video)
+    RecyclerView rvVideo;
 
     private String community_id;
+    //声明AMapLocationClient类对象
+    public AMapLocationClient locationClient = null;
+    //声明AMapLocationClientOption对象
+    public AMapLocationClientOption locationOption = null;
+    private Geocoder geocoder;
+    private LocationEntity locationEntity;
+
+    private int aging = 48; //广告默认48小时消失
+    private ArrayList<String> selectedTags = new ArrayList<>(); //已选择的标签列表
+
+    private StaggeredGridLayoutManager photoLayoutManager;
+    private PhotoAdapter photoAdapter;
+    private ArrayList<SelectImageEntity> selectedPhotos = new ArrayList<>(); //已选择的本地图片列表
+    private StaggeredGridLayoutManager videoLayoutManager;
+    private VideoAdapter videoAdapter;
+    private ArrayList<SelectVideoEntity> selectedVideos = new ArrayList<>(); //已选择的本地视频列表
+
+
+    private UploadManager uploadManager;
+    private boolean isImagePick = true; //是否选择图片
+    private boolean isUploading = false; //是否正在上传
+    private SelectExpiryTimePopup selectExpiryTimePopup;
 
 
     @Override
@@ -82,8 +177,8 @@ public class CreatePostActivity extends BaseActivity {
         EventBus.getDefault().register(this);
         initData();
         initTitle();
-//        getLocationPermission();
-//        init();
+        getLocationPermission();
+        init();
     }
 
     private void initData() {
@@ -138,32 +233,524 @@ public class CreatePostActivity extends BaseActivity {
         });
     }
 
+    private void init() {
+        btnConfirm.setSelected(false);
+        btnConfirm.setEnabled(false);
 
-    //创建post
-    private void createPost() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("title", ""); //post标题
-        param.put("detail", ""); //post详情
-        param.put("tags", ""); //标签
-        param.put("location", ""); //位置
-        param.put("latitude", "");
-        param.put("longitude", "");
-        param.put("community_id", community_id); //社区ID
-        param.put("aging", ""); //时效
-        param.put("attachment", ""); //附件 json格式数据:att_type为附件类型，1-图片，2-视频 url：附件存放路径
-        Call<CreatePostEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .createPost(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<CreatePostEntity>() {
+        Configuration config = new Configuration.Builder()
+                .zone(AutoZone.autoZone)
+                .build();
+        uploadManager = new UploadManager(config);
+
+        etSubject.addTextChangedListener(textWatcher);
+        etDetail.addTextChangedListener(etDetailWatcher);
+
+        geocoder = new Geocoder(this, Locale.getDefault());
+
+        photoAdapter = new PhotoAdapter(this, selectedPhotos);
+        photoLayoutManager = new StaggeredGridLayoutManager(5, OrientationHelper.VERTICAL);
+        rvImage.setLayoutManager(photoLayoutManager);
+        photoAdapter.setOnItemClickListener(new PhotoAdapter.OnItemClickListener() {
             @Override
-            public void onSuccess(Call<CreatePostEntity> call, Response<CreatePostEntity> response) {
+            public void onAddClick(PhotoAdapter.PhotoViewHolder holder, int position) {
+                isImagePick = true;
+                getFilePermission();
+            }
 
+            @Override
+            public void onDeleteClick(PhotoAdapter.PhotoViewHolder holder, int position) {
+                try {
+                    if (selectedPhotos != null) {
+                        selectedPhotos.remove(position);
+                        photoAdapter.notifyDataSetChanged();
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onImageClick(PhotoAdapter.PhotoViewHolder holder, int position) {
+                Logger.e("----->position = " + position);
+                ArrayList<String> selectList = new ArrayList<>();
+                if (selectedPhotos != null) {
+                    for (int i = 0; i < selectedPhotos.size(); i++) {
+                        SelectImageEntity selectImageEntity = selectedPhotos.get(i);
+                        if (selectImageEntity != null) {
+                            String localPath = selectImageEntity.getLocalPath();
+                            selectList.add(localPath);
+                        }
+                    }
+                    PhotoPreview.builder()
+                            .setPhotos(selectList)
+                            .setCurrentItem(position)
+                            .setShowDeleteButton(false)
+                            .start(CreatePostActivity.this);
+                }
+            }
+        });
+        rvImage.setAdapter(photoAdapter);
+
+
+        videoLayoutManager = new StaggeredGridLayoutManager(5, OrientationHelper.VERTICAL);
+        rvVideo.setLayoutManager(videoLayoutManager);
+        videoAdapter = new VideoAdapter(this, selectedVideos);
+        videoAdapter.setOnItemClickListener(new VideoAdapter.OnItemClickListener() {
+            @Override
+            public void onAddClick(VideoAdapter.PhotoViewHolder holder, int position) {
+                isImagePick = false;
+                getFilePermission();
+            }
+
+            @Override
+            public void onDeleteClick(VideoAdapter.PhotoViewHolder holder, int position) {
+                try {
+                    if (selectedVideos != null) {
+                        selectedVideos.remove(position);
+                        videoAdapter.notifyDataSetChanged();
+                    }
+                    isUploading = false;
+                    canBtnClick();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onImageClick(VideoAdapter.PhotoViewHolder holder, int position) {
+                SelectVideoEntity entity = selectedVideos.get(position);
+                if (entity != null) {
+                    try {
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        Uri uri = Uri.parse("file://" + entity.getLocalVideoPath());
+                        intent.setDataAndType(uri, "video/mp4");
+                        startActivity(intent);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        rvVideo.setAdapter(videoAdapter);
+
+        selectExpiryTimePopup = new SelectExpiryTimePopup(this);
+    }
+
+    private TextWatcher textWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            canBtnClick();
+        }
+    };
+
+    private TextWatcher etDetailWatcher = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            String content = etDetail.getText().toString().trim();
+            if (content.length() > 144) {
+                tvBytes.setTextColor(ContextCompat.getColor(CreatePostActivity.this, R.color.main_red));
+            } else {
+                tvBytes.setTextColor(ContextCompat.getColor(CreatePostActivity.this, R.color.txt_normal));
+            }
+
+            tvBytes.setText("(" + content.length() + "/" + 144 + ")");
+
+            canBtnClick();
+        }
+    };
+
+    //判断可否点击确认按钮
+    private void canBtnClick() {
+        String subject = etSubject.getText().toString().trim();
+        if (TextUtils.isEmpty(subject) || isUploading) {
+            btnConfirm.setSelected(false);
+            btnConfirm.setEnabled(false);
+        } else {
+            btnConfirm.setSelected(true);
+            btnConfirm.setEnabled(true);
+        }
+    }
+
+    //获取定位全向
+    private void getLocationPermission() {
+        AndPermission.with(this)
+                .requestCode(REQUEST_CODE_PERMISSION_LOCATION)
+                .permission(Permission.LOCATION)
+                .callback(this)
+                .rationale(new RationaleListener() {
+                    @Override
+                    public void showRequestPermissionRationale(int requestCode, Rationale rationale) {
+                        // 这里的对话框可以自定义，只要调用rationale.resume()就可以继续申请。
+                        AndPermission.rationaleDialog(CreatePostActivity.this, rationale).show();
+                    }
+                })
+                .start();
+    }
+
+    //获取文件权限
+    private void getFilePermission() {
+        AndPermission.with(this)
+                .requestCode(REQUEST_CODE_PERMISSION_PHOTO)
+                .permission(Permission.STORAGE, Permission.CAMERA)
+                .callback(this)
+                .start();
+    }
+
+    //视频选择器
+    private void pickVideo() {
+        RxGalleryFinalApi
+                .getInstance(this)
+                .setType(RxGalleryFinalApi.SelectRXType.TYPE_VIDEO, RxGalleryFinalApi.SelectRXType.TYPE_SELECT_RADIO)
+                .setVDRadioResultEvent(new RxBusResultDisposable<ImageRadioResultEvent>() {
+                    @Override
+                    protected void onEvent(ImageRadioResultEvent imageRadioResultEvent) throws Exception {
+                        String videoPath = imageRadioResultEvent.getResult().getOriginalPath();
+                        Logger.e("----->videoPath =" + videoPath);
+                        if (!TextUtils.isEmpty(videoPath)) {
+                            File file = new File(videoPath);
+                            if (file.exists()) {
+                                long fileSize = FileUtils.getFileSize(file); //单位：B
+                                float fileSizeMb = fileSize / 1024.0f / 1024.0f;
+                                if (fileSizeMb > VIDEO_MAX_SIZE) {
+                                    MainApp.getInstance().showToast(getString(R.string.video_size_more_than_100));
+                                    return;
+                                }
+                                getQiNiuToken(file, "video");
+                            }
+                        }
+                    }
+                })
+                .open();
+    }
+
+    //图片选择器
+    private void pickPhoto() {
+        RxGalleryFinal
+                .with(this)
+                .image()
+                .multiple()
+                .maxSize(9)
+                .imageLoader(ImageLoaderType.GLIDE)
+                .subscribe(new RxBusResultDisposable<ImageMultipleResultEvent>() {
+                    @Override
+                    protected void onEvent(ImageMultipleResultEvent imageMultipleResultEvent) throws Exception {
+                        List<MediaBean> listBean = imageMultipleResultEvent.getResult();
+                        if (listBean != null && listBean.size() > 0) {
+                            List<String> listPath = new ArrayList<String>();
+                            for (int i = 0; i < listBean.size(); i++) {
+                                MediaBean mediaBean = listBean.get(i);
+                                if (mediaBean != null) {
+                                    listPath.add(mediaBean.getOriginalPath());
+                                }
+                            }
+                            String targetDir = FileUtils.getImageCache();
+                            //压缩图片
+                            Luban.with(CreatePostActivity.this)
+                                    .load(listPath)                                   // 传人要压缩的图片列表
+                                    .ignoreBy(100)                                  // 忽略不压缩图片的大小
+                                    .setTargetDir(targetDir)                        // 设置压缩后文件存储位置
+                                    .setCompressListener(new OnCompressListener() { //设置回调
+                                        @Override
+                                        public void onStart() {
+                                            // TODO 压缩开始前调用，可以在方法内启动 loading UI
+                                            Logger.i("----->压缩开始");
+                                        }
+
+                                        @Override
+                                        public void onSuccess(File file) {
+                                            // TODO 压缩成功后调用，返回压缩后的图片文件
+                                            if (file != null) {
+                                                Logger.i("----->压缩成功 :" + file.getPath());
+                                                getQiNiuToken(file, "image");
+                                            }
+                                        }
+
+                                        @Override
+                                        public void onError(Throwable e) {
+                                            // TODO 当压缩过程出现问题时调用
+                                            Logger.i("----->压缩失败");
+                                        }
+                                    }).launch();    //启动压缩
+                        }
+                    }
+                }).openGallery();
+    }
+
+    //获取七牛上传token
+    private void getQiNiuToken(final File file, final String type) {
+        JsonArray jsonArray = new JsonArray();
+        JsonObject jsonObject = new JsonObject();
+        String fileExtension = FileUtils.getFileExtension(file.getPath());
+        if (TextUtils.isEmpty(fileExtension)) {
+            fileExtension = "jpg";
+        }
+        jsonObject.addProperty("ext", fileExtension);
+        jsonObject.addProperty("width", "1080");
+        jsonObject.addProperty("height", "1920");
+        jsonArray.add(jsonObject);
+        final Map<String, String> param = new HashMap<>();
+        param.put("category", "3"); //类型:1-用户头像，2-社区，3-post
+        param.put("upload_params", jsonArray.toString()); //上传参数:json格式的数据:ext-上传文件的格式，width-上传文件的宽度，height-上传文件的高度
+        Call<QiNiuTokenListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .getQiNiuToken(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<QiNiuTokenListEntity>() {
+            @Override
+            public void onSuccess(Call<QiNiuTokenListEntity> call, Response<QiNiuTokenListEntity> response) {
+                QiNiuTokenListEntity qiNiuTokenListEntity = response.body();
+                if (qiNiuTokenListEntity != null) {
+                    int code = qiNiuTokenListEntity.getCode();
+                    String msg = qiNiuTokenListEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        QiNiuTokenListEntity.DataEntity dataEntity = qiNiuTokenListEntity.getData();
+                        if (dataEntity != null) {
+                            List<QiNiuTokenItemEntity> list = dataEntity.getList();
+                            if (list != null && list.size() > 0) {
+                                QiNiuTokenItemEntity itemEntity = list.get(0);
+                                if (itemEntity != null) {
+                                    String key = itemEntity.getKey();
+                                    String token = itemEntity.getToken();
+                                    String header = itemEntity.getUrl();
+                                    String path = itemEntity.getPath();
+                                    if (file != null && !TextUtils.isEmpty(token)) {
+                                        if (type.equals("image")) { //上传图片
+                                            uploadImg(file, key, token, path);
+                                        } else { //上传视频
+                                            if (selectedVideos != null) {
+                                                SelectVideoEntity selectVideoEntity = new SelectVideoEntity();
+                                                Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(file.getPath(), MediaStore.Images.Thumbnails.MINI_KIND);
+                                                if (bitmap != null) {
+                                                    String thumbnailPath = FileUtils.saveBitmapToSD(bitmap);
+                                                    selectVideoEntity.setLocalPath(thumbnailPath);
+                                                }
+                                                selectVideoEntity.setLocalVideoPath(file.getPath());
+                                                selectVideoEntity.setPath(path);
+                                                selectedVideos.add(selectVideoEntity);
+                                                videoAdapter.notifyDataSetChanged();
+
+                                                uploadVideo(file, key, token);
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
             @Override
             public void onAfter() {
 
+            }
+
+            @Override
+            public void onFailure(Call<QiNiuTokenListEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //上传图片
+    private void uploadImg(final File file, String key, final String token, final String path) {
+        uploadManager.put(file, key, token, new UpCompletionHandler() {
+            @Override
+            public void complete(String key, ResponseInfo info, JSONObject response) {
+                if (info.isOK()) {
+                    Logger.e("--->Upload Success");
+                    if (selectedPhotos != null) {
+                        SelectImageEntity selectImageEntity = new SelectImageEntity();
+                        selectImageEntity.setLocalPath(file.getPath());
+                        selectImageEntity.setPath(path);
+                        selectedPhotos.add(selectImageEntity);
+                        photoAdapter.notifyDataSetChanged();
+                    }
+                } else {
+                    Logger.e("--->Upload Fail" + info.toString());
+                    //如果失败，这里可以把info信息上报自己的服务器，便于后面分析上传错误原因
+                }
+            }
+        }, new UploadOptions(null, null, false, new UpProgressHandler() {
+            @Override
+            public void progress(String key, double percent) {
+//                Logger.e("--->percent : " + percent);
+
+            }
+        }, null));
+    }
+
+    //上传视频
+    private void uploadVideo(final File file, String key, String token) {
+        uploadManager.put(file, key, token, new UpCompletionHandler() {
+            @Override
+            public void complete(String key, ResponseInfo info, JSONObject response) {
+                if (info.isOK()) {
+                    Logger.e("--->Upload Success");
+                    View view = videoLayoutManager.findViewByPosition(0);
+                    NumberProgressBar v_progress = null;
+                    if (view != null) {
+                        v_progress = (NumberProgressBar) view.findViewById(R.id.v_progress);
+                        if (v_progress != null) {
+                            v_progress.setVisibility(View.GONE);
+                        }
+                    }
+                    isUploading = false;
+                    canBtnClick();
+                } else {
+                    Logger.e("--->Upload Fail" + info.toString());
+                    //如果失败，这里可以把info信息上报自己的服务器，便于后面分析上传错误原因
+                }
+            }
+        }, new UploadOptions(null, null, false, new UpProgressHandler() {
+            @Override
+            public void progress(String key, double percent) {
+//                Logger.e("--->percent : " + percent);
+                View view = videoLayoutManager.findViewByPosition(0);
+                NumberProgressBar v_progress = null;
+                if (view != null) {
+                    v_progress = (NumberProgressBar) view.findViewById(R.id.v_progress);
+                    if (v_progress != null) {
+                        v_progress.setVisibility(View.VISIBLE);
+                        v_progress.setProgress((int) (percent * 100));
+                    }
+                }
+
+                isUploading = true;
+                canBtnClick();
+            }
+        }, null));
+    }
+
+    //创建post
+    private void createPost() {
+        String title = etSubject.getText().toString().trim();
+        String detail = etDetail.getText().toString().trim();
+
+        String country = "";
+        String province = "";
+        String city = "";
+        String latitude = "";
+        String longitude = "";
+        String addressStr = "";
+        String location = "";
+        if (locationEntity != null) {
+            country = locationEntity.getCountry();
+            province = locationEntity.getProvince();
+            city = locationEntity.getCity();
+            latitude = locationEntity.getLat() + "";
+            longitude = locationEntity.getLng() + "";
+            addressStr = locationEntity.getAddress();
+
+            if (!TextUtils.isEmpty(province) && !TextUtils.isEmpty(city)) {
+                location = province + " " + city;
+            } else if (TextUtils.isEmpty(province) && TextUtils.isEmpty(city)) {
+                location = country;
+            } else {
+                if (TextUtils.isEmpty(province)) {
+                    location = city;
+                } else {
+                    location = province;
+                }
+            }
+        }
+
+        String tags = "";
+        if (selectedTags != null && selectedTags.size() > 0) {
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < selectedTags.size(); i++) {
+                String tag = selectedTags.get(i);
+                if (!TextUtils.isEmpty(tag)) {
+                    if (i == selectedTags.size() - 1) {
+                        sb.append(tag);
+                    } else {
+                        sb.append(tag + ",");
+                    }
+                }
+            }
+            tags = sb.toString();
+        }
+
+        String attachment = "";
+        JsonArray attachmentArr = new JsonArray();
+        if (selectedVideos != null && selectedVideos.size() > 0) {
+            SelectVideoEntity selectVideoEntity = selectedVideos.get(0);
+            if (selectVideoEntity != null) {
+                String path = selectVideoEntity.getPath();
+                JsonObject jsonObject = new JsonObject();
+                jsonObject.addProperty("att_type", "2");
+                jsonObject.addProperty("url", path);
+                attachmentArr.add(jsonObject);
+            }
+        }
+        if (selectedPhotos != null && selectedPhotos.size() > 0) {
+            for (int i = 0; i < selectedPhotos.size(); i++) {
+                SelectImageEntity selectImageEntity = selectedPhotos.get(i);
+                if (selectImageEntity != null) {
+                    String path = selectImageEntity.getPath();
+                    JsonObject jsonObject = new JsonObject();
+                    jsonObject.addProperty("att_type", "1");
+                    jsonObject.addProperty("url", path);
+                    attachmentArr.add(jsonObject);
+                }
+            }
+        }
+        if (attachmentArr.size() > 0) {
+            attachment = attachmentArr.toString();
+        }
+
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("title", title); //post标题
+        param.put("detail", detail); //post详情
+        param.put("tags", tags); //标签
+        param.put("location", location);
+        param.put("latitude", latitude);
+        param.put("longitude", longitude);
+        param.put("community_id", community_id); //社区ID
+        param.put("aging", aging + ""); //时效
+        param.put("attachment", attachment); //附件 json格式数据:att_type为附件类型，1-图片，2-视频 url：附件存放路径
+        //[{"att_type":"1"," url":"post/20170 9/74c06ef7f40ac a08bce37c0403 d08521.png"}]
+        showProgress();
+        Call<CreatePostEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .createPost(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<CreatePostEntity>() {
+            @Override
+            public void onSuccess(Call<CreatePostEntity> call, Response<CreatePostEntity> response) {
+                CreatePostEntity createPostEntity = response.body();
+                if (createPostEntity != null) {
+                    int code = createPostEntity.getCode();
+                    String msg = createPostEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        showCreateAdSuccessDialog();
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+                hideProgress();
             }
 
             @Override
@@ -177,13 +764,258 @@ public class CreatePostActivity extends BaseActivity {
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.btn_add_tag:
+                addTag();
                 break;
             case R.id.btn_more_tag:
+                goSelectTags();
                 break;
             case R.id.rel_expire_time:
+                selectExpireTimePopup();
                 break;
             case R.id.btn_confirm:
+                createPost();
                 break;
+        }
+    }
+
+    //显示选择有效期Popup
+    private void selectExpireTimePopup() {
+        selectExpiryTimePopup.setOnClickListener(new SelectExpiryTimePopup.OnClickListener() {
+            @Override
+            public void onTimeSelected(int hours, String name) {
+                selectExpiryTimePopup.dismiss();
+                aging = hours;
+                tvExpireTime.setText(name);
+            }
+        });
+        selectExpiryTimePopup.showAtLocation(llContent, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+    }
+
+    //添加标签
+    private void addTag() {
+        String tag = etTags.getText().toString().trim();
+        if (TextUtils.isEmpty(tag)) {
+            return;
+        }
+        if (tag.contains(",")) {
+            MainApp.getInstance().showToast(getString(R.string.tag_cannot_contain_dot));
+            return;
+        }
+
+        if (selectedTags != null) {
+            if (selectedTags.contains(tag)) {
+                return;
+            }
+            selectedTags.add(tag);
+        }
+        setTagsList();
+        etTags.setText("");
+        closeKeyboard();
+    }
+
+    //设置标签列表
+    private void setTagsList() {
+        final TagAdapter<String> adapter_Tag = new TagAdapter<String>(selectedTags) {
+            @Override
+            public View getView(FlowLayout parent, int position, String item) {
+                View view = getLayoutInflater().inflate(R.layout.item_tag_can_remove,
+                        null, false);
+                TextView tv = (TextView) view.findViewById(R.id.tv_tag);
+                if (!TextUtils.isEmpty(item)) {
+                    tv.setText(item);
+                }
+                return view;
+            }
+        };
+        flTags.setAdapter(adapter_Tag);
+        flTags.setEnabled(true);
+        flTags.setOnTagClickListener(new TagFlowLayout.OnTagClickListener() {
+            @Override
+            public boolean onTagClick(View view, final int position, FlowLayout parent) {
+                selectedTags.remove(selectedTags.get(position));
+                adapter_Tag.notifyDataChanged();
+                canBtnClick();
+                return false;
+            }
+        });
+    }
+
+    //跳转选择标签
+    private void goSelectTags() {
+        Bundle bundle = new Bundle();
+        bundle.putStringArrayList("selectedTags", selectedTags);
+        UIHelper.jump(this, SelectTagsActivity.class, bundle);
+    }
+
+    @PermissionYes(REQUEST_CODE_PERMISSION_LOCATION)
+    private void getPermissionLocationYes(@NonNull List<String> grantedPermissions) {
+        Logger.e("位置权限申请成功!");
+        initLocation();
+        startLocation();
+    }
+
+    @PermissionNo(REQUEST_CODE_PERMISSION_LOCATION)
+    private void getPermissionLocationNo(@NonNull List<String> deniedPermissions) {
+        Logger.e("位置权限申请失败!");
+    }
+
+    @PermissionYes(REQUEST_CODE_PERMISSION_PHOTO)
+    private void getPermissionStorageYes(@NonNull List<String> grantedPermissions) {
+        Logger.e("文件操作权限申请成功!");
+        if (isImagePick) //选择图片
+        {
+            pickPhoto();
+        } else {
+            pickVideo();
+        }
+    }
+
+    @PermissionNo(REQUEST_CODE_PERMISSION_PHOTO)
+    private void getPermissionStorageNo(@NonNull List<String> deniedPermissions) {
+        Logger.e("文件操作权限申请失败!");
+    }
+
+    //初始化定位
+    private void initLocation() {
+        //初始化client
+        locationClient = new AMapLocationClient(this);
+        locationOption = getDefaultOption();
+        //设置定位参数
+        locationClient.setLocationOption(locationOption);
+        // 设置定位监听
+        locationClient.setLocationListener(locationListener);
+    }
+
+    //默认的定位参数
+    private AMapLocationClientOption getDefaultOption() {
+        AMapLocationClientOption mOption = new AMapLocationClientOption();
+        mOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);//可选，设置定位模式，可选的模式有高精度、仅设备、仅网络。默认为高精度模式
+        mOption.setGpsFirst(false);//可选，设置是否gps优先，只在高精度模式下有效。默认关闭
+        mOption.setHttpTimeOut(30000);//可选，设置网络请求超时时间。默认为30秒。在仅设备模式下无效
+        mOption.setInterval(2000);//可选，设置定位间隔。默认为2秒
+        mOption.setNeedAddress(true);//可选，设置是否返回逆地理地址信息。默认是true
+        mOption.setOnceLocation(false);//可选，设置是否单次定位。默认是false
+        mOption.setOnceLocationLatest(false);//可选，设置是否等待wifi刷新，默认为false.如果设置为true,会自动变为单次定位，持续定位时不要使用
+        AMapLocationClientOption.setLocationProtocol(AMapLocationClientOption.AMapLocationProtocol.HTTP);//可选， 设置网络请求的协议。可选HTTP或者HTTPS。默认为HTTP
+        mOption.setSensorEnable(false);//可选，设置是否使用传感器。默认是false
+        mOption.setWifiScan(true); //可选，设置是否开启wifi扫描。默认为true，如果设置为false会同时停止主动刷新，停止以后完全依赖于系统刷新，定位位置可能存在误差
+        mOption.setLocationCacheEnable(true); //可选，设置是否使用缓存定位，默认为true
+        return mOption;
+    }
+
+    //开始定位
+    private void startLocation() {
+        if (locationClient != null)
+            locationClient.startLocation();
+    }
+
+    //停止定位
+    private void stopLocation() {
+        if (locationClient != null)
+            locationClient.stopLocation();
+    }
+
+    //销毁定位
+    private void destroyLocation() {
+        if (null != locationClient) {
+            locationClient.onDestroy();
+            locationClient = null;
+            locationOption = null;
+        }
+    }
+
+    //定位监听
+    AMapLocationListener locationListener = new AMapLocationListener() {
+        @Override
+        public void onLocationChanged(AMapLocation location) {
+            if (null != location) {
+                //errCode等于0代表定位成功，其他的为定位失败，具体的可以参照官网定位错误码说明
+                if (location.getErrorCode() == 0) {
+                    Logger.i("定位成功");
+                    String address = location.getAddress();
+                    if (!TextUtils.isEmpty(address)) {
+                        Logger.i("获取定位信息成功");
+                        stopLocation();
+                        saveLocation(location.getLatitude(), location.getLongitude());
+                    } else {
+                        Logger.w("获取定位信息失败");
+                    }
+                } else {
+                    //定位失败
+                    Logger.e("定位失败");
+                }
+            } else {
+                Logger.e("定位失败，loc is null");
+            }
+        }
+    };
+
+    //保存定位信息
+    private void saveLocation(double latitude, double longitude) {
+        Logger.e("---->lat = " + latitude);
+        Logger.e("---->lng = " + longitude);
+        try {
+            List<Address> locationList = geocoder.getFromLocation(latitude, longitude, 1);
+            Logger.e("---->size =" + locationList.size());
+            if (locationList != null && locationList.size() > 0) {
+                Address address = locationList.get(0);
+                if (address != null) {
+                    String country = address.getCountryName();
+                    String province = address.getAdminArea();
+                    String city = address.getLocality();
+                    String district = address.getSubLocality();
+                    String addressStr = country + " " + province + " " + city + " " + district + " " + address.getFeatureName();
+                    Logger.e("----->国家 = " + country);
+                    Logger.e("----->省份 = " + province);
+                    Logger.e("----->城市 = " + city);
+                    Logger.e("----->区域 = " + district);
+                    Logger.e("----->门牌号 = " + addressStr);
+
+                    locationEntity = new LocationEntity();
+                    locationEntity.setCountry(address.getCountryName());
+                    locationEntity.setProvince(address.getAdminArea());
+                    locationEntity.setCity(address.getLocality());
+                    locationEntity.setDistrict(address.getSubLocality());
+                    locationEntity.setAddress(addressStr);
+                    locationEntity.setLat(address.getLatitude());
+                    locationEntity.setLng(address.getLongitude());
+
+                    canBtnClick();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    //显示成功创建广告弹框
+    private void showCreateAdSuccessDialog() {
+        final CommonDialog dialog = new CommonDialog(this);
+        dialog.getTitle().setText(getString(R.string.success));
+        dialog.getContent().setText(getString(R.string.ad_post_success_tips));
+        dialog.getBtnCancel().setVisibility(View.GONE);
+        dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                finish();
+            }
+        });
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(MsgEvent event) {
+        if (event != null) {
+            String msg = event.getMsg();
+            switch (msg) {
+                case MsgEvent.EVENT_GET_TAGS:
+                    selectedTags = (ArrayList<String>) event.getObj();
+                    if (selectedTags != null && selectedTags.size() > 0) {
+                        setTagsList();
+                    }
+                    canBtnClick();
+                    break;
+            }
         }
     }
 
@@ -197,4 +1029,21 @@ public class CreatePostActivity extends BaseActivity {
         return super.onKeyDown(keyCode, event);
     }
 
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopLocation();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
+        if (selectExpiryTimePopup != null) {
+            selectExpiryTimePopup.dismiss();
+            selectExpiryTimePopup = null;
+        }
+        destroyLocation();
+        FileUtils.clearFileCache(FileUtils.getImageCache());
+    }
 }

@@ -150,7 +150,7 @@ public class CommunityMsgListActivity extends BaseActivity {
 
     //显示菜单Popup
     private void showMenuPopup() {
-        communityMenuPopup.showAtLocation(llContent, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+        communityMenuPopup.showAtLocation(llContent, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
     }
 
     private CommunityMenuPopup.OnClickListener clickListener = new CommunityMenuPopup.OnClickListener() {

@@ -5,8 +5,8 @@ import android.graphics.drawable.ColorDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.LinearLayout;
 import android.widget.PopupWindow;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.sundy.iman.R;
@@ -37,7 +37,7 @@ public class SelectGenderPopup extends PopupWindow implements View.OnClickListen
         tv_female = (TextView) view.findViewById(R.id.tv_female);
         tv_male = (TextView) view.findViewById(R.id.tv_male);
 
-        RelativeLayout rel_content = (RelativeLayout) view.findViewById(R.id.rel_content);
+        LinearLayout rel_content = (LinearLayout) view.findViewById(R.id.rel_content);
 
         tv_cancel.setOnClickListener(this);
         tv_female.setOnClickListener(this);
@@ -53,7 +53,7 @@ public class SelectGenderPopup extends PopupWindow implements View.OnClickListen
         this.setFocusable(true);
         this.setOutsideTouchable(true);
         this.setWidth(WindowManager.LayoutParams.MATCH_PARENT);
-        this.setHeight(WindowManager.LayoutParams.MATCH_PARENT);
+        this.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
         this.setAnimationStyle(R.style.popWindow_anim_style);
     }
 
