@@ -1,53 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/rel_item"
+<com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/swipe"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:background="@color/white"
-    android:orientation="vertical"
-    android:paddingBottom="12dp"
-    android:paddingLeft="@dimen/layout_margin_size"
-    android:paddingRight="@dimen/layout_margin_size"
-    android:paddingTop="12dp">
+    android:layout_height="wrap_content">
+    <!-- Bottom View Start-->
+    <LinearLayout
+        android:id="@+id/bottom_wrapper"
+        android:layout_width="80dp"
+        android:layout_height="match_parent"
+        android:background="@color/bg_red"
+        android:weightSum="1">
 
-    <TextView
-        android:id="@+id/tv_post_name"
+        <TextView
+            android:id="@+id/tv_item_del"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="@null"
+            android:gravity="center"
+            android:text="@string/delete"
+            android:textColor="@color/txt_white"
+            android:textSize="12sp" />
+
+        <!--What you want to show-->
+    </LinearLayout>
+    <!-- Bottom View End-->
+
+    <!-- Surface View Start -->
+    <LinearLayout
+        android:id="@+id/ll_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginRight="10dp"
-        android:layout_toLeftOf="@+id/tv_status"
-        android:singleLine="true"
-        android:textColor="@color/txt_black"
-        android:textSize="16sp" />
+        android:background="@color/white"
+        android:orientation="vertical">
 
-    <TextView
-        android:id="@+id/tv_status"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:text="@string/active"
-        android:textColor="@color/txt_blue"
-        android:textSize="12sp" />
+        <RelativeLayout
+            android:id="@+id/rel_item"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:paddingBottom="12dp"
+            android:paddingLeft="@dimen/layout_margin_size"
+            android:paddingRight="@dimen/layout_margin_size"
+            android:paddingTop="12dp">
 
-    <TextView
-        android:id="@+id/tv_post_time"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_post_name"
-        android:layout_marginRight="10dp"
-        android:layout_marginTop="5dp"
-        android:singleLine="true"
-        android:textColor="@color/txt_gray"
-        android:textSize="12sp" />
+            <TextView
+                android:id="@+id/tv_post_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="10dp"
+                android:layout_toLeftOf="@+id/tv_status"
+                android:singleLine="true"
+                android:textColor="@color/txt_black"
+                android:textSize="16sp" />
 
-    <TextView
-        android:id="@+id/tv_end_time"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/tv_post_time"
-        android:layout_marginRight="10dp"
-        android:singleLine="true"
-        android:textColor="@color/txt_gray"
-        android:textSize="12sp" />
+            <TextView
+                android:id="@+id/tv_status"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:text="@string/active"
+                android:textColor="@color/txt_blue"
+                android:textSize="12sp" />
 
-</RelativeLayout>
+            <TextView
+                android:id="@+id/tv_post_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_post_name"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:layout_toLeftOf="@+id/iv_ad"
+                android:singleLine="true"
+                android:textColor="@color/txt_gray"
+                android:textSize="12sp" />
+
+            <TextView
+                android:id="@+id/tv_end_time"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/tv_post_time"
+                android:layout_marginRight="10dp"
+                android:layout_toLeftOf="@+id/iv_ad"
+                android:singleLine="true"
+                android:textColor="@color/txt_gray"
+                android:textSize="12sp" />
+
+            <ImageView
+                android:id="@+id/iv_ad"
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_alignParentRight="true"
+                android:layout_below="@+id/tv_status"
+                android:layout_marginTop="10dp"
+                android:src="@mipmap/icon_golden_b"
+                android:visibility="invisible" />
+
+        </RelativeLayout>
+
+    </LinearLayout>
+    <!-- Surface View End -->
+</com.daimajia.swipe.SwipeLayout>

@@ -9,6 +9,8 @@ import android.widget.Toast;
 
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
+import com.previewlibrary.ZoomMediaLoader;
+import com.sundy.iman.impl.GlideImageLoader;
 import com.sundy.iman.utils.ToastUtil;
 
 import java.util.concurrent.ExecutorService;
@@ -42,6 +44,7 @@ public class MainApp extends MultiDexApplication {
         //初始化Logger日志打印
         Logger.addLogAdapter(new AndroidLogAdapter());
 
+        ZoomMediaLoader.getInstance().init(new GlideImageLoader());
     }
 
     /******************************* Method *******************************/

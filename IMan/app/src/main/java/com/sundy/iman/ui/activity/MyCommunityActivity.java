@@ -272,10 +272,10 @@ public class MyCommunityActivity extends BaseActivity {
                 }
             }
 
-            mItemManger.bindView(helper.getConvertView(), helper.getPosition());
+            mItemManger.bindView(helper.getConvertView(), helper.getLayoutPosition());
 
             ItemData itemData = new ItemData();
-            itemData.setPosition(helper.getPosition());
+            itemData.setPosition(helper.getLayoutPosition());
             itemData.setItem(item);
 
             helper.setOnClickListener(R.id.tv_item_del, this);
@@ -346,7 +346,7 @@ public class MyCommunityActivity extends BaseActivity {
             switch (view.getId()) {
                 case R.id.tv_item_del:
                     Logger.e("----->删除Item");
-                    //删除订单
+                    //删除社区
                     if (itemData != null) {
                         showQuitDialog(itemData);
                     }
@@ -407,7 +407,8 @@ public class MyCommunityActivity extends BaseActivity {
                     if (code == Constants.CODE_SUCCESS) {
                         try {
                             listCommunity.remove(itemData.getItem());
-                            communityAdapter.notifyItemRemoved(itemData.getPosition());
+                            communityAdapter.notifyDataSetChanged();
+                            communityAdapter.closeAllItems();
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

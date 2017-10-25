@@ -12,10 +12,10 @@ import com.daimajia.numberprogressbar.NumberProgressBar;
 import com.sundy.iman.R;
 import com.sundy.iman.entity.SelectMediaEntity;
 import com.sundy.iman.helper.ImageHelper;
+import com.sundy.iman.view.SquareItemLayout;
 
 import java.util.ArrayList;
 
-import me.iwf.photopicker.widget.SquareItemLayout;
 
 /**
  * Created by sundy on 17/10/24.

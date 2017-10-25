@@ -33,6 +33,8 @@ import com.daimajia.numberprogressbar.NumberProgressBar;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.orhanobut.logger.Logger;
+import com.previewlibrary.GPreviewBuilder;
+import com.previewlibrary.enitity.ThumbViewInfo;
 import com.qiniu.android.common.AutoZone;
 import com.qiniu.android.http.ResponseInfo;
 import com.qiniu.android.storage.Configuration;
@@ -88,7 +90,6 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import me.iwf.photopicker.PhotoPreview;
 import retrofit2.Call;
 import retrofit2.Response;
 import top.zibin.luban.Luban;
@@ -260,7 +261,6 @@ public class CreatePostActivity extends BaseActivity {
         @Override
         public void onImageClick(MediaAdapter.PhotoViewHolder holder, int position) {
             Logger.e("----->position = " + position);
-            ArrayList<String> selectList = new ArrayList<>();
             if (selectMediaEntities != null) {
                 SelectMediaEntity selectMediaEntity = selectMediaEntities.get(position);
                 if (selectMediaEntity != null) {
@@ -276,21 +276,24 @@ public class CreatePostActivity extends BaseActivity {
                             e.printStackTrace();
                         }
                     } else {
+                        ArrayList<ThumbViewInfo> selectList = new ArrayList<>();
                         for (int i = 0; i < selectMediaEntities.size(); i++) {
                             SelectMediaEntity entity = selectMediaEntities.get(i);
                             if (entity != null) {
                                 String localPath = entity.getLocalImagePath();
                                 String localVideoPath = entity.getLocalVideoPath();
+                                ThumbViewInfo thumbViewInfo = new ThumbViewInfo(localPath);
                                 if (TextUtils.isEmpty(localVideoPath)) {
-                                    selectList.add(localPath);
+                                    selectList.add(thumbViewInfo);
                                 }
                             }
                         }
-                        PhotoPreview.builder()
-                                .setPhotos(selectList)
-                                .setCurrentItem(position)
-                                .setShowDeleteButton(false)
-                                .start(CreatePostActivity.this);
+
+                        GPreviewBuilder.from(CreatePostActivity.this)
+                                .setData(selectList)
+                                .setCurrentIndex(position)
+                                .setType(GPreviewBuilder.IndicatorType.Number)
+                                .start();
 
                     }
                 }

@@ -144,6 +144,8 @@
     <string name="hour_24">24 hours</string>
     <string name="hour_48">48 hours</string>
     <string name="media">Media</string>
+    <string name="delete">Delete</string>
+    <string name="if_confirm_delete_post">确定删除该消息?</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

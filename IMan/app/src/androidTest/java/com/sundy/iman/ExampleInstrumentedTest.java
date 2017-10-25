@@ -6,7 +6,6 @@ import android.support.test.runner.AndroidJUnit4;
 
 import com.sundy.iman.entity.CancelPostEntity;
 import com.sundy.iman.entity.CollectAdvertisingEntity;
-import com.sundy.iman.entity.DeletePostEntity;
 import com.sundy.iman.entity.GetPostInfoEntity;
 import com.sundy.iman.entity.UpdatePostEntity;
 import com.sundy.iman.net.ParamHelper;
@@ -37,32 +36,6 @@ public class ExampleInstrumentedTest {
         Context appContext = InstrumentationRegistry.getTargetContext();
 
         assertEquals("com.sundy.iman", appContext.getPackageName());
-    }
-
-    //删除Post
-    private void deletePost() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("post_id", "");
-        Call<DeletePostEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .deletePost(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<DeletePostEntity>() {
-            @Override
-            public void onSuccess(Call<DeletePostEntity> call, Response<DeletePostEntity> response) {
-
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<DeletePostEntity> call, Throwable t) {
-
-            }
-        });
     }
 
     //取消Post

@@ -2,13 +2,10 @@ package com.sundy.iman.ui.activity;
 
 import android.content.Intent;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -48,14 +45,11 @@ import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
-import com.sundy.iman.utils.DateUtils;
-import com.sundy.iman.utils.DeviceUtils;
 import com.sundy.iman.utils.FileUtils;
 import com.sundy.iman.view.GlideCircleTransform;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
 import com.sundy.iman.view.popupwindow.SelectGenderPopup;
-import com.sundy.iman.view.popupwindow.SelectPhotoPopup;
 import com.yalantis.ucrop.UCrop;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
@@ -68,7 +62,6 @@ import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -77,11 +70,13 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
-import me.iwf.photopicker.PhotoPicker;
 import retrofit2.Call;
 import retrofit2.Response;
 import top.zibin.luban.Luban;
 import top.zibin.luban.OnCompressListener;
+import vn.tungdx.mediapicker.MediaItem;
+import vn.tungdx.mediapicker.MediaOptions;
+import vn.tungdx.mediapicker.activities.MediaPickerActivity;
 
 /**
  * 编辑用户信息
@@ -93,6 +88,8 @@ public class EditProfileActivity extends BaseActivity {
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 100;
     private static final int REQUEST_CODE_PERMISSION_PHOTO = 200;
     private static final int REQUEST_CODE_CAMERA = 300;
+    private static final int REQUEST_MEDIA = 300;
+
 
     @BindView(R.id.title_bar)
     TitleBarView titleBar;
@@ -123,8 +120,6 @@ public class EditProfileActivity extends BaseActivity {
     @BindView(R.id.tv_bytes)
     TextView tvBytes;
 
-    private SelectPhotoPopup selectPhotoPopup;
-    private Uri imageUri; //拍照后保存的图片uri
     private SelectGenderPopup selectGenderPopup;
     private int curGender = 1; //1:male;2:female
     private File curHeaderFile;
@@ -175,7 +170,6 @@ public class EditProfileActivity extends BaseActivity {
     }
 
     private void init() {
-        selectPhotoPopup = new SelectPhotoPopup(this);
         selectGenderPopup = new SelectGenderPopup(this);
         selectGenderPopup.setGenderSelected(1);
 
@@ -289,7 +283,7 @@ public class EditProfileActivity extends BaseActivity {
     @PermissionYes(REQUEST_CODE_PERMISSION_PHOTO)
     private void getPermissionStorageYes(@NonNull List<String> grantedPermissions) {
         Logger.e("文件操作权限申请成功!");
-        showSelectPhoto();
+        pickPhoto();
     }
 
     @PermissionNo(REQUEST_CODE_PERMISSION_PHOTO)
@@ -302,10 +296,6 @@ public class EditProfileActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         EventBus.getDefault().unregister(this);
-        if (selectPhotoPopup != null) {
-            selectPhotoPopup.dismiss();
-            selectPhotoPopup = null;
-        }
         if (selectGenderPopup != null) {
             selectGenderPopup.dismiss();
             selectGenderPopup = null;
@@ -371,43 +361,14 @@ public class EditProfileActivity extends BaseActivity {
                 .start();
     }
 
-    //显示选择图片弹框
-    private void showSelectPhoto() {
-        selectPhotoPopup.setOnClickListener(new SelectPhotoPopup.OnClickListener() {
-            @Override
-            public void clickCamera() {
-                selectPhotoPopup.dismiss();
-                if (FileUtils.existSD()) {
-                    File fileUri = new File(FileUtils.getImageCache() + "/" + DateUtils.getTimeStamp() + ".jpg");
-                    imageUri = Uri.fromFile(fileUri);
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-                        imageUri = FileProvider.getUriForFile(EditProfileActivity.this,
-                                DeviceUtils.getAppPackageName(EditProfileActivity.this), fileUri);//通过FileProvider创建一个content类型的Uri
-
-                    //调用系统相机
-                    Intent intentCamera = new Intent();
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-                        intentCamera.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); //添加这一句表示对目标应用临时授权该Uri所代表的文件
-                    }
-                    intentCamera.setAction(MediaStore.ACTION_IMAGE_CAPTURE);
-                    //将拍照结果保存至photo_file的Uri中，不保留在相册中
-                    intentCamera.putExtra(MediaStore.EXTRA_OUTPUT, imageUri);
-                    startActivityForResult(intentCamera, REQUEST_CODE_CAMERA);
-                }
-            }
-
-            @Override
-            public void clickAlbum() {
-                selectPhotoPopup.dismiss();
-                PhotoPicker.builder()
-                        .setPhotoCount(1)
-                        .setShowCamera(false)
-                        .setShowGif(false)
-                        .setPreviewEnabled(true)
-                        .start(EditProfileActivity.this, PhotoPicker.REQUEST_CODE);
-            }
-        });
-        selectPhotoPopup.showAtLocation(llContent, Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL, 0, 0);
+    //选择图片
+    private void pickPhoto() {
+        MediaOptions.Builder builder = new MediaOptions.Builder();
+        MediaOptions options = builder.canSelectMultiPhoto(false)
+                .build();
+        if (options != null) {
+            MediaPickerActivity.open(this, REQUEST_MEDIA, options);
+        }
     }
 
     //跳转地图获取位置信息
@@ -420,24 +381,24 @@ public class EditProfileActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
-                case PhotoPicker.REQUEST_CODE: //相册获取图片
-                    if (data != null) {
-                        ArrayList<String> photos =
-                                data.getStringArrayListExtra(PhotoPicker.KEY_SELECTED_PHOTOS);
-                        if (photos != null && photos.size() > 0) {
-                            String photoPath = photos.get(0);
-                            Logger.i("---->photoPath = " + photoPath);
-                            if (!TextUtils.isEmpty(photoPath))
-                                cropPhoto(photoPath);
+                case REQUEST_MEDIA:
+                    List<MediaItem> mMediaSelectedList = MediaPickerActivity.getMediaItemSelected(data);
+                    if (mMediaSelectedList != null) {
+                        try {
+                            for (MediaItem mediaItem : mMediaSelectedList) {
+                                if (mediaItem != null) {
+                                    String mediaPath = mediaItem.getPathOrigin(EditProfileActivity.this);
+                                    Logger.e("------>mediaPath= " + mediaPath);
+                                    if (!TextUtils.isEmpty(mediaPath)) {
+                                        cropPhoto(mediaPath);
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    }
-                    break;
-                case REQUEST_CODE_CAMERA: //拍照获取图片
-                    if (imageUri != null) {
-                        String photoPath = imageUri.getPath();
-                        Logger.i("---->photoPath = " + photoPath);
-                        if (!TextUtils.isEmpty(photoPath))
-                            cropPhoto(photoPath);
+                    } else {
+                        Logger.e("Error to get media, NULL");
                     }
                     break;
                 case UCrop.REQUEST_CROP:
