@@ -142,6 +142,7 @@
     <string name="hour_12">12 hours</string>
     <string name="hour_24">24 hours</string>
     <string name="hour_48">48 hours</string>
+    <string name="media">Media</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

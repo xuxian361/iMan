@@ -13,7 +13,7 @@
         android:layout_gravity="center"
         android:adjustViewBounds="true"
         android:scaleType="centerCrop"
-        android:src="@drawable/default_image"/>
+        android:src="@drawable/default_image" />
 
     <ImageView
         android:id="@+id/iv_video"
@@ -25,23 +25,24 @@
         android:minHeight="20dp"
         android:minWidth="20dp"
         android:scaleType="fitCenter"
-        android:src="@mipmap/icon_video_call" />
+        android:src="@mipmap/icon_video_call"
+        android:visibility="gone" />
 
     <com.daimajia.numberprogressbar.NumberProgressBar xmlns:custom="http://schemas.android.com/apk/res-auto"
         android:id="@+id/v_progress"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:visibility="gone"
         android:layout_centerInParent="true"
+        android:visibility="gone"
         custom:progress_current="0"
         custom:progress_max="100"
-        custom:progress_reached_bar_height="3.5dp"
+        custom:progress_reached_bar_height="2.5dp"
         custom:progress_reached_color="#3498DB"
         custom:progress_text_color="#3498DB"
         custom:progress_text_offset="1dp"
         custom:progress_text_size="10sp"
         custom:progress_text_visibility="visible"
-        custom:progress_unreached_bar_height="2.75dp"
+        custom:progress_unreached_bar_height="1.5dp"
         custom:progress_unreached_color="#CCCCCC" />
 
     <ImageView

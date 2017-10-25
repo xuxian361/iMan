@@ -44,10 +44,10 @@ import com.qiniu.android.storage.UpCompletionHandler;
 import com.qiniu.android.storage.UpProgressHandler;
 import com.qiniu.android.storage.UploadManager;
 import com.qiniu.android.storage.UploadOptions;
+import com.qiniu.android.utils.AsyncRun;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
-import com.sundy.iman.adapter.PhotoAdapter;
-import com.sundy.iman.adapter.VideoAdapter;
+import com.sundy.iman.adapter.MediaAdapter;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.CommunityItemEntity;
 import com.sundy.iman.entity.CreateAdvertisingEntity;
@@ -55,8 +55,7 @@ import com.sundy.iman.entity.LocationEntity;
 import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.QiNiuTokenItemEntity;
 import com.sundy.iman.entity.QiNiuTokenListEntity;
-import com.sundy.iman.entity.SelectImageEntity;
-import com.sundy.iman.entity.SelectVideoEntity;
+import com.sundy.iman.entity.SelectMediaEntity;
 import com.sundy.iman.entity.StaticContentEntity;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
@@ -65,6 +64,7 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.FileUtils;
+import com.sundy.iman.utils.MediaFileUtils;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
 import com.yanzhenjie.permission.AndPermission;
@@ -93,18 +93,14 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
-import cn.finalteam.rxgalleryfinal.RxGalleryFinal;
-import cn.finalteam.rxgalleryfinal.RxGalleryFinalApi;
-import cn.finalteam.rxgalleryfinal.bean.MediaBean;
-import cn.finalteam.rxgalleryfinal.imageloader.ImageLoaderType;
-import cn.finalteam.rxgalleryfinal.rxbus.RxBusResultDisposable;
-import cn.finalteam.rxgalleryfinal.rxbus.event.ImageMultipleResultEvent;
-import cn.finalteam.rxgalleryfinal.rxbus.event.ImageRadioResultEvent;
 import me.iwf.photopicker.PhotoPreview;
 import retrofit2.Call;
 import retrofit2.Response;
 import top.zibin.luban.Luban;
 import top.zibin.luban.OnCompressListener;
+import vn.tungdx.mediapicker.MediaItem;
+import vn.tungdx.mediapicker.MediaOptions;
+import vn.tungdx.mediapicker.activities.MediaPickerActivity;
 
 /**
  * Created by sundy on 17/10/5.
@@ -114,6 +110,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
 
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 100;
     private static final int REQUEST_CODE_PERMISSION_PHOTO = 200;
+    private static final int REQUEST_MEDIA = 300;
     private static final float VIDEO_MAX_SIZE = 100.0f;
 
     @BindView(R.id.title_bar)
@@ -154,10 +151,10 @@ public class CreateAdvertisingActivity extends BaseActivity {
     LinearLayout llHowGetImcoin;
     @BindView(R.id.ll_content)
     LinearLayout llContent;
-    @BindView(R.id.rv_image)
-    RecyclerView rvImage;
-    @BindView(R.id.rv_video)
-    RecyclerView rvVideo;
+    @BindView(R.id.v_progress)
+    NumberProgressBar vProgress;
+    @BindView(R.id.rv_media)
+    RecyclerView rvMedia;
 
     //声明AMapLocationClient类对象
     public AMapLocationClient locationClient = null;
@@ -172,15 +169,10 @@ public class CreateAdvertisingActivity extends BaseActivity {
     private ArrayList<String> selectedTags = new ArrayList<>(); //已选择的标签列表
 
     private StaggeredGridLayoutManager photoLayoutManager;
-    private PhotoAdapter photoAdapter;
-    private ArrayList<SelectImageEntity> selectedPhotos = new ArrayList<>(); //已选择的本地图片列表
-    private StaggeredGridLayoutManager videoLayoutManager;
-    private VideoAdapter videoAdapter;
-    private ArrayList<SelectVideoEntity> selectedVideos = new ArrayList<>(); //已选择的本地视频列表
-
+    private ArrayList<SelectMediaEntity> selectMediaEntities = new ArrayList<>(); //已选择的本地图片列表
+    private MediaAdapter mediaAdapter;
 
     private UploadManager uploadManager;
-    private boolean isImagePick = true; //是否选择图片
     private boolean isUploading = false; //是否正在上传
 
     @Override
@@ -257,92 +249,74 @@ public class CreateAdvertisingActivity extends BaseActivity {
             llState.addView(tvState);
         }
 
-        photoAdapter = new PhotoAdapter(this, selectedPhotos);
+        mediaAdapter = new MediaAdapter(this, selectMediaEntities, 10);
         photoLayoutManager = new StaggeredGridLayoutManager(5, OrientationHelper.VERTICAL);
-        rvImage.setLayoutManager(photoLayoutManager);
-        photoAdapter.setOnItemClickListener(new PhotoAdapter.OnItemClickListener() {
-            @Override
-            public void onAddClick(PhotoAdapter.PhotoViewHolder holder, int position) {
-                isImagePick = true;
-                getFilePermission();
-            }
-
-            @Override
-            public void onDeleteClick(PhotoAdapter.PhotoViewHolder holder, int position) {
-                try {
-                    if (selectedPhotos != null) {
-                        selectedPhotos.remove(position);
-                        photoAdapter.notifyDataSetChanged();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onImageClick(PhotoAdapter.PhotoViewHolder holder, int position) {
-                Logger.e("----->position = " + position);
-                ArrayList<String> selectList = new ArrayList<>();
-                if (selectedPhotos != null) {
-                    for (int i = 0; i < selectedPhotos.size(); i++) {
-                        SelectImageEntity selectImageEntity = selectedPhotos.get(i);
-                        if (selectImageEntity != null) {
-                            String localPath = selectImageEntity.getLocalPath();
-                            selectList.add(localPath);
-                        }
-                    }
-                    PhotoPreview.builder()
-                            .setPhotos(selectList)
-                            .setCurrentItem(position)
-                            .setShowDeleteButton(false)
-                            .start(CreateAdvertisingActivity.this);
-                }
-            }
-        });
-        rvImage.setAdapter(photoAdapter);
-
-
-        videoLayoutManager = new StaggeredGridLayoutManager(5, OrientationHelper.VERTICAL);
-        rvVideo.setLayoutManager(videoLayoutManager);
-        videoAdapter = new VideoAdapter(this, selectedVideos);
-        videoAdapter.setOnItemClickListener(new VideoAdapter.OnItemClickListener() {
-            @Override
-            public void onAddClick(VideoAdapter.PhotoViewHolder holder, int position) {
-                isImagePick = false;
-                getFilePermission();
-            }
-
-            @Override
-            public void onDeleteClick(VideoAdapter.PhotoViewHolder holder, int position) {
-                try {
-                    if (selectedVideos != null) {
-                        selectedVideos.remove(position);
-                        videoAdapter.notifyDataSetChanged();
-                    }
-                    isUploading = false;
-                    canBtnClick();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-
-            @Override
-            public void onImageClick(VideoAdapter.PhotoViewHolder holder, int position) {
-                SelectVideoEntity entity = selectedVideos.get(position);
-                if (entity != null) {
-                    try {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        Uri uri = Uri.parse("file://" + entity.getLocalVideoPath());
-                        intent.setDataAndType(uri, "video/mp4");
-                        startActivity(intent);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-        rvVideo.setAdapter(videoAdapter);
+        rvMedia.setLayoutManager(photoLayoutManager);
+        mediaAdapter.setOnItemClickListener(onItemClickListener);
+        rvMedia.setAdapter(mediaAdapter);
     }
+
+    private MediaAdapter.OnItemClickListener onItemClickListener = new MediaAdapter.OnItemClickListener() {
+        @Override
+        public void onAddClick(MediaAdapter.PhotoViewHolder holder, int position) {
+            getFilePermission();
+        }
+
+        @Override
+        public void onDeleteClick(MediaAdapter.PhotoViewHolder holder, int position) {
+            try {
+                if (selectMediaEntities != null) {
+                    selectMediaEntities.remove(position);
+                    mediaAdapter.notifyDataSetChanged();
+                }
+                vProgress.setProgress(0);
+                vProgress.setVisibility(View.INVISIBLE);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onImageClick(MediaAdapter.PhotoViewHolder holder, int position) {
+            Logger.e("----->position = " + position);
+            ArrayList<String> selectList = new ArrayList<>();
+            if (selectMediaEntities != null) {
+                SelectMediaEntity selectMediaEntity = selectMediaEntities.get(position);
+                if (selectMediaEntity != null) {
+                    String videoPath = selectMediaEntity.getLocalVideoPath();
+                    if (!TextUtils.isEmpty(videoPath)) //视频
+                    {
+                        try {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            Uri uri = Uri.parse("file://" + videoPath);
+                            intent.setDataAndType(uri, "video/mp4");
+                            startActivity(intent);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        for (int i = 0; i < selectMediaEntities.size(); i++) {
+                            SelectMediaEntity entity = selectMediaEntities.get(i);
+                            if (entity != null) {
+                                String localPath = entity.getLocalImagePath();
+                                String localVideoPath = entity.getLocalVideoPath();
+                                if (TextUtils.isEmpty(localVideoPath)) {
+                                    selectList.add(localPath);
+                                }
+                            }
+                        }
+                        PhotoPreview.builder()
+                                .setPhotos(selectList)
+                                .setCurrentItem(position)
+                                .setShowDeleteButton(false)
+                                .start(CreateAdvertisingActivity.this);
+
+                    }
+                }
+            }
+        }
+    };
 
     private TextWatcher textWatcher = new TextWatcher() {
         @Override
@@ -413,87 +387,110 @@ public class CreateAdvertisingActivity extends BaseActivity {
     }
 
     //视频选择器
-    private void pickVideo() {
-        RxGalleryFinalApi
-                .getInstance(this)
-                .setType(RxGalleryFinalApi.SelectRXType.TYPE_VIDEO, RxGalleryFinalApi.SelectRXType.TYPE_SELECT_RADIO)
-                .setVDRadioResultEvent(new RxBusResultDisposable<ImageRadioResultEvent>() {
-                    @Override
-                    protected void onEvent(ImageRadioResultEvent imageRadioResultEvent) throws Exception {
-                        String videoPath = imageRadioResultEvent.getResult().getOriginalPath();
-                        Logger.e("----->videoPath =" + videoPath);
-                        if (!TextUtils.isEmpty(videoPath)) {
-                            File file = new File(videoPath);
-                            if (file.exists()) {
-                                long fileSize = FileUtils.getFileSize(file); //单位：B
-                                float fileSizeMb = fileSize / 1024.0f / 1024.0f;
-                                if (fileSizeMb > VIDEO_MAX_SIZE) {
-                                    MainApp.getInstance().showToast(getString(R.string.video_size_more_than_100));
-                                    return;
-                                }
-                                getQiNiuToken(file, "video");
-                            }
-                        }
-                    }
-                })
-                .open();
+    private void pickPhotoAndVideo() {
+        if (isVideoUploaded()) {
+            MediaOptions.Builder builder = new MediaOptions.Builder();
+            MediaOptions options = builder.canSelectMultiPhoto(true)
+                    .build();
+            if (options != null) {
+                MediaPickerActivity.open(this, REQUEST_MEDIA, options);
+            }
+        } else {
+            MediaOptions.Builder builder = new MediaOptions.Builder();
+            MediaOptions options = builder.canSelectBothPhotoVideo()
+                    .canSelectMultiPhoto(true).canSelectMultiVideo(false)
+                    .build();
+            if (options != null) {
+                MediaPickerActivity.open(this, REQUEST_MEDIA, options);
+            }
+        }
     }
 
-    //图片选择器
-    private void pickPhoto() {
-        RxGalleryFinal
-                .with(this)
-                .image()
-                .multiple()
-                .maxSize(9)
-                .imageLoader(ImageLoaderType.GLIDE)
-                .subscribe(new RxBusResultDisposable<ImageMultipleResultEvent>() {
-                    @Override
-                    protected void onEvent(ImageMultipleResultEvent imageMultipleResultEvent) throws Exception {
-                        List<MediaBean> listBean = imageMultipleResultEvent.getResult();
-                        if (listBean != null && listBean.size() > 0) {
-                            List<String> listPath = new ArrayList<String>();
-                            for (int i = 0; i < listBean.size(); i++) {
-                                MediaBean mediaBean = listBean.get(i);
-                                if (mediaBean != null) {
-                                    listPath.add(mediaBean.getOriginalPath());
+    //是否已经上传了视频（视频最多只有一个）
+    private boolean isVideoUploaded() {
+        boolean isVideoUploaded = false;
+        if (selectMediaEntities != null && selectMediaEntities.size() > 0) {
+            for (SelectMediaEntity selectMediaEntity : selectMediaEntities) {
+                if (selectMediaEntity != null) {
+                    String videoPath = selectMediaEntity.getLocalVideoPath();
+                    if (!TextUtils.isEmpty(videoPath)) {
+                        isVideoUploaded = true;
+                    }
+                }
+            }
+        }
+        return isVideoUploaded;
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_MEDIA) {
+            if (resultCode == RESULT_OK) {
+                List<MediaItem> mMediaSelectedList = MediaPickerActivity.getMediaItemSelected(data);
+                if (mMediaSelectedList != null) {
+                    try {
+                        for (MediaItem mediaItem : mMediaSelectedList) {
+                            if (mediaItem != null) {
+                                String mediaPath = mediaItem.getPathOrigin(CreateAdvertisingActivity.this);
+                                Logger.e("------>mediaPath= " + mediaPath);
+                                if (!TextUtils.isEmpty(mediaPath)) {
+                                    if (MediaFileUtils.isVideoFileType(mediaPath)) { //视频
+                                        File file = new File(mediaPath);
+                                        if (file.exists()) {
+                                            long fileSize = FileUtils.getFileSize(file); //单位：B
+                                            float fileSizeMb = fileSize / 1024.0f / 1024.0f;
+                                            if (fileSizeMb > VIDEO_MAX_SIZE) {
+                                                MainApp.getInstance().showToast(getString(R.string.video_size_more_than_100));
+                                                return;
+                                            }
+                                            getQiNiuToken(file);
+                                        }
+                                    } else { //图片
+                                        String targetDir = FileUtils.getImageCache();
+                                        //压缩图片
+                                        Luban.with(CreateAdvertisingActivity.this)
+                                                .load(mediaPath)                                   // 传人要压缩的图片列表
+                                                .ignoreBy(100)                                  // 忽略不压缩图片的大小
+                                                .setTargetDir(targetDir)                        // 设置压缩后文件存储位置
+                                                .setCompressListener(new OnCompressListener() { //设置回调
+                                                    @Override
+                                                    public void onStart() {
+                                                        // TODO 压缩开始前调用，可以在方法内启动 loading UI
+                                                        Logger.i("----->压缩开始");
+                                                    }
+
+                                                    @Override
+                                                    public void onSuccess(File file) {
+                                                        // TODO 压缩成功后调用，返回压缩后的图片文件
+                                                        if (file != null) {
+                                                            Logger.i("----->压缩成功 :" + file.getPath());
+                                                            getQiNiuToken(file);
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onError(Throwable e) {
+                                                        // TODO 当压缩过程出现问题时调用
+                                                        Logger.i("----->压缩失败");
+                                                    }
+                                                }).launch();    //启动压缩
+                                    }
                                 }
                             }
-                            String targetDir = FileUtils.getImageCache();
-                            //压缩图片
-                            Luban.with(CreateAdvertisingActivity.this)
-                                    .load(listPath)                                   // 传人要压缩的图片列表
-                                    .ignoreBy(100)                                  // 忽略不压缩图片的大小
-                                    .setTargetDir(targetDir)                        // 设置压缩后文件存储位置
-                                    .setCompressListener(new OnCompressListener() { //设置回调
-                                        @Override
-                                        public void onStart() {
-                                            // TODO 压缩开始前调用，可以在方法内启动 loading UI
-                                            Logger.i("----->压缩开始");
-                                        }
-
-                                        @Override
-                                        public void onSuccess(File file) {
-                                            // TODO 压缩成功后调用，返回压缩后的图片文件
-                                            if (file != null) {
-                                                Logger.i("----->压缩成功 :" + file.getPath());
-                                                getQiNiuToken(file, "image");
-                                            }
-                                        }
-
-                                        @Override
-                                        public void onError(Throwable e) {
-                                            // TODO 当压缩过程出现问题时调用
-                                            Logger.i("----->压缩失败");
-                                        }
-                                    }).launch();    //启动压缩
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                }).openGallery();
+                } else {
+                    Logger.e("Error to get media, NULL");
+                }
+            }
+        }
     }
 
     //获取七牛上传token
-    private void getQiNiuToken(final File file, final String type) {
+    private void getQiNiuToken(final File file) {
         JsonArray jsonArray = new JsonArray();
         JsonObject jsonObject = new JsonObject();
         String fileExtension = FileUtils.getFileExtension(file.getPath());
@@ -528,24 +525,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
                                     String header = itemEntity.getUrl();
                                     String path = itemEntity.getPath();
                                     if (file != null && !TextUtils.isEmpty(token)) {
-                                        if (type.equals("image")) { //上传图片
-                                            uploadImg(file, key, token, path);
-                                        } else { //上传视频
-                                            if (selectedVideos != null) {
-                                                SelectVideoEntity selectVideoEntity = new SelectVideoEntity();
-                                                Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(file.getPath(), MediaStore.Images.Thumbnails.MINI_KIND);
-                                                if (bitmap != null) {
-                                                    String thumbnailPath = FileUtils.saveBitmapToSD(bitmap);
-                                                    selectVideoEntity.setLocalPath(thumbnailPath);
-                                                }
-                                                selectVideoEntity.setLocalVideoPath(file.getPath());
-                                                selectVideoEntity.setPath(path);
-                                                selectedVideos.add(selectVideoEntity);
-                                                videoAdapter.notifyDataSetChanged();
-
-                                                uploadVideo(file, key, token);
-                                            }
-                                        }
+                                        uploadMedia(file, key, token, path);
                                     }
                                 }
                             }
@@ -566,51 +546,46 @@ public class CreateAdvertisingActivity extends BaseActivity {
         });
     }
 
-    //上传图片
-    private void uploadImg(final File file, String key, final String token, final String path) {
+    //上传视频和图片
+    private void uploadMedia(final File file, String key, String token, final String path) {
         uploadManager.put(file, key, token, new UpCompletionHandler() {
             @Override
             public void complete(String key, ResponseInfo info, JSONObject response) {
-                if (info.isOK()) {
-                    Logger.e("--->Upload Success");
-                    if (selectedPhotos != null) {
-                        SelectImageEntity selectImageEntity = new SelectImageEntity();
-                        selectImageEntity.setLocalPath(file.getPath());
-                        selectImageEntity.setPath(path);
-                        selectedPhotos.add(selectImageEntity);
-                        photoAdapter.notifyDataSetChanged();
+                AsyncRun.runInMain(new Runnable() {
+                    @Override
+                    public void run() {
+                        vProgress.setVisibility(View.INVISIBLE);
+                        isUploading = false;
+                        canBtnClick();
                     }
-                } else {
-                    Logger.e("--->Upload Fail" + info.toString());
-                    //如果失败，这里可以把info信息上报自己的服务器，便于后面分析上传错误原因
-                }
-            }
-        }, new UploadOptions(null, null, false, new UpProgressHandler() {
-            @Override
-            public void progress(String key, double percent) {
-//                Logger.e("--->percent : " + percent);
-
-            }
-        }, null));
-    }
-
-    //上传视频
-    private void uploadVideo(final File file, String key, String token) {
-        uploadManager.put(file, key, token, new UpCompletionHandler() {
-            @Override
-            public void complete(String key, ResponseInfo info, JSONObject response) {
+                });
                 if (info.isOK()) {
                     Logger.e("--->Upload Success");
-                    View view = videoLayoutManager.findViewByPosition(0);
-                    NumberProgressBar v_progress = null;
-                    if (view != null) {
-                        v_progress = (NumberProgressBar) view.findViewById(R.id.v_progress);
-                        if (v_progress != null) {
-                            v_progress.setVisibility(View.GONE);
+                    if (selectMediaEntities != null) {
+                        SelectMediaEntity selectMediaEntity = new SelectMediaEntity();
+
+                        if (MediaFileUtils.isVideoFileType(file.getPath())) //视频
+                        {
+                            Bitmap bitmap = ThumbnailUtils.createVideoThumbnail(file.getPath(), MediaStore.Images.Thumbnails.MINI_KIND);
+                            if (bitmap != null) {
+                                String thumbnailPath = FileUtils.saveBitmapToSD(bitmap);
+                                selectMediaEntity.setLocalImagePath(thumbnailPath);
+                            }
+                            selectMediaEntity.setLocalVideoPath(file.getPath());
+                        } else { //图片
+                            selectMediaEntity.setLocalImagePath(file.getPath());
                         }
+
+                        selectMediaEntity.setPath(path);
+                        selectMediaEntities.add(selectMediaEntity);
+
+                        AsyncRun.runInMain(new Runnable() {
+                            @Override
+                            public void run() {
+                                mediaAdapter.notifyDataSetChanged();
+                            }
+                        });
                     }
-                    isUploading = false;
-                    canBtnClick();
                 } else {
                     Logger.e("--->Upload Fail" + info.toString());
                     //如果失败，这里可以把info信息上报自己的服务器，便于后面分析上传错误原因
@@ -618,20 +593,17 @@ public class CreateAdvertisingActivity extends BaseActivity {
             }
         }, new UploadOptions(null, null, false, new UpProgressHandler() {
             @Override
-            public void progress(String key, double percent) {
+            public void progress(String key, final double percent) {
 //                Logger.e("--->percent : " + percent);
-                View view = videoLayoutManager.findViewByPosition(0);
-                NumberProgressBar v_progress = null;
-                if (view != null) {
-                    v_progress = (NumberProgressBar) view.findViewById(R.id.v_progress);
-                    if (v_progress != null) {
-                        v_progress.setVisibility(View.VISIBLE);
-                        v_progress.setProgress((int) (percent * 100));
+                AsyncRun.runInMain(new Runnable() {
+                    @Override
+                    public void run() {
+                        vProgress.setVisibility(View.VISIBLE);
+                        vProgress.setProgress((int) (percent * 100));
+                        isUploading = true;
+                        canBtnClick();
                     }
-                }
-
-                isUploading = true;
-                canBtnClick();
+                });
             }
         }, null));
     }
@@ -795,12 +767,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
     @PermissionYes(REQUEST_CODE_PERMISSION_PHOTO)
     private void getPermissionStorageYes(@NonNull List<String> grantedPermissions) {
         Logger.e("文件操作权限申请成功!");
-        if (isImagePick) //选择图片
-        {
-            pickPhoto();
-        } else {
-            pickVideo();
-        }
+        pickPhotoAndVideo();
     }
 
     @PermissionNo(REQUEST_CODE_PERMISSION_PHOTO)
@@ -1018,23 +985,19 @@ public class CreateAdvertisingActivity extends BaseActivity {
 
         String attachment = "";
         JsonArray attachmentArr = new JsonArray();
-        if (selectedVideos != null && selectedVideos.size() > 0) {
-            SelectVideoEntity selectVideoEntity = selectedVideos.get(0);
-            if (selectVideoEntity != null) {
-                String path = selectVideoEntity.getPath();
-                JsonObject jsonObject = new JsonObject();
-                jsonObject.addProperty("att_type", "2");
-                jsonObject.addProperty("url", path);
-                attachmentArr.add(jsonObject);
-            }
-        }
-        if (selectedPhotos != null && selectedPhotos.size() > 0) {
-            for (int i = 0; i < selectedPhotos.size(); i++) {
-                SelectImageEntity selectImageEntity = selectedPhotos.get(i);
-                if (selectImageEntity != null) {
-                    String path = selectImageEntity.getPath();
+        if (selectMediaEntities != null && selectMediaEntities.size() > 0) {
+            for (int i = 0; i < selectMediaEntities.size(); i++) {
+                SelectMediaEntity selectMediaEntity = selectMediaEntities.get(i);
+                if (selectMediaEntity != null) {
                     JsonObject jsonObject = new JsonObject();
-                    jsonObject.addProperty("att_type", "1");
+
+                    String path = selectMediaEntity.getPath();
+                    String localVideoPath = selectMediaEntity.getLocalVideoPath();
+                    if (TextUtils.isEmpty(localVideoPath)) {
+                        jsonObject.addProperty("att_type", "1");
+                    } else {
+                        jsonObject.addProperty("att_type", "2");
+                    }
                     jsonObject.addProperty("url", path);
                     attachmentArr.add(jsonObject);
                 }
@@ -1170,6 +1133,5 @@ public class CreateAdvertisingActivity extends BaseActivity {
         msgEvent.setMsg(MsgEvent.EVENT_UPDATE_USER_INFO);
         EventBus.getDefault().post(msgEvent);
     }
-
 
 }

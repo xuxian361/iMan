@@ -98,12 +98,12 @@
                 android:layout_marginTop="15dp"
                 android:drawableLeft="@drawable/corner_bg_small_blue"
                 android:drawablePadding="5dp"
-                android:text="@string/image"
+                android:text="@string/media"
                 android:textColor="@color/txt_black"
                 android:textSize="13sp" />
 
             <android.support.v7.widget.RecyclerView
-                android:id="@+id/rv_image"
+                android:id="@+id/rv_media"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/layout_margin_size"
@@ -112,35 +112,26 @@
                 android:minHeight="60dp"
                 android:visibility="visible" />
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="@dimen/layout_margin_size"
-                android:layout_marginTop="15dp"
-                android:drawableLeft="@drawable/corner_bg_small_blue"
-                android:drawablePadding="5dp"
-                android:text="@string/video"
-                android:textColor="@color/txt_black"
-                android:textSize="13sp" />
-
-            <android.support.v7.widget.RecyclerView
-                android:id="@+id/rv_video"
+            <com.daimajia.numberprogressbar.NumberProgressBar xmlns:custom="http://schemas.android.com/apk/res-auto"
+                android:id="@+id/v_progress"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="@dimen/layout_margin_size"
                 android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_gravity="center"
+                android:layout_marginBottom="5dp"
                 android:layout_marginTop="5dp"
-                android:minHeight="60dp"
-                android:visibility="visible" />
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginBottom="10dp"
-                android:layout_marginLeft="@dimen/layout_margin_size"
-                android:layout_marginRight="@dimen/layout_margin_size"
-                android:layout_marginTop="10dp"
-                android:background="@color/bg_light_gray" />
+                android:visibility="invisible"
+                custom:progress_current="0"
+                custom:progress_max="100"
+                custom:progress_reached_bar_height="2.5dp"
+                custom:progress_reached_color="#3498DB"
+                custom:progress_text_color="#3498DB"
+                custom:progress_text_offset="1dp"
+                custom:progress_text_size="10sp"
+                custom:progress_text_visibility="visible"
+                custom:progress_unreached_bar_height="1.5dp"
+                custom:progress_unreached_color="#CCCCCC" />
 
             <TextView
                 android:layout_width="wrap_content"

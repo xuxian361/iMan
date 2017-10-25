@@ -2,6 +2,7 @@ package com.sundy.iman.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,7 +10,7 @@ import android.widget.ImageView;
 
 import com.daimajia.numberprogressbar.NumberProgressBar;
 import com.sundy.iman.R;
-import com.sundy.iman.entity.SelectVideoEntity;
+import com.sundy.iman.entity.SelectMediaEntity;
 import com.sundy.iman.helper.ImageHelper;
 
 import java.util.ArrayList;
@@ -20,9 +21,9 @@ import me.iwf.photopicker.widget.SquareItemLayout;
  * Created by sundy on 17/10/24.
  */
 
-public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.PhotoViewHolder> {
+public class MediaAdapter extends RecyclerView.Adapter<MediaAdapter.PhotoViewHolder> {
 
-    private ArrayList<SelectVideoEntity> selectedMediaEntities = new ArrayList<>();
+    private ArrayList<SelectMediaEntity> selectedMediaEntities = new ArrayList<>();
     private LayoutInflater inflater;
 
     private Context mContext;
@@ -30,12 +31,19 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.PhotoViewHol
     public final static int TYPE_ADD = 1;
     final static int TYPE_PHOTO = 2;
 
-    public final static int MAX = 1;
+    public int MAX = 1;
 
-    public VideoAdapter(Context mContext, ArrayList<SelectVideoEntity> selectedMediaEntities) {
+    public MediaAdapter(Context mContext, ArrayList<SelectMediaEntity> selectedMediaEntities) {
         this.selectedMediaEntities = selectedMediaEntities;
         this.mContext = mContext;
         inflater = LayoutInflater.from(mContext);
+    }
+
+    public MediaAdapter(Context mContext, ArrayList<SelectMediaEntity> selectedMediaEntities, int maxSize) {
+        this.selectedMediaEntities = selectedMediaEntities;
+        this.mContext = mContext;
+        inflater = LayoutInflater.from(mContext);
+        this.MAX = maxSize;
     }
 
     @Override
@@ -43,10 +51,10 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.PhotoViewHol
         View itemView = null;
         switch (viewType) {
             case TYPE_ADD:
-                itemView = inflater.inflate(R.layout.item_video_add, parent, false);
+                itemView = inflater.inflate(R.layout.item_media_add, parent, false);
                 break;
             case TYPE_PHOTO:
-                itemView = inflater.inflate(R.layout.item_video_picker, parent, false);
+                itemView = inflater.inflate(R.layout.item_media_picker, parent, false);
                 break;
         }
         return new PhotoViewHolder(itemView);
@@ -56,10 +64,15 @@ public class VideoAdapter extends RecyclerView.Adapter<VideoAdapter.PhotoViewHol
     public void onBindViewHolder(final PhotoViewHolder holder, final int position) {
         try {
             if (getItemViewType(position) == TYPE_PHOTO) {
-                SelectVideoEntity selectImageEntity = selectedMediaEntities.get(position);
+                SelectMediaEntity selectImageEntity = selectedMediaEntities.get(position);
                 if (selectImageEntity != null) {
-                    ImageHelper.displayImageLocal(mContext, selectImageEntity.getLocalPath(), holder.ivPhoto);
-                    holder.iv_video.setVisibility(View.VISIBLE);
+                    ImageHelper.displayImageLocal(mContext, selectImageEntity.getLocalImagePath(), holder.ivPhoto);
+                    String localVideoPath = selectImageEntity.getLocalVideoPath();
+                    if (TextUtils.isEmpty(localVideoPath)) {
+                        holder.iv_video.setVisibility(View.GONE);
+                    } else {
+                        holder.iv_video.setVisibility(View.VISIBLE);
+                    }
                 }
                 holder.ivPhoto.setOnClickListener(new View.OnClickListener() {
                     @Override
