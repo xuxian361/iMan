@@ -299,11 +299,13 @@ public class JoinPromoteCommunityActivity extends BaseActivity {
                 tv_join.setTextColor(ContextCompat.getColor(mContext, R.color.txt_gray));
                 tv_join.setEnabled(false);
                 tv_join.setText(getString(R.string.joined));
+                tv_join.setVisibility(View.INVISIBLE);
             } else {
                 tv_join.setBackgroundResource(R.drawable.semi_bg_blue);
                 tv_join.setTextColor(ContextCompat.getColor(mContext, R.color.txt_white));
                 tv_join.setEnabled(true);
                 tv_join.setText(getString(R.string.join_and_promote));
+                tv_join.setVisibility(View.VISIBLE);
             }
 
             tv_join.setOnClickListener(new View.OnClickListener() {

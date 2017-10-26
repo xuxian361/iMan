@@ -385,19 +385,15 @@ public class MyPostActivity extends BaseActivity {
             String status = postItemEntity.getStatus();
             String type = postItemEntity.getType(); //类型: 1-普通post，2-广告
             if (type.equals("1")) {
-                if (status.equals("1")) { //正在运行
-                    goActivePost(itemData);
-                } else if (status.equals("2") || status.equals("3")) { //已过期 || 已取消
-
-                }
+                goEditPost(itemData);
             } else {
 
             }
         }
     }
 
-    //跳转 Active Post 页面
-    private void goActivePost(MyPostAdapter.ItemData itemData) {
+    //跳转编辑 Post 页面
+    private void goEditPost(MyPostAdapter.ItemData itemData) {
         if (itemData == null)
             return;
         Bundle bundle = new Bundle();

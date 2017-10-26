@@ -31,6 +31,7 @@
         android:paddingRight="10dp"
         android:paddingTop="2dp"
         android:text="@string/join_and_promote"
+        android:layout_centerVertical="true"
         android:textColor="@color/txt_white"
         android:textSize="12sp" />
 
@@ -41,7 +42,7 @@
         android:layout_below="@+id/tv_join"
         android:layout_marginRight="10dp"
         android:layout_marginTop="5dp"
-        android:layout_toLeftOf="@+id/tv_create_date"
+        android:layout_toLeftOf="@+id/tv_join"
         android:singleLine="true"
         android:textColor="@color/txt_normal"
         android:textSize="12sp" />
@@ -56,6 +57,7 @@
         android:layout_marginTop="5dp"
         android:singleLine="true"
         android:textColor="@color/txt_gray"
-        android:textSize="10sp" />
+        android:textSize="10sp"
+        android:visibility="gone"/>
 
 </RelativeLayout>
