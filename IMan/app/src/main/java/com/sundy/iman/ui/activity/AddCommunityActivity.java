@@ -351,15 +351,17 @@ public class AddCommunityActivity extends BaseActivity {
             String is_creator = item.getIs_creator(); //是否是作者 1-是,0-否
             String is_join = item.getIs_join(); //是否加入社区 1-是,0-否
             if (is_join.equals("1") || is_creator.equals("1")) {
-                tv_join.setBackgroundResource(0);
-                tv_join.setTextColor(ContextCompat.getColor(mContext, R.color.txt_gray));
-                tv_join.setEnabled(false);
-                tv_join.setText(getString(R.string.joined));
+//                tv_join.setBackgroundResource(0);
+//                tv_join.setTextColor(ContextCompat.getColor(mContext, R.color.txt_gray));
+//                tv_join.setEnabled(false);
+//                tv_join.setText(getString(R.string.joined));
+                tv_join.setVisibility(View.INVISIBLE);
             } else {
                 tv_join.setBackgroundResource(R.drawable.semi_bg_blue);
                 tv_join.setTextColor(ContextCompat.getColor(mContext, R.color.txt_white));
                 tv_join.setEnabled(true);
                 tv_join.setText(getString(R.string.join));
+                tv_join.setVisibility(View.VISIBLE);
             }
 
             tv_join.setOnClickListener(new View.OnClickListener() {
