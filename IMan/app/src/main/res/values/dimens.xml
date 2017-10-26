@@ -9,4 +9,5 @@
     <dimen name="search_bar_height">30dp</dimen>
     <dimen name="header_size_small">32dp</dimen>
     <dimen name="item_contact_height">55dp</dimen>
+    <dimen name="button_min_width_large">240dp</dimen>
 </resources>

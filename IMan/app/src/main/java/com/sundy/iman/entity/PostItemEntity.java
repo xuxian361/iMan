@@ -24,6 +24,7 @@ public class PostItemEntity implements Serializable {
     private String latitude; //纬度
     private String longitude; //经度
     private String tags; //标签
+    private String creator_id; //创建者ID
     private String is_creator; //是否是作者: 1-是，0-否
     private String create_time; //创建时间
     private String status; //post状态: 1-有效，2-过期，3-取消

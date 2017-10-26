@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -21,9 +22,11 @@ import com.orhanobut.logger.Logger;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
+import com.sundy.iman.entity.CancelPostEntity;
 import com.sundy.iman.entity.DeletePostEntity;
 import com.sundy.iman.entity.PostItemEntity;
 import com.sundy.iman.entity.PostListEntity;
+import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
@@ -59,6 +62,8 @@ public class MyPostActivity extends BaseActivity {
     TitleBarView titleBar;
     @BindView(R.id.rv_post)
     RecyclerView rvPost;
+    @BindView(R.id.swipe_refresh)
+    SwipeRefreshLayout swipeRefresh;
 
     private int page = 1; //当前页码
     private int perpage = 10; //每页显示条数
@@ -81,6 +86,19 @@ public class MyPostActivity extends BaseActivity {
     }
 
     private void init() {
+        swipeRefresh.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light,
+                android.R.color.holo_orange_light, android.R.color.holo_green_light);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+            @Override
+            public void onRefresh() {
+                page = 1;
+                if (listPost != null)
+                    listPost.clear();
+                getPostList();
+            }
+        });
+
         rvPost.setLayoutManager(new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         rvPost.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
@@ -152,7 +170,7 @@ public class MyPostActivity extends BaseActivity {
 
             @Override
             public void onAfter() {
-
+                swipeRefresh.setRefreshing(false);
             }
 
             @Override
@@ -201,24 +219,13 @@ public class MyPostActivity extends BaseActivity {
             TextView tv_post_time = helper.getView(R.id.tv_post_time);
             TextView tv_end_time = helper.getView(R.id.tv_end_time);
             ImageView iv_ad = helper.getView(R.id.iv_ad);
+            TextView tv_item_cancel = helper.getView(R.id.tv_item_cancel);
 
             String title = item.getTitle();
             String create_time = item.getCreate_time();
             String effective_time = item.getEffective_time();
-            String status = item.getStatus(); //post状态 1-有效,2-过期, 3-取消
 
             tv_post_name.setText(title);
-
-            if (status.equals("1")) {
-                tv_status.setText(getString(R.string.active));
-                tv_status.setTextColor(ContextCompat.getColor(mContext, R.color.txt_blue));
-            } else if (status.equals("2")) {
-                tv_status.setText(getString(R.string.expired));
-                tv_status.setTextColor(ContextCompat.getColor(mContext, R.color.txt_light_gray));
-            } else if (status.equals("3")) {
-                tv_status.setText(getString(R.string.cancelled));
-                tv_status.setTextColor(ContextCompat.getColor(mContext, R.color.txt_orange));
-            }
 
             if (create_time != null) {
                 Date date = DateUtils.formatTimeStamp2Date(Long.parseLong(create_time) * 1000);
@@ -235,10 +242,35 @@ public class MyPostActivity extends BaseActivity {
             }
 
             String type = item.getType(); //类型: 1-普通post，2-广告
+            String status = item.getStatus(); //post状态 1-有效,2-过期, 3-取消
             if (type.equals("1")) {
                 iv_ad.setVisibility(View.INVISIBLE);
+                if (status.equals("1")) {
+                    tv_status.setText(getString(R.string.active));
+                    tv_status.setTextColor(ContextCompat.getColor(mContext, R.color.txt_blue));
+                    tv_item_cancel.setVisibility(View.VISIBLE);
+                } else if (status.equals("2")) {
+                    tv_status.setText(getString(R.string.expired));
+                    tv_status.setTextColor(ContextCompat.getColor(mContext, R.color.txt_light_gray));
+                    tv_item_cancel.setVisibility(View.GONE);
+                } else if (status.equals("3")) {
+                    tv_status.setText(getString(R.string.cancelled));
+                    tv_status.setTextColor(ContextCompat.getColor(mContext, R.color.txt_orange));
+                    tv_item_cancel.setVisibility(View.GONE);
+                }
             } else {
                 iv_ad.setVisibility(View.VISIBLE);
+                tv_item_cancel.setVisibility(View.GONE);
+                if (status.equals("1")) {
+                    tv_status.setText(getString(R.string.active));
+                    tv_status.setTextColor(ContextCompat.getColor(mContext, R.color.txt_blue));
+                } else if (status.equals("2")) {
+                    tv_status.setText(getString(R.string.expired));
+                    tv_status.setTextColor(ContextCompat.getColor(mContext, R.color.txt_light_gray));
+                } else if (status.equals("3")) {
+                    tv_status.setText(getString(R.string.cancelled));
+                    tv_status.setTextColor(ContextCompat.getColor(mContext, R.color.txt_orange));
+                }
             }
 
             mItemManger.bindView(helper.getConvertView(), helper.getLayoutPosition());
@@ -249,6 +281,9 @@ public class MyPostActivity extends BaseActivity {
 
             helper.setOnClickListener(R.id.tv_item_del, this);
             helper.setTag(R.id.tv_item_del, R.id.item_tag, itemData);
+
+            helper.setOnClickListener(R.id.tv_item_cancel, this);
+            helper.setTag(R.id.tv_item_cancel, R.id.item_tag, itemData);
 
             helper.setOnClickListener(R.id.ll_item, this);
             helper.setTag(R.id.ll_item, R.id.item_tag, itemData);
@@ -320,9 +355,16 @@ public class MyPostActivity extends BaseActivity {
                         showDeleteDialog(itemData);
                     }
                     break;
+                case R.id.tv_item_cancel:
+                    Logger.e("----->取消Item : " + itemData.getPosition());
+                    //删除消息
+                    if (itemData != null) {
+                        showCancelPostDialog(itemData);
+                    }
+                    break;
                 case R.id.ll_item:
                     Logger.e("----->点击Item");
-
+                    goMsgDetail(itemData);
                     break;
             }
         }
@@ -334,6 +376,34 @@ public class MyPostActivity extends BaseActivity {
             private PostItemEntity item;
 
         }
+    }
+
+    //跳转消息详情
+    private void goMsgDetail(MyPostAdapter.ItemData itemData) {
+        PostItemEntity postItemEntity = itemData.getItem();
+        if (postItemEntity != null) {
+            String status = postItemEntity.getStatus();
+            String type = postItemEntity.getType(); //类型: 1-普通post，2-广告
+            if (type.equals("1")) {
+                if (status.equals("1")) { //正在运行
+                    goActivePost(itemData);
+                } else if (status.equals("2") || status.equals("3")) { //已过期 || 已取消
+
+                }
+            } else {
+
+            }
+        }
+    }
+
+    //跳转 Active Post 页面
+    private void goActivePost(MyPostAdapter.ItemData itemData) {
+        if (itemData == null)
+            return;
+        Bundle bundle = new Bundle();
+        bundle.putString("post_id", itemData.getItem().getId());
+        bundle.putString("creator_id", itemData.getItem().getCreator_id());
+        UIHelper.jump(this, EditPostActivity.class, bundle);
     }
 
     //显示删除提醒弹框
@@ -391,6 +461,65 @@ public class MyPostActivity extends BaseActivity {
         });
     }
 
+    //显示取消发布弹框
+    private void showCancelPostDialog(final MyPostAdapter.ItemData itemData) {
+        final CommonDialog dialog = new CommonDialog(this);
+        dialog.getTitle().setVisibility(View.GONE);
+        dialog.getContent().setText(getString(R.string.if_confirm_cancel_post));
+        dialog.getBtnCancel().setVisibility(View.VISIBLE);
+        dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                cancelPost(itemData);
+            }
+        });
+    }
+
+    //取消Post
+    private void cancelPost(final MyPostAdapter.ItemData itemData) {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("post_id", itemData.getItem().getId());
+        showProgress();
+        Call<CancelPostEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .cancelPost(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<CancelPostEntity>() {
+            @Override
+            public void onSuccess(Call<CancelPostEntity> call, Response<CancelPostEntity> response) {
+                CancelPostEntity cancelPostEntity = response.body();
+                if (cancelPostEntity != null) {
+                    int code = cancelPostEntity.getCode();
+                    String msg = cancelPostEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        try {
+                            PostItemEntity itemEntity = itemData.getItem();
+                            itemEntity.setStatus("3");
+                            listPost.set(itemData.getPosition(), itemEntity);
+                            myPostAdapter.notifyItemChanged(itemData.getPosition());
+                            myPostAdapter.closeAllItems();
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+                hideProgress();
+            }
+
+            @Override
+            public void onFailure(Call<CancelPostEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
     private BaseQuickAdapter.RequestLoadMoreListener onLoadMoreListener = new BaseQuickAdapter.RequestLoadMoreListener() {
         @Override
         public void onLoadMoreRequested() {
@@ -402,4 +531,8 @@ public class MyPostActivity extends BaseActivity {
         }
     };
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+    }
 }

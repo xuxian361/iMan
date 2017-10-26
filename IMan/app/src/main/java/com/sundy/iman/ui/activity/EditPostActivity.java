@@ -48,11 +48,13 @@ import com.sundy.iman.R;
 import com.sundy.iman.adapter.MediaAdapter;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.CreatePostEntity;
+import com.sundy.iman.entity.GetPostInfoEntity;
 import com.sundy.iman.entity.LocationEntity;
 import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.QiNiuTokenItemEntity;
 import com.sundy.iman.entity.QiNiuTokenListEntity;
 import com.sundy.iman.entity.SelectMediaEntity;
+import com.sundy.iman.entity.UpdatePostEntity;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
@@ -99,10 +101,10 @@ import vn.tungdx.mediapicker.MediaOptions;
 import vn.tungdx.mediapicker.activities.MediaPickerActivity;
 
 /**
- * Created by sundy on 17/10/6.
+ * Created by sundy on 17/10/26.
  */
 
-public class CreatePostActivity extends BaseActivity {
+public class EditPostActivity extends BaseActivity {
 
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 100;
     private static final int REQUEST_CODE_PERMISSION_PHOTO = 200;
@@ -117,6 +119,10 @@ public class CreatePostActivity extends BaseActivity {
     EditText etDetail;
     @BindView(R.id.tv_bytes)
     TextView tvBytes;
+    @BindView(R.id.rv_media)
+    RecyclerView rvMedia;
+    @BindView(R.id.v_progress)
+    NumberProgressBar vProgress;
     @BindView(R.id.et_tags)
     EditText etTags;
     @BindView(R.id.btn_add_tag)
@@ -131,17 +137,17 @@ public class CreatePostActivity extends BaseActivity {
     TextView tvExpireTime;
     @BindView(R.id.rel_expire_time)
     RelativeLayout relExpireTime;
-    @BindView(R.id.btn_confirm)
-    TextView btnConfirm;
+    @BindView(R.id.btn_post_again)
+    TextView btnPostAgain;
     @BindView(R.id.ll_content)
     LinearLayout llContent;
-    @BindView(R.id.rv_media)
-    RecyclerView rvMedia;
-    @BindView(R.id.v_progress)
-    NumberProgressBar vProgress;
-
+    @BindView(R.id.btn_post_modified_again)
+    TextView btnPostModifiedAgain;
 
     private String community_id;
+    private String post_id;
+    private String creator_id;
+
     //声明AMapLocationClient类对象
     public AMapLocationClient locationClient = null;
     //声明AMapLocationClientOption对象
@@ -161,11 +167,10 @@ public class CreatePostActivity extends BaseActivity {
 
     private SelectExpiryTimePopup selectExpiryTimePopup;
 
-
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.act_create_post);
+        setContentView(R.layout.act_edit_post);
         ButterKnife.bind(this);
 
         EventBus.getDefault().register(this);
@@ -173,17 +178,19 @@ public class CreatePostActivity extends BaseActivity {
         initTitle();
         getLocationPermission();
         init();
+        getPostInfo();
     }
 
     private void initData() {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            community_id = bundle.getString("community_id");
+            post_id = bundle.getString("post_id");
+            creator_id = bundle.getString("creator_id");
         }
     }
 
     private void initTitle() {
-        titleBar.setBackMode(getString(R.string.post_message));
+        titleBar.setBackMode();
         titleBar.setOnClickListener(new OnTitleBarClickListener() {
             @Override
             public void onLeftImgClick() {
@@ -213,8 +220,10 @@ public class CreatePostActivity extends BaseActivity {
     }
 
     private void init() {
-        btnConfirm.setSelected(false);
-        btnConfirm.setEnabled(false);
+        btnPostModifiedAgain.setSelected(true);
+        btnPostModifiedAgain.setEnabled(true);
+        btnPostAgain.setSelected(true);
+        btnPostAgain.setEnabled(true);
 
         tvExpireTime.setText(getString(R.string.hour_48));
 
@@ -235,6 +244,128 @@ public class CreatePostActivity extends BaseActivity {
         rvMedia.setLayoutManager(photoLayoutManager);
         mediaAdapter.setOnItemClickListener(onItemClickListener);
         rvMedia.setAdapter(mediaAdapter);
+    }
+
+    //获取Post 信息
+    private void getPostInfo() {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("post_id", post_id); //post id
+        param.put("creator_id", creator_id); //post的作者ID
+        showProgress();
+        Call<GetPostInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .getPostInfo(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<GetPostInfoEntity>() {
+            @Override
+            public void onSuccess(Call<GetPostInfoEntity> call, Response<GetPostInfoEntity> response) {
+                GetPostInfoEntity getPostInfoEntity = response.body();
+                if (getPostInfoEntity != null) {
+                    int code = getPostInfoEntity.getCode();
+                    String msg = getPostInfoEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        GetPostInfoEntity.DataEntity dataEntity = getPostInfoEntity.getData();
+                        if (dataEntity != null) {
+                            try {
+                                showData(dataEntity);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+                hideProgress();
+            }
+
+            @Override
+            public void onFailure(Call<GetPostInfoEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //显示Post 信息
+    private void showData(GetPostInfoEntity.DataEntity dataEntity) throws Exception {
+        String subject = dataEntity.getTitle();
+        String detail = dataEntity.getDetail();
+
+        etSubject.setText(subject);
+        etDetail.setText(detail);
+
+        String type = dataEntity.getType(); //类型: 1-普通post，2-广告
+        String status = dataEntity.getStatus(); //post状态 1-有效,2-过期, 3-取消
+
+        if (!TextUtils.isEmpty(status)) {
+            if (status.equals("1")) {
+                btnPostModifiedAgain.setVisibility(View.VISIBLE);
+                btnPostAgain.setVisibility(View.GONE);
+
+                titleBar.setTitleTvText(getString(R.string.active_message));
+                titleBar.setTitleTvVisibility(View.VISIBLE);
+            } else {
+                btnPostModifiedAgain.setVisibility(View.GONE);
+                btnPostAgain.setVisibility(View.VISIBLE);
+
+                titleBar.setTitleTvText(getString(R.string.old_message));
+                titleBar.setTitleTvVisibility(View.VISIBLE);
+            }
+        }
+
+        String effective_time = dataEntity.getEffective_time();
+        String create_time = dataEntity.getCreate_time();
+
+        //获取时间差
+        long second = Long.parseLong(effective_time) - Long.parseLong(create_time);
+        int hours = (int) (second / 60 / 60);
+        aging = hours;
+        tvExpireTime.setText(hours + " " + getString(R.string.hours));
+
+        community_id = dataEntity.getCommunitys();
+
+        String tags = dataEntity.getTags();
+        if (!TextUtils.isEmpty(tags)) {
+            String strArr[] = tags.split(",");
+            if (strArr != null && strArr.length > 0) {
+                selectedTags.clear();
+                for (int i = 0; i < strArr.length; i++) {
+                    selectedTags.add(strArr[i]);
+                }
+            }
+            setTagsList();
+        }
+
+        List<GetPostInfoEntity.AttachmentEntity> attachment = dataEntity.getAttachment();
+        if (attachment != null && attachment.size() > 0) {
+            for (GetPostInfoEntity.AttachmentEntity attachmentEntity : attachment) {
+                if (attachmentEntity != null) {
+                    SelectMediaEntity selectMediaEntity = new SelectMediaEntity();
+
+                    String path = attachmentEntity.getPath();
+                    String att_type = attachmentEntity.getAtt_type(); //1-图片，2-视频
+                    String thumbnail = attachmentEntity.getThumbnail();
+                    String url = attachmentEntity.getUrl();
+
+                    if (att_type.equals("1")) {
+                        selectMediaEntity.setLocalImagePath(url);
+                    } else {
+                        selectMediaEntity.setLocalImagePath(thumbnail);
+                        selectMediaEntity.setLocalVideoPath(url);
+                    }
+
+                    selectMediaEntity.setPath(path);
+
+                    selectMediaEntities.add(selectMediaEntity);
+                }
+            }
+            mediaAdapter.notifyDataSetChanged();
+        }
+
     }
 
     private MediaAdapter.OnItemClickListener onItemClickListener = new MediaAdapter.OnItemClickListener() {
@@ -268,10 +399,17 @@ public class CreatePostActivity extends BaseActivity {
                     if (!TextUtils.isEmpty(videoPath)) //视频
                     {
                         try {
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            Uri uri = Uri.parse("file://" + videoPath);
-                            intent.setDataAndType(uri, "video/mp4");
-                            startActivity(intent);
+                            if (videoPath.startsWith("http")) {
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                Uri uri = Uri.parse(videoPath);
+                                intent.setDataAndType(uri, "video/*");
+                                startActivity(intent);
+                            } else {
+                                Intent intent = new Intent(Intent.ACTION_VIEW);
+                                Uri uri = Uri.parse("file://" + videoPath);
+                                intent.setDataAndType(uri, "video/mp4");
+                                startActivity(intent);
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
@@ -289,7 +427,7 @@ public class CreatePostActivity extends BaseActivity {
                             }
                         }
 
-                        GPreviewBuilder.from(CreatePostActivity.this)
+                        GPreviewBuilder.from(EditPostActivity.this)
                                 .setData(selectList)
                                 .setCurrentIndex(position)
                                 .setType(GPreviewBuilder.IndicatorType.Number)
@@ -333,9 +471,9 @@ public class CreatePostActivity extends BaseActivity {
         public void afterTextChanged(Editable editable) {
             String content = etDetail.getText().toString().trim();
             if (content.length() > 144) {
-                tvBytes.setTextColor(ContextCompat.getColor(CreatePostActivity.this, R.color.main_red));
+                tvBytes.setTextColor(ContextCompat.getColor(EditPostActivity.this, R.color.main_red));
             } else {
-                tvBytes.setTextColor(ContextCompat.getColor(CreatePostActivity.this, R.color.txt_normal));
+                tvBytes.setTextColor(ContextCompat.getColor(EditPostActivity.this, R.color.txt_normal));
             }
 
             tvBytes.setText("(" + content.length() + "/" + 144 + ")");
@@ -348,11 +486,17 @@ public class CreatePostActivity extends BaseActivity {
     private void canBtnClick() {
         String subject = etSubject.getText().toString().trim();
         if (TextUtils.isEmpty(subject) || isUploading) {
-            btnConfirm.setSelected(false);
-            btnConfirm.setEnabled(false);
+            btnPostAgain.setSelected(false);
+            btnPostAgain.setEnabled(false);
+
+            btnPostModifiedAgain.setSelected(false);
+            btnPostModifiedAgain.setEnabled(false);
         } else {
-            btnConfirm.setSelected(true);
-            btnConfirm.setEnabled(true);
+            btnPostAgain.setSelected(true);
+            btnPostAgain.setEnabled(true);
+
+            btnPostModifiedAgain.setSelected(true);
+            btnPostModifiedAgain.setEnabled(true);
         }
     }
 
@@ -366,7 +510,7 @@ public class CreatePostActivity extends BaseActivity {
                     @Override
                     public void showRequestPermissionRationale(int requestCode, Rationale rationale) {
                         // 这里的对话框可以自定义，只要调用rationale.resume()就可以继续申请。
-                        AndPermission.rationaleDialog(CreatePostActivity.this, rationale).show();
+                        AndPermission.rationaleDialog(EditPostActivity.this, rationale).show();
                     }
                 })
                 .start();
@@ -403,7 +547,7 @@ public class CreatePostActivity extends BaseActivity {
                     try {
                         for (MediaItem mediaItem : mMediaSelectedList) {
                             if (mediaItem != null) {
-                                String mediaPath = mediaItem.getPathOrigin(CreatePostActivity.this);
+                                String mediaPath = mediaItem.getPathOrigin(EditPostActivity.this);
                                 Logger.e("------>mediaPath= " + mediaPath);
                                 if (!TextUtils.isEmpty(mediaPath)) {
                                     if (MediaFileUtils.isVideoFileType(mediaPath)) { //视频
@@ -420,7 +564,7 @@ public class CreatePostActivity extends BaseActivity {
                                     } else { //图片
                                         String targetDir = FileUtils.getImageCache();
                                         //压缩图片
-                                        Luban.with(CreatePostActivity.this)
+                                        Luban.with(EditPostActivity.this)
                                                 .load(mediaPath)                                   // 传人要压缩的图片列表
                                                 .ignoreBy(100)                                  // 忽略不压缩图片的大小
                                                 .setTargetDir(targetDir)                        // 设置压缩后文件存储位置
@@ -577,140 +721,6 @@ public class CreatePostActivity extends BaseActivity {
                 });
             }
         }, null));
-    }
-
-    //创建post
-    private void createPost() {
-        String title = etSubject.getText().toString().trim();
-        String detail = etDetail.getText().toString().trim();
-
-        String country = "";
-        String province = "";
-        String city = "";
-        String latitude = "";
-        String longitude = "";
-        String addressStr = "";
-        String location = "";
-        if (locationEntity != null) {
-            country = locationEntity.getCountry();
-            province = locationEntity.getProvince();
-            city = locationEntity.getCity();
-            latitude = locationEntity.getLat() + "";
-            longitude = locationEntity.getLng() + "";
-            addressStr = locationEntity.getAddress();
-
-            if (!TextUtils.isEmpty(province) && !TextUtils.isEmpty(city)) {
-                location = province + " " + city;
-            } else if (TextUtils.isEmpty(province) && TextUtils.isEmpty(city)) {
-                location = country;
-            } else {
-                if (TextUtils.isEmpty(province)) {
-                    location = city;
-                } else {
-                    location = province;
-                }
-            }
-        }
-
-        String tags = "";
-        if (selectedTags != null && selectedTags.size() > 0) {
-            StringBuffer sb = new StringBuffer();
-            for (int i = 0; i < selectedTags.size(); i++) {
-                String tag = selectedTags.get(i);
-                if (!TextUtils.isEmpty(tag)) {
-                    if (i == selectedTags.size() - 1) {
-                        sb.append(tag);
-                    } else {
-                        sb.append(tag + ",");
-                    }
-                }
-            }
-            tags = sb.toString();
-        }
-
-        String attachment = "";
-        JsonArray attachmentArr = new JsonArray();
-        if (selectMediaEntities != null && selectMediaEntities.size() > 0) {
-            for (int i = 0; i < selectMediaEntities.size(); i++) {
-                SelectMediaEntity selectMediaEntity = selectMediaEntities.get(i);
-                if (selectMediaEntity != null) {
-                    JsonObject jsonObject = new JsonObject();
-
-                    String path = selectMediaEntity.getPath();
-                    String localVideoPath = selectMediaEntity.getLocalVideoPath();
-                    if (TextUtils.isEmpty(localVideoPath)) {
-                        jsonObject.addProperty("att_type", "1");
-                    } else {
-                        jsonObject.addProperty("att_type", "2");
-                    }
-                    jsonObject.addProperty("url", path);
-                    attachmentArr.add(jsonObject);
-                }
-            }
-        }
-        if (attachmentArr.size() > 0) {
-            attachment = attachmentArr.toString();
-        }
-
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("title", title); //post标题
-        param.put("detail", detail); //post详情
-        param.put("tags", tags); //标签
-        param.put("location", location);
-        param.put("latitude", latitude);
-        param.put("longitude", longitude);
-        param.put("community_id", community_id); //社区ID
-        param.put("aging", aging + ""); //时效
-        param.put("attachment", attachment); //附件 json格式数据:att_type为附件类型，1-图片，2-视频 url：附件存放路径
-        //[{"att_type":"1"," url":"post/20170 9/74c06ef7f40ac a08bce37c0403 d08521.png"}]
-        showProgress();
-        Call<CreatePostEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .createPost(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<CreatePostEntity>() {
-            @Override
-            public void onSuccess(Call<CreatePostEntity> call, Response<CreatePostEntity> response) {
-                CreatePostEntity createPostEntity = response.body();
-                if (createPostEntity != null) {
-                    int code = createPostEntity.getCode();
-                    String msg = createPostEntity.getMsg();
-                    if (code == Constants.CODE_SUCCESS) {
-                        showCreateAdSuccessDialog();
-                    } else {
-                        MainApp.getInstance().showToast(msg);
-                    }
-                }
-            }
-
-            @Override
-            public void onAfter() {
-                hideProgress();
-            }
-
-            @Override
-            public void onFailure(Call<CreatePostEntity> call, Throwable t) {
-
-            }
-        });
-    }
-
-    @OnClick({R.id.btn_add_tag, R.id.btn_more_tag, R.id.rel_expire_time, R.id.btn_confirm})
-    public void onViewClicked(View view) {
-        switch (view.getId()) {
-            case R.id.btn_add_tag:
-                addTag();
-                break;
-            case R.id.btn_more_tag:
-                goSelectTags();
-                break;
-            case R.id.rel_expire_time:
-                selectExpireTimePopup();
-                break;
-            case R.id.btn_confirm:
-                createPost();
-                break;
-        }
     }
 
     //显示选择有效期Popup
@@ -918,21 +928,6 @@ public class CreatePostActivity extends BaseActivity {
         }
     }
 
-    //显示成功创建Post弹框
-    private void showCreateAdSuccessDialog() {
-        final CommonDialog dialog = new CommonDialog(this);
-        dialog.getTitle().setText(getString(R.string.success));
-        dialog.getContent().setText(getString(R.string.message_post_success_tips));
-        dialog.getBtnCancel().setVisibility(View.GONE);
-        dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-                finish();
-            }
-        });
-    }
-
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void onEventMainThread(MsgEvent event) {
         if (event != null) {
@@ -966,4 +961,291 @@ public class CreatePostActivity extends BaseActivity {
         destroyLocation();
         FileUtils.clearFileCache(FileUtils.getImageCache());
     }
+
+    @OnClick({R.id.btn_add_tag, R.id.btn_more_tag, R.id.rel_expire_time, R.id.btn_post_modified_again, R.id.btn_post_again})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.btn_add_tag:
+                addTag();
+                break;
+            case R.id.btn_more_tag:
+                goSelectTags();
+                break;
+            case R.id.rel_expire_time:
+                selectExpireTimePopup();
+                break;
+            case R.id.btn_post_modified_again:
+                updatePost();
+                break;
+            case R.id.btn_post_again:
+                createPost();
+                break;
+        }
+    }
+
+    //修改post
+    private void updatePost() {
+        String title = etSubject.getText().toString().trim();
+        String detail = etDetail.getText().toString().trim();
+
+        String country = "";
+        String province = "";
+        String city = "";
+        String latitude = "";
+        String longitude = "";
+        String addressStr = "";
+        String location = "";
+        if (locationEntity != null) {
+            country = locationEntity.getCountry();
+            province = locationEntity.getProvince();
+            city = locationEntity.getCity();
+            latitude = locationEntity.getLat() + "";
+            longitude = locationEntity.getLng() + "";
+            addressStr = locationEntity.getAddress();
+
+            if (!TextUtils.isEmpty(province) && !TextUtils.isEmpty(city)) {
+                location = province + " " + city;
+            } else if (TextUtils.isEmpty(province) && TextUtils.isEmpty(city)) {
+                location = country;
+            } else {
+                if (TextUtils.isEmpty(province)) {
+                    location = city;
+                } else {
+                    location = province;
+                }
+            }
+        }
+
+        String tags = "";
+        if (selectedTags != null && selectedTags.size() > 0) {
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < selectedTags.size(); i++) {
+                String tag = selectedTags.get(i);
+                if (!TextUtils.isEmpty(tag)) {
+                    if (i == selectedTags.size() - 1) {
+                        sb.append(tag);
+                    } else {
+                        sb.append(tag + ",");
+                    }
+                }
+            }
+            tags = sb.toString();
+        }
+
+        String attachment = "";
+        JsonArray attachmentArr = new JsonArray();
+        if (selectMediaEntities != null && selectMediaEntities.size() > 0) {
+            for (int i = 0; i < selectMediaEntities.size(); i++) {
+                SelectMediaEntity selectMediaEntity = selectMediaEntities.get(i);
+                if (selectMediaEntity != null) {
+                    JsonObject jsonObject = new JsonObject();
+
+                    String path = selectMediaEntity.getPath();
+                    String localVideoPath = selectMediaEntity.getLocalVideoPath();
+                    if (TextUtils.isEmpty(localVideoPath)) {
+                        jsonObject.addProperty("att_type", "1");
+                    } else {
+                        jsonObject.addProperty("att_type", "2");
+                    }
+                    jsonObject.addProperty("url", path);
+                    attachmentArr.add(jsonObject);
+                }
+            }
+        }
+        if (attachmentArr.size() > 0) {
+            attachment = attachmentArr.toString();
+        }
+
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("title", title); //post标题
+        param.put("detail", detail); //post详情
+        param.put("tags", tags); //标签
+        param.put("location", location);
+        param.put("latitude", latitude);
+        param.put("longitude", longitude);
+        param.put("community_id", community_id); //社区ID
+        param.put("aging", aging + ""); //时效
+        param.put("attachment", attachment); //附件 json格式数据:att_type为附件类型，1-图片，2-视频 url：附件存放路径
+        //[{"att_type":"1"," url":"post/20170 9/74c06ef7f40ac a08bce37c0403 d08521.png"}]
+        param.put("post_id", post_id);
+        showProgress();
+        Call<UpdatePostEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .updatePost(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<UpdatePostEntity>() {
+            @Override
+            public void onSuccess(Call<UpdatePostEntity> call, Response<UpdatePostEntity> response) {
+                UpdatePostEntity updatePostEntity = response.body();
+                if (updatePostEntity != null) {
+                    int code = updatePostEntity.getCode();
+                    String msg = updatePostEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        showUpdateAdSuccessDialog();
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+                hideProgress();
+            }
+
+            @Override
+            public void onFailure(Call<UpdatePostEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //显示成功修改Post弹框
+    private void showUpdateAdSuccessDialog() {
+        final CommonDialog dialog = new CommonDialog(this);
+        dialog.getTitle().setText(getString(R.string.success));
+        dialog.getContent().setText(getString(R.string.message_post_success_tips));
+        dialog.getBtnCancel().setVisibility(View.GONE);
+        dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+            }
+        });
+    }
+
+    //创建post
+    private void createPost() {
+        String title = etSubject.getText().toString().trim();
+        String detail = etDetail.getText().toString().trim();
+
+        String country = "";
+        String province = "";
+        String city = "";
+        String latitude = "";
+        String longitude = "";
+        String addressStr = "";
+        String location = "";
+        if (locationEntity != null) {
+            country = locationEntity.getCountry();
+            province = locationEntity.getProvince();
+            city = locationEntity.getCity();
+            latitude = locationEntity.getLat() + "";
+            longitude = locationEntity.getLng() + "";
+            addressStr = locationEntity.getAddress();
+
+            if (!TextUtils.isEmpty(province) && !TextUtils.isEmpty(city)) {
+                location = province + " " + city;
+            } else if (TextUtils.isEmpty(province) && TextUtils.isEmpty(city)) {
+                location = country;
+            } else {
+                if (TextUtils.isEmpty(province)) {
+                    location = city;
+                } else {
+                    location = province;
+                }
+            }
+        }
+
+        String tags = "";
+        if (selectedTags != null && selectedTags.size() > 0) {
+            StringBuffer sb = new StringBuffer();
+            for (int i = 0; i < selectedTags.size(); i++) {
+                String tag = selectedTags.get(i);
+                if (!TextUtils.isEmpty(tag)) {
+                    if (i == selectedTags.size() - 1) {
+                        sb.append(tag);
+                    } else {
+                        sb.append(tag + ",");
+                    }
+                }
+            }
+            tags = sb.toString();
+        }
+
+        String attachment = "";
+        JsonArray attachmentArr = new JsonArray();
+        if (selectMediaEntities != null && selectMediaEntities.size() > 0) {
+            for (int i = 0; i < selectMediaEntities.size(); i++) {
+                SelectMediaEntity selectMediaEntity = selectMediaEntities.get(i);
+                if (selectMediaEntity != null) {
+                    JsonObject jsonObject = new JsonObject();
+
+                    String path = selectMediaEntity.getPath();
+                    String localVideoPath = selectMediaEntity.getLocalVideoPath();
+                    if (TextUtils.isEmpty(localVideoPath)) {
+                        jsonObject.addProperty("att_type", "1");
+                    } else {
+                        jsonObject.addProperty("att_type", "2");
+                    }
+                    jsonObject.addProperty("url", path);
+                    attachmentArr.add(jsonObject);
+                }
+            }
+        }
+        if (attachmentArr.size() > 0) {
+            attachment = attachmentArr.toString();
+        }
+
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("title", title); //post标题
+        param.put("detail", detail); //post详情
+        param.put("tags", tags); //标签
+        param.put("location", location);
+        param.put("latitude", latitude);
+        param.put("longitude", longitude);
+        param.put("community_id", community_id); //社区ID
+        param.put("aging", aging + ""); //时效
+        param.put("attachment", attachment); //附件 json格式数据:att_type为附件类型，1-图片，2-视频 url：附件存放路径
+        //[{"att_type":"1"," url":"post/20170 9/74c06ef7f40ac a08bce37c0403 d08521.png"}]
+        showProgress();
+        Call<CreatePostEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .createPost(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<CreatePostEntity>() {
+            @Override
+            public void onSuccess(Call<CreatePostEntity> call, Response<CreatePostEntity> response) {
+                CreatePostEntity createPostEntity = response.body();
+                if (createPostEntity != null) {
+                    int code = createPostEntity.getCode();
+                    String msg = createPostEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        showCreateAdSuccessDialog();
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+                hideProgress();
+            }
+
+            @Override
+            public void onFailure(Call<CreatePostEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //显示成功创建Post弹框
+    private void showCreateAdSuccessDialog() {
+        final CommonDialog dialog = new CommonDialog(this);
+        dialog.getTitle().setText(getString(R.string.success));
+        dialog.getContent().setText(getString(R.string.message_post_success_tips));
+        dialog.getBtnCancel().setVisibility(View.GONE);
+        dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                titleBar.setTitleTvText(getString(R.string.active_message));
+                btnPostModifiedAgain.setVisibility(View.VISIBLE);
+                btnPostAgain.setVisibility(View.GONE);
+            }
+        });
+    }
+
+
 }

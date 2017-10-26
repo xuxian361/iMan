@@ -99,12 +99,12 @@
             android:name=".ui.activity.AddCommunityActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".ui.activity.ReportPostActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".ui.activity.SettingsActivity"
             android:launchMode="singleTop"
@@ -115,7 +115,7 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
         <activity
-            android:name=".ui.activity.MemberInfoActivity"
+            android:name=".ui.activity.ContactInfoActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
         <activity
@@ -149,7 +149,7 @@
             android:name=".ui.activity.CreateAdvertisingActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustResize|stateHidden" />
         <activity
             android:name=".ui.activity.MyPromoteCommunityActivity"
             android:launchMode="singleTop"
@@ -195,7 +195,12 @@
             android:name=".ui.activity.CreatePostActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
-            android:windowSoftInputMode="adjustPan" />
+            android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".ui.activity.EditPostActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustResize|stateHidden" />
 
         <activity
             android:name="com.yalantis.ucrop.UCropActivity"

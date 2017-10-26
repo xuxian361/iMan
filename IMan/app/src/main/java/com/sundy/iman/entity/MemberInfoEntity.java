@@ -36,7 +36,7 @@ public class MemberInfoEntity extends BaseResEntity {
         private String balance; //账户余额
         private String easemob_account; //环信账号
         private String easemob_password; //环信密码
-        private String easemob_uuid; //环信ID
+        private String easemob_uuid; //环信uuID
 
     }
 }

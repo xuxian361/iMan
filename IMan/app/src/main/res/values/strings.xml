@@ -145,6 +145,16 @@
     <string name="media">Media</string>
     <string name="delete">Delete</string>
     <string name="if_confirm_delete_post">确定删除该消息?</string>
+    <string name="allow_receive_msg">Allow to receive message</string>
+    <string name="post_modified_msg_again">Post Modified Message Again</string>
+    <string name="cancel_message">Cancel Message</string>
+    <string name="active_message">Active Message</string>
+    <string name="message_post_success_tips">你的消息已经发布成功!</string>
+    <string name="if_confirm_cancel_post">确认取消该消息的发布吗?</string>
+    <string name="message_cancel_success_tips">这条消息已经取消发布</string>
+    <string name="old_message">Old Message</string>
+    <string name="post_message_again">Post Message Again</string>
+    <string name="hours">hours</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.
