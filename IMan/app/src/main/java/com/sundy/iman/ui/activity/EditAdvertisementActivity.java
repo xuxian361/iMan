@@ -53,6 +53,7 @@ import com.sundy.iman.adapter.MediaAdapter;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.CommunityItemEntity;
 import com.sundy.iman.entity.CreateAdvertisingEntity;
+import com.sundy.iman.entity.GetPostInfoEntity;
 import com.sundy.iman.entity.LocationEntity;
 import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.QiNiuTokenItemEntity;
@@ -104,10 +105,10 @@ import vn.tungdx.mediapicker.MediaOptions;
 import vn.tungdx.mediapicker.activities.MediaPickerActivity;
 
 /**
- * Created by sundy on 17/10/5.
+ * Created by sundy on 17/10/27.
  */
 
-public class CreateAdvertisingActivity extends BaseActivity {
+public class EditAdvertisementActivity extends BaseActivity {
 
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 100;
     private static final int REQUEST_CODE_PERMISSION_PHOTO = 200;
@@ -122,6 +123,10 @@ public class CreateAdvertisingActivity extends BaseActivity {
     EditText etDetail;
     @BindView(R.id.tv_bytes)
     TextView tvBytes;
+    @BindView(R.id.rv_media)
+    RecyclerView rvMedia;
+    @BindView(R.id.v_progress)
+    NumberProgressBar vProgress;
     @BindView(R.id.tv_select_community)
     TextView tvSelectCommunity;
     @BindView(R.id.rel_select_community)
@@ -146,16 +151,12 @@ public class CreateAdvertisingActivity extends BaseActivity {
     TagFlowLayout flTags;
     @BindView(R.id.btn_more_tag)
     TextView btnMoreTag;
-    @BindView(R.id.btn_confirm)
-    TextView btnConfirm;
     @BindView(R.id.ll_how_get_imcoin)
     LinearLayout llHowGetImcoin;
+    @BindView(R.id.btn_confirm)
+    TextView btnConfirm;
     @BindView(R.id.ll_content)
     LinearLayout llContent;
-    @BindView(R.id.v_progress)
-    NumberProgressBar vProgress;
-    @BindView(R.id.rv_media)
-    RecyclerView rvMedia;
 
     //声明AMapLocationClient类对象
     public AMapLocationClient locationClient = null;
@@ -176,16 +177,29 @@ public class CreateAdvertisingActivity extends BaseActivity {
     private UploadManager uploadManager;
     private boolean isUploading = false; //是否正在上传
 
+    private String post_id;
+    private String creator_id;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.act_create_ad);
+        setContentView(R.layout.act_edit_ad);
         ButterKnife.bind(this);
 
         EventBus.getDefault().register(this);
+        initData();
         initTitle();
         getLocationPermission();
         init();
+        getPostInfo();
+    }
+
+    private void initData() {
+        Bundle bundle = getIntent().getExtras();
+        if (bundle != null) {
+            post_id = bundle.getString("post_id");
+            creator_id = bundle.getString("creator_id");
+        }
     }
 
     private void initTitle() {
@@ -257,6 +271,98 @@ public class CreateAdvertisingActivity extends BaseActivity {
         rvMedia.setAdapter(mediaAdapter);
     }
 
+    //获取Post 信息
+    private void getPostInfo() {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("post_id", post_id); //post id
+        param.put("creator_id", creator_id); //post的作者ID
+        showProgress();
+        Call<GetPostInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .getPostInfo(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<GetPostInfoEntity>() {
+            @Override
+            public void onSuccess(Call<GetPostInfoEntity> call, Response<GetPostInfoEntity> response) {
+                GetPostInfoEntity getPostInfoEntity = response.body();
+                if (getPostInfoEntity != null) {
+                    int code = getPostInfoEntity.getCode();
+                    String msg = getPostInfoEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        GetPostInfoEntity.DataEntity dataEntity = getPostInfoEntity.getData();
+                        if (dataEntity != null) {
+                            try {
+                                showData(dataEntity);
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+                hideProgress();
+            }
+
+            @Override
+            public void onFailure(Call<GetPostInfoEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //显示Post 信息
+    private void showData(GetPostInfoEntity.DataEntity dataEntity) throws Exception {
+        String subject = dataEntity.getTitle();
+        String detail = dataEntity.getDetail();
+
+        etSubject.setText(subject);
+        etDetail.setText(detail);
+
+        String tags = dataEntity.getTags();
+        if (!TextUtils.isEmpty(tags)) {
+            String strArr[] = tags.split(",");
+            if (strArr != null && strArr.length > 0) {
+                selectedTags.clear();
+                for (int i = 0; i < strArr.length; i++) {
+                    selectedTags.add(strArr[i]);
+                }
+            }
+            setTagsList();
+        }
+
+        List<GetPostInfoEntity.AttachmentEntity> attachment = dataEntity.getAttachment();
+        if (attachment != null && attachment.size() > 0) {
+            for (GetPostInfoEntity.AttachmentEntity attachmentEntity : attachment) {
+                if (attachmentEntity != null) {
+                    SelectMediaEntity selectMediaEntity = new SelectMediaEntity();
+
+                    String path = attachmentEntity.getPath();
+                    String att_type = attachmentEntity.getAtt_type(); //1-图片，2-视频
+                    String thumbnail = attachmentEntity.getThumbnail();
+                    String url = attachmentEntity.getUrl();
+
+                    if (att_type.equals("1")) {
+                        selectMediaEntity.setLocalImagePath(url);
+                    } else {
+                        selectMediaEntity.setLocalImagePath(thumbnail);
+                        selectMediaEntity.setLocalVideoPath(url);
+                    }
+
+                    selectMediaEntity.setPath(path);
+
+                    selectMediaEntities.add(selectMediaEntity);
+                }
+            }
+            mediaAdapter.notifyDataSetChanged();
+        }
+
+    }
+
     private MediaAdapter.OnItemClickListener onItemClickListener = new MediaAdapter.OnItemClickListener() {
         @Override
         public void onAddClick(MediaAdapter.PhotoViewHolder holder, int position) {
@@ -309,7 +415,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
                             }
                         }
 
-                        GPreviewBuilder.from(CreateAdvertisingActivity.this)
+                        GPreviewBuilder.from(EditAdvertisementActivity.this)
                                 .setData(selectList)
                                 .setCurrentIndex(position)
                                 .setType(GPreviewBuilder.IndicatorType.Number)
@@ -352,9 +458,9 @@ public class CreateAdvertisingActivity extends BaseActivity {
         public void afterTextChanged(Editable editable) {
             String content = etDetail.getText().toString().trim();
             if (content.length() > 144) {
-                tvBytes.setTextColor(ContextCompat.getColor(CreateAdvertisingActivity.this, R.color.main_red));
+                tvBytes.setTextColor(ContextCompat.getColor(EditAdvertisementActivity.this, R.color.main_red));
             } else {
-                tvBytes.setTextColor(ContextCompat.getColor(CreateAdvertisingActivity.this, R.color.txt_normal));
+                tvBytes.setTextColor(ContextCompat.getColor(EditAdvertisementActivity.this, R.color.txt_normal));
             }
 
             tvBytes.setText("(" + content.length() + "/" + 144 + ")");
@@ -373,7 +479,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
                     @Override
                     public void showRequestPermissionRationale(int requestCode, Rationale rationale) {
                         // 这里的对话框可以自定义，只要调用rationale.resume()就可以继续申请。
-                        AndPermission.rationaleDialog(CreateAdvertisingActivity.this, rationale).show();
+                        AndPermission.rationaleDialog(EditAdvertisementActivity.this, rationale).show();
                     }
                 })
                 .start();
@@ -434,7 +540,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
                     try {
                         for (MediaItem mediaItem : mMediaSelectedList) {
                             if (mediaItem != null) {
-                                String mediaPath = mediaItem.getPathOrigin(CreateAdvertisingActivity.this);
+                                String mediaPath = mediaItem.getPathOrigin(EditAdvertisementActivity.this);
                                 Logger.e("------>mediaPath= " + mediaPath);
                                 if (!TextUtils.isEmpty(mediaPath)) {
                                     if (MediaFileUtils.isVideoFileType(mediaPath)) { //视频
@@ -451,7 +557,7 @@ public class CreateAdvertisingActivity extends BaseActivity {
                                     } else { //图片
                                         String targetDir = FileUtils.getImageCache();
                                         //压缩图片
-                                        Luban.with(CreateAdvertisingActivity.this)
+                                        Luban.with(EditAdvertisementActivity.this)
                                                 .load(mediaPath)                                   // 传人要压缩的图片列表
                                                 .ignoreBy(100)                                  // 忽略不压缩图片的大小
                                                 .setTargetDir(targetDir)                        // 设置压缩后文件存储位置
@@ -1135,5 +1241,4 @@ public class CreateAdvertisingActivity extends BaseActivity {
         msgEvent.setMsg(MsgEvent.EVENT_UPDATE_USER_INFO);
         EventBus.getDefault().post(msgEvent);
     }
-
 }

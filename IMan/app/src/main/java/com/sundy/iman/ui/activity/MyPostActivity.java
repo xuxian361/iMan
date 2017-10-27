@@ -387,9 +387,19 @@ public class MyPostActivity extends BaseActivity {
             if (type.equals("1")) {
                 goEditPost(itemData);
             } else {
-
+                goEditAd(itemData);
             }
         }
+    }
+
+    //跳转编辑 广告 页面
+    private void goEditAd(MyPostAdapter.ItemData itemData) {
+        if (itemData == null)
+            return;
+        Bundle bundle = new Bundle();
+        bundle.putString("post_id", itemData.getItem().getId());
+        bundle.putString("creator_id", itemData.getItem().getCreator_id());
+        UIHelper.jump(this, EditAdvertisementActivity.class, bundle);
     }
 
     //跳转编辑 Post 页面

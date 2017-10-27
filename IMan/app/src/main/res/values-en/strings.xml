@@ -156,6 +156,7 @@
     <string name="old_message">Old Message</string>
     <string name="post_message_again">Post Message Again</string>
     <string name="hours">hours</string>
+    <string name="post_ad_again">Post Ad Again</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

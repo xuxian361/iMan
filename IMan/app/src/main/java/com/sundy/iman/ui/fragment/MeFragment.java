@@ -34,7 +34,7 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.ui.activity.CommunityMsgListActivity;
-import com.sundy.iman.ui.activity.CreateAdvertisingActivity;
+import com.sundy.iman.ui.activity.CreateAdvertisementActivity;
 import com.sundy.iman.ui.activity.CreateCommunityActivity;
 import com.sundy.iman.ui.activity.EditProfileActivity;
 import com.sundy.iman.ui.activity.LoginActivity;
@@ -549,7 +549,7 @@ public class MeFragment extends BaseFragment {
     //创建广告
     private void goCreateAd() {
         if (PaperUtils.isLogin()) {
-            UIHelper.jump(mContext, CreateAdvertisingActivity.class);
+            UIHelper.jump(mContext, CreateAdvertisementActivity.class);
         } else {
             goLogin();
         }
