@@ -340,7 +340,7 @@ public class AddCommunityActivity extends BaseActivity {
             tv_community_name.setText(item.getName());
 
             String create_time = item.getCreate_time();
-            if (create_time != null) {
+            if (!TextUtils.isEmpty(create_time)) {
                 Date date = DateUtils.formatTimeStamp2Date(Long.parseLong(create_time) * 1000);
                 tv_create_date.setText(getString(R.string.created) + " " + DateUtils.formatDate2String(date, "yyyy/MM/dd"));
             } else {

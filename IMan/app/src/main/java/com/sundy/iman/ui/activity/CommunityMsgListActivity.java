@@ -6,9 +6,13 @@ import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
@@ -21,28 +25,37 @@ import com.sundy.iman.entity.JoinCommunityEntity;
 import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.PostItemEntity;
 import com.sundy.iman.entity.PostListEntity;
+import com.sundy.iman.helper.ImageHelper;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.utils.DateUtils;
 import com.sundy.iman.view.CustomLoadMoreView;
-import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
 import com.sundy.iman.view.dialog.CommonDialog;
 import com.sundy.iman.view.popupwindow.CommunityMenuPopup;
+import com.zhy.view.flowlayout.FlowLayout;
+import com.zhy.view.flowlayout.TagAdapter;
+import com.zhy.view.flowlayout.TagFlowLayout;
 
 import org.greenrobot.eventbus.EventBus;
 
+import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import de.hdodenhof.circleimageview.CircleImageView;
+import lombok.Data;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -61,6 +74,12 @@ public class CommunityMsgListActivity extends BaseActivity {
     LinearLayout llContent;
     @BindView(R.id.swipe_refresh)
     SwipeRefreshLayout swipeRefresh;
+    @BindView(R.id.view_line)
+    ImageView viewLine;
+    @BindView(R.id.tv_post)
+    TextView tvPost;
+    @BindView(R.id.tv_tips)
+    TextView tvTips;
 
     private String community_id;
     private CommunityMenuPopup communityMenuPopup;
@@ -70,7 +89,7 @@ public class CommunityMsgListActivity extends BaseActivity {
     private boolean canLoadMore = true;
     private PostAdapter myPostAdapter;
     private List<PostItemEntity> listPost = new ArrayList<>();
-
+    private WrapContentLinearLayoutManager linearLayoutManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -143,16 +162,18 @@ public class CommunityMsgListActivity extends BaseActivity {
             }
         });
 
-        rvMsg.setLayoutManager(new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
-        rvMsg.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
+        linearLayoutManager = new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        rvMsg.setLayoutManager(linearLayoutManager);
 
-        myPostAdapter = new PostAdapter(R.layout.item_my_post, listPost);
+        myPostAdapter = new PostAdapter(R.layout.item_post, listPost);
         myPostAdapter.openLoadAnimation();
         myPostAdapter.isFirstOnly(false);
         myPostAdapter.setLoadMoreView(new CustomLoadMoreView());
         myPostAdapter.setEnableLoadMore(true);
         myPostAdapter.setOnLoadMoreListener(onLoadMoreListener, rvMsg);
         rvMsg.setAdapter(myPostAdapter);
+
+        rvMsg.addOnScrollListener(onScrollListener);
     }
 
     //社区详情
@@ -236,21 +257,37 @@ public class CommunityMsgListActivity extends BaseActivity {
 
     private void showData(List<PostItemEntity> listData) {
         try {
-            if (listData.size() == 0) {
+            if (listData.size() == 0 && page == 1) {
                 canLoadMore = false;
                 myPostAdapter.loadMoreEnd();
+
+                tvTips.setVisibility(View.VISIBLE);
+                tvPost.setVisibility(View.VISIBLE);
+                viewLine.setVisibility(View.GONE);
+                rvMsg.setVisibility(View.GONE);
+
             } else {
-                page = page + 1;
-                canLoadMore = true;
-                myPostAdapter.loadMoreComplete();
-                for (int i = 0; i < listData.size(); i++) {
-                    PostItemEntity item = listData.get(i);
-                    if (item != null) {
-                        listPost.add(item);
+                tvTips.setVisibility(View.GONE);
+                tvPost.setVisibility(View.GONE);
+                viewLine.setVisibility(View.VISIBLE);
+                rvMsg.setVisibility(View.VISIBLE);
+
+                if (listData.size() == 0) {
+                    canLoadMore = false;
+                    myPostAdapter.loadMoreEnd();
+                } else {
+                    page = page + 1;
+                    canLoadMore = true;
+                    myPostAdapter.loadMoreComplete();
+                    for (int i = 0; i < listData.size(); i++) {
+                        PostItemEntity item = listData.get(i);
+                        if (item != null) {
+                            listPost.add(item);
+                        }
                     }
+                    myPostAdapter.setNewData(listPost);
+                    myPostAdapter.notifyDataSetChanged();
                 }
-                myPostAdapter.setNewData(listPost);
-                myPostAdapter.notifyDataSetChanged();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -360,7 +397,13 @@ public class CommunityMsgListActivity extends BaseActivity {
         UIHelper.jump(this, CommunityDetailActivity.class, bundle);
     }
 
-    private class PostAdapter extends BaseQuickAdapter<PostItemEntity, BaseViewHolder> {
+    @OnClick(R.id.tv_post)
+    public void onViewClicked() {
+        goAddPost();
+    }
+
+    private class PostAdapter extends BaseQuickAdapter<PostItemEntity, BaseViewHolder>
+            implements View.OnClickListener {
 
         public PostAdapter(@LayoutRes int layoutResId, @Nullable List<PostItemEntity> data) {
             super(layoutResId, data);
@@ -368,6 +411,123 @@ public class CommunityMsgListActivity extends BaseActivity {
 
         @Override
         protected void convert(BaseViewHolder helper, PostItemEntity item) {
+            try {
+                RelativeLayout rel_item = helper.getView(R.id.rel_item);
+                ImageView view_top = helper.getView(R.id.view_top);
+                CircleImageView iv_dot = helper.getView(R.id.iv_dot);
+                TextView tv_time = helper.getView(R.id.tv_time);
+                ImageView iv_arrow = helper.getView(R.id.iv_arrow);
+                ImageView iv_tag_coin = helper.getView(R.id.iv_tag_coin);
+                TextView tv_title = helper.getView(R.id.tv_title);
+                LinearLayout ll_detail = helper.getView(R.id.ll_detail);
+                RelativeLayout rel_media = helper.getView(R.id.rel_media);
+                TextView tv_content = helper.getView(R.id.tv_content);
+                final TagFlowLayout flTab = helper.getView(R.id.fl_tab);
+                CircleImageView iv_header = helper.getView(R.id.iv_header);
+                TextView tv_creator_name = helper.getView(R.id.tv_creator_name);
+                ImageView iv_collect = helper.getView(R.id.iv_collect);
+                ImageView iv_chat = helper.getView(R.id.iv_chat);
+                ImageView iv_more = helper.getView(R.id.iv_more);
+
+                String title = item.getTitle();
+                String type = item.getType(); //类型: 1-普通post，2-广告
+                String create_time = item.getCreate_time();
+                String content = item.getDetail();
+                String tagStr = item.getTags();
+                PostItemEntity.MemberEntity memberEntity = item.getMembers();
+                String username = memberEntity.getUsername();
+                String profileImg = memberEntity.getProfile_image();
+                List<PostItemEntity.AttachmentEntity> attachment = item.getAttachment();
+
+                ItemData itemData = new ItemData();
+                itemData.setItem(item);
+                itemData.setPosition(helper.getLayoutPosition());
+
+                tv_title.setText(title);
+                if (type.equals("1")) {
+                    iv_tag_coin.setVisibility(View.GONE);
+                    iv_collect.setVisibility(View.GONE);
+                } else {
+                    iv_tag_coin.setVisibility(View.VISIBLE);
+                    iv_collect.setVisibility(View.VISIBLE);
+                }
+
+                if (!TextUtils.isEmpty(create_time)) {
+                    Date date = DateUtils.formatTimeStamp2Date(Long.parseLong(create_time) * 1000);
+                    tv_time.setText(DateUtils.formatDate2String(date, "MM/dd HH:mm"));
+                } else {
+                    tv_time.setText("");
+                }
+
+                if (TextUtils.isEmpty(content)) {
+                    tv_content.setVisibility(View.GONE);
+                } else {
+                    tv_content.setVisibility(View.VISIBLE);
+                    tv_content.setText(content);
+                }
+
+                if (TextUtils.isEmpty(tagStr)) {
+                    flTab.setVisibility(View.GONE);
+                } else {
+                    flTab.setVisibility(View.VISIBLE);
+                    String[] tagArr = tagStr.split(",");
+                    if (tagArr != null && tagArr.length > 0) {
+                        final TagAdapter<String> adapter_Tag = new TagAdapter<String>(tagArr) {
+                            @Override
+                            public View getView(FlowLayout parent, int position, String item) {
+                                TextView tv = (TextView) getLayoutInflater().inflate(R.layout.item_tag_cannot_select,
+                                        flTab, false);
+                                if (!TextUtils.isEmpty(item)) {
+                                    tv.setText(item);
+                                }
+                                return tv;
+                            }
+                        };
+                        flTab.setAdapter(adapter_Tag);
+                    }
+                }
+
+                if (TextUtils.isEmpty(username)) {
+                    tv_creator_name.setText(getString(R.string.iman));
+                } else {
+                    tv_creator_name.setText(username);
+                }
+                ImageHelper.displayPortrait(CommunityMsgListActivity.this, profileImg, iv_header);
+
+
+                if (attachment != null && attachment.size() > 0) {
+
+                } else {
+
+                }
+
+                helper.setOnClickListener(R.id.rel_item, this);
+                helper.setTag(R.id.rel_item, R.id.item_tag, itemData);
+
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onClick(View view) {
+            ItemData itemData = (ItemData) view.getTag(R.id.item_tag);
+            switch (view.getId()) {
+                case R.id.rel_item:
+                    Logger.e("----->展开Item");
+                    if (itemData != null) {
+
+                    }
+                    break;
+            }
+        }
+
+        @Data
+        public class ItemData implements Serializable {
+
+            private int position;
+            private PostItemEntity item;
 
         }
     }
@@ -380,6 +540,38 @@ public class CommunityMsgListActivity extends BaseActivity {
             if (canLoadMore) {
                 getPostList();
             }
+        }
+    };
+
+    private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
+            Logger.e("----->onLoadMoreRequested ");
+            switch (newState) {
+                case 0:
+                    Logger.e("----->已经停止滚动 ");
+                    break;
+                case 1:
+                    Logger.e("----->正在被拖拽 ");
+                    break;
+                case 2:
+                    Logger.e("----->正在依靠惯性滚动 ");
+                    break;
+            }
+        }
+
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            super.onScrolled(recyclerView, dx, dy);
+            int firstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();//可见范围内的第一项的位置
+            int lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition();//可见范围内的最后一项的位置
+            int itemCount = linearLayoutManager.getItemCount();//recyclerview中的item的所有的数目
+
+            Logger.e("----->firstVisibleItemPosition " + firstVisibleItemPosition);
+            Logger.e("----->lastVisibleItemPosition " + lastVisibleItemPosition);
+            Logger.e("----->itemCount " + itemCount);
+            Logger.e("----->dy " + dy);
         }
     };
 

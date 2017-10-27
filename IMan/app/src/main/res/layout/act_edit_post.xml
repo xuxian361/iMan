@@ -41,6 +41,7 @@
                 android:layout_marginRight="@dimen/layout_margin_size"
                 android:layout_marginTop="10dp"
                 android:focusable="true"
+                android:maxLength="50"
                 android:maxLines="1"
                 android:selectAllOnFocus="true"
                 android:textSize="13sp" />

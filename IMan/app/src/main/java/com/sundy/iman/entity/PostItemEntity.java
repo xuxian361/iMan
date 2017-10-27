@@ -30,7 +30,7 @@ public class PostItemEntity implements Serializable {
     private String status; //post状态: 1-有效，2-过期，3-取消
 
     private List<AttachmentEntity> attachment; //附件列表
-    private List<MemberEntity> member; //成员列表
+    private MemberEntity members; //成员列表
 
 
     @Data
