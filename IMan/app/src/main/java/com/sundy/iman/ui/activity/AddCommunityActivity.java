@@ -131,11 +131,15 @@ public class AddCommunityActivity extends BaseActivity {
 
             @Override
             public void onRightImgClick() {
-                AndPermission.with(AddCommunityActivity.this)
-                        .requestCode(REQUEST_CODE_PERMISSION)
-                        .permission(Permission.CAMERA)
-                        .callback(AddCommunityActivity.this)
-                        .start();
+                if (PaperUtils.isLogin()) {
+                    AndPermission.with(AddCommunityActivity.this)
+                            .requestCode(REQUEST_CODE_PERMISSION)
+                            .permission(Permission.CAMERA)
+                            .callback(AddCommunityActivity.this)
+                            .start();
+                } else {
+                    goLogin();
+                }
             }
 
             @Override
@@ -367,10 +371,19 @@ public class AddCommunityActivity extends BaseActivity {
             tv_join.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    joinCommunity(helper.getPosition(), item);
+                    if (PaperUtils.isLogin()) {
+                        joinCommunity(helper.getPosition(), item);
+                    } else {
+                        goLogin();
+                    }
                 }
             });
         }
+    }
+
+    //跳转登陆
+    private void goLogin() {
+        UIHelper.jump(this, LoginActivity.class);
     }
 
     //加入社区

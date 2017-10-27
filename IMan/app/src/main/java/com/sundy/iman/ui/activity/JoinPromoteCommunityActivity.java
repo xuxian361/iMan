@@ -294,7 +294,7 @@ public class JoinPromoteCommunityActivity extends BaseActivity {
 
             String is_creator = item.getIs_creator(); //是否是作者 1-是,0-否
             String is_join = item.getIs_join(); //是否加入社区 1-是,0-否
-            if (is_join.equals("1") || is_creator.equals("1")) {
+            if (is_join.equals("1")) {
                 tv_join.setBackgroundResource(0);
                 tv_join.setTextColor(ContextCompat.getColor(mContext, R.color.txt_gray));
                 tv_join.setEnabled(false);
