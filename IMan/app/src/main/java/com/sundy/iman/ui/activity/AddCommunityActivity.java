@@ -395,7 +395,6 @@ public class AddCommunityActivity extends BaseActivity {
         param.put("community_id", item.getId());
         Call<JoinCommunityEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .joinCommunity(ParamHelper.formatData(param));
-        showProgress();
         call.enqueue(new RetrofitCallback<JoinCommunityEntity>() {
             @Override
             public void onSuccess(Call<JoinCommunityEntity> call, Response<JoinCommunityEntity> response) {
@@ -415,7 +414,6 @@ public class AddCommunityActivity extends BaseActivity {
 
             @Override
             public void onAfter() {
-                hideProgress();
             }
 
             @Override

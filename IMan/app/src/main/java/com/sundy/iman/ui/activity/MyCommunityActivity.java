@@ -217,23 +217,6 @@ public class MyCommunityActivity extends BaseActivity {
 
     private void showData(List<CommunityItemEntity> listData) {
         try {
-            if (listData.size() == 0) {
-                canLoadMore = false;
-                communityAdapter.loadMoreEnd();
-            } else {
-                page = page + 1;
-                canLoadMore = true;
-                communityAdapter.loadMoreComplete();
-                for (int i = 0; i < listData.size(); i++) {
-                    CommunityItemEntity item = listData.get(i);
-                    if (item != null) {
-                        listCommunity.add(item);
-                    }
-                }
-                communityAdapter.setNewData(listCommunity);
-                communityAdapter.notifyDataSetChanged();
-            }
-
             if (listData.size() == 0 && page == 1) {
                 canLoadMore = false;
                 communityAdapter.loadMoreEnd();
@@ -470,6 +453,14 @@ public class MyCommunityActivity extends BaseActivity {
                             listCommunity.remove(itemData.getItem());
                             communityAdapter.notifyDataSetChanged();
                             communityAdapter.closeAllItems();
+
+                            if (listCommunity.size() == 0) {
+                                llNullTips.setVisibility(View.VISIBLE);
+                                rvCommunity.setVisibility(View.GONE);
+                            } else {
+                                llNullTips.setVisibility(View.GONE);
+                                rvCommunity.setVisibility(View.VISIBLE);
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }

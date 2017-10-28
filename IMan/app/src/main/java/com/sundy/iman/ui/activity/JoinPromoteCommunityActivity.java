@@ -337,7 +337,6 @@ public class JoinPromoteCommunityActivity extends BaseActivity {
         param.put("promoter_id", ""); //推广者ID
         Call<JoinPromoteCommunityEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .joinPromoteCommunity(ParamHelper.formatData(param));
-        showProgress();
         call.enqueue(new RetrofitCallback<JoinPromoteCommunityEntity>() {
             @Override
             public void onSuccess(Call<JoinPromoteCommunityEntity> call, Response<JoinPromoteCommunityEntity> response) {
@@ -357,7 +356,6 @@ public class JoinPromoteCommunityActivity extends BaseActivity {
 
             @Override
             public void onAfter() {
-                hideProgress();
             }
 
             @Override

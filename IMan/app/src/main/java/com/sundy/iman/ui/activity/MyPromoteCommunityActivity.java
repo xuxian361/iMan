@@ -8,6 +8,7 @@ import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -69,6 +70,10 @@ public class MyPromoteCommunityActivity extends BaseActivity {
     RelativeLayout relSearch;
     @BindView(R.id.rv_community)
     RecyclerView rvCommunity;
+    @BindView(R.id.tv_add_community)
+    TextView tvAddCommunity;
+    @BindView(R.id.ll_null_tips)
+    LinearLayout llNullTips;
 
     private int page = 1; //当前页码
     private int perpage = 10; //每页显示条数
@@ -228,35 +233,54 @@ public class MyPromoteCommunityActivity extends BaseActivity {
 
     private void showData(List<MyPromoteCommunityItemEntity> listData) {
         try {
-            if (listData.size() == 0) {
+            if (listData.size() == 0 && page == 1) {
                 canLoadMore = false;
                 communityAdapter.loadMoreEnd();
+
+                llNullTips.setVisibility(View.VISIBLE);
+                rvCommunity.setVisibility(View.GONE);
+
             } else {
-                page = page + 1;
-                canLoadMore = true;
-                communityAdapter.loadMoreComplete();
-                for (int i = 0; i < listData.size(); i++) {
-                    MyPromoteCommunityItemEntity item = listData.get(i);
-                    if (item != null) {
-                        listCommunity.add(item);
+                llNullTips.setVisibility(View.GONE);
+                rvCommunity.setVisibility(View.VISIBLE);
+
+                if (listData.size() == 0) {
+                    canLoadMore = false;
+                    communityAdapter.loadMoreEnd();
+                } else {
+                    page = page + 1;
+                    canLoadMore = true;
+                    communityAdapter.loadMoreComplete();
+                    for (int i = 0; i < listData.size(); i++) {
+                        MyPromoteCommunityItemEntity item = listData.get(i);
+                        if (item != null) {
+                            listCommunity.add(item);
+                        }
                     }
+                    communityAdapter.setNewData(listCommunity);
+                    communityAdapter.notifyDataSetChanged();
                 }
-                communityAdapter.setNewData(listCommunity);
-                communityAdapter.notifyDataSetChanged();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @OnClick(R.id.rel_search)
-    public void onViewClicked() {
-        goJoinPromoteCommunity();
-    }
-
     //跳转搜索加入推广社区
     private void goJoinPromoteCommunity() {
         UIHelper.jump(this, JoinPromoteCommunityActivity.class);
+    }
+
+    @OnClick({R.id.rel_search,R.id.tv_add_community})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.rel_search:
+                goJoinPromoteCommunity();
+                break;
+            case R.id.tv_add_community:
+                goJoinPromoteCommunity();
+                break;
+        }
     }
 
     private class MyCommunityAdapter extends BaseQuickAdapter<MyPromoteCommunityItemEntity, BaseViewHolder>
@@ -423,6 +447,14 @@ public class MyPromoteCommunityActivity extends BaseActivity {
                             listCommunity.remove(itemData.getItem());
                             communityAdapter.notifyDataSetChanged();
                             communityAdapter.closeAllItems();
+
+                            if (listCommunity.size() == 0) {
+                                llNullTips.setVisibility(View.VISIBLE);
+                                rvCommunity.setVisibility(View.GONE);
+                            } else {
+                                llNullTips.setVisibility(View.GONE);
+                                rvCommunity.setVisibility(View.VISIBLE);
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
