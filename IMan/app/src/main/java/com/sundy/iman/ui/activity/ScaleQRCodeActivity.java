@@ -73,4 +73,10 @@ public class ScaleQRCodeActivity extends BaseActivity {
     public void onViewClicked() {
         finish();
     }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        overridePendingTransition(R.anim.zoom_enter, R.anim.zoom_exit);
+    }
 }

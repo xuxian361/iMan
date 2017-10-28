@@ -233,7 +233,11 @@ public class EditProfileActivity extends BaseActivity {
                 if (!TextUtils.isEmpty(province) && !TextUtils.isEmpty(city)) {
                     tvLocation.setText(province + "  " + city);
                 } else if (TextUtils.isEmpty(province) && TextUtils.isEmpty(city)) {
-                    tvLocation.setText(country);
+                    if (TextUtils.isEmpty(country)) {
+                        tvLocation.setText(getString(R.string.location_default));
+                    } else {
+                        tvLocation.setText(country);
+                    }
                 } else {
                     if (TextUtils.isEmpty(city)) {
                         tvLocation.setText(country + " " + province);

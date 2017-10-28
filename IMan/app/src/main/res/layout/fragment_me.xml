@@ -132,7 +132,7 @@
                         android:layout_toLeftOf="@+id/tv_my_imcoin_num"
                         android:text="@string/my_imcoin"
                         android:textColor="@color/txt_black"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
 
                     <TextView
                         android:id="@+id/tv_my_imcoin_num"
@@ -177,7 +177,7 @@
                         android:layout_toLeftOf="@+id/iv_arrow_use_imcoin"
                         android:text="@string/use_of_imcoin"
                         android:textColor="@color/txt_black"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
 
                     <ImageView
                         android:id="@+id/iv_arrow_use_imcoin"
@@ -211,7 +211,7 @@
                         android:layout_toLeftOf="@+id/iv_arrow_scan"
                         android:text="@string/scanner"
                         android:textColor="@color/txt_black"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
 
                     <ImageView
                         android:id="@+id/iv_arrow_scan"
@@ -269,7 +269,7 @@
                         android:layout_toLeftOf="@+id/iv_arrow_create_ad"
                         android:text="@string/want_to_ad"
                         android:textColor="@color/txt_black"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
 
                     <ImageView
                         android:id="@+id/iv_arrow_create_ad"
@@ -303,7 +303,7 @@
                         android:layout_toLeftOf="@+id/iv_arrow_promote_community"
                         android:text="@string/want_to_promote_community"
                         android:textColor="@color/txt_black"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
 
                     <ImageView
                         android:id="@+id/iv_arrow_promote_community"
@@ -337,7 +337,7 @@
                         android:layout_toLeftOf="@+id/iv_arrow_create_community"
                         android:text="@string/want_to_create_community"
                         android:textColor="@color/txt_black"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
 
                     <ImageView
                         android:id="@+id/iv_arrow_create_community"
@@ -395,7 +395,7 @@
                         android:layout_toLeftOf="@+id/iv_arrow_my_contacts"
                         android:text="@string/my_contacts"
                         android:textColor="@color/txt_black"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
 
                     <ImageView
                         android:id="@+id/iv_arrow_my_contacts"
@@ -429,7 +429,7 @@
                         android:layout_toLeftOf="@+id/iv_arrow_my_post"
                         android:text="@string/my_post"
                         android:textColor="@color/txt_black"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
 
                     <ImageView
                         android:id="@+id/iv_arrow_my_post"
@@ -463,7 +463,7 @@
                         android:layout_toLeftOf="@+id/iv_arrow_settings"
                         android:text="@string/settings"
                         android:textColor="@color/txt_black"
-                        android:textSize="14sp" />
+                        android:textSize="16sp" />
 
                     <ImageView
                         android:id="@+id/iv_arrow_settings"

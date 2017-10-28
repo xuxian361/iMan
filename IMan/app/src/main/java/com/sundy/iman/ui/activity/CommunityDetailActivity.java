@@ -290,5 +290,6 @@ public class CommunityDetailActivity extends BaseActivity {
         Bundle bundle = new Bundle();
         bundle.putString("url", dataEntity.getUrl());
         UIHelper.jump(this, ScaleQRCodeActivity.class, bundle);
+        overridePendingTransition(R.anim.zoom_enter, R.anim.zoom_exit);
     }
 }
