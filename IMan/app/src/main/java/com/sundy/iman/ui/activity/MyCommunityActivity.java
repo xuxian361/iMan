@@ -10,6 +10,7 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -56,6 +57,7 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import lombok.Data;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -74,6 +76,14 @@ public class MyCommunityActivity extends BaseActivity {
     RecyclerView rvCommunity;
     @BindView(R.id.et_search)
     EditText etSearch;
+    @BindView(R.id.iv_search)
+    ImageView ivSearch;
+    @BindView(R.id.tv_add_community)
+    TextView tvAddCommunity;
+    @BindView(R.id.tv_create_community)
+    TextView tvCreateCommunity;
+    @BindView(R.id.ll_null_tips)
+    LinearLayout llNullTips;
 
     private String keyword = "";
     private int page = 1; //当前页码
@@ -223,9 +233,60 @@ public class MyCommunityActivity extends BaseActivity {
                 communityAdapter.setNewData(listCommunity);
                 communityAdapter.notifyDataSetChanged();
             }
+
+            if (listData.size() == 0 && page == 1) {
+                canLoadMore = false;
+                communityAdapter.loadMoreEnd();
+
+                llNullTips.setVisibility(View.VISIBLE);
+                rvCommunity.setVisibility(View.GONE);
+
+            } else {
+                llNullTips.setVisibility(View.GONE);
+                rvCommunity.setVisibility(View.VISIBLE);
+
+                if (listData.size() == 0) {
+                    canLoadMore = false;
+                    communityAdapter.loadMoreEnd();
+                } else {
+                    page = page + 1;
+                    canLoadMore = true;
+                    communityAdapter.loadMoreComplete();
+                    for (int i = 0; i < listData.size(); i++) {
+                        CommunityItemEntity item = listData.get(i);
+                        if (item != null) {
+                            listCommunity.add(item);
+                        }
+                    }
+                    communityAdapter.setNewData(listCommunity);
+                    communityAdapter.notifyDataSetChanged();
+                }
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @OnClick({R.id.tv_add_community, R.id.tv_create_community})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.tv_add_community:
+                goAddCommunity();
+                break;
+            case R.id.tv_create_community:
+                goCreateCommunity();
+                break;
+        }
+    }
+
+    //跳转添加社区
+    private void goAddCommunity() {
+        UIHelper.jump(this, AddCommunityActivity.class);
+    }
+
+    //创建社区
+    private void goCreateCommunity() {
+        UIHelper.jump(this, CreateCommunityActivity.class);
     }
 
     private class MyCommunityAdapter extends BaseQuickAdapter<CommunityItemEntity, BaseViewHolder>

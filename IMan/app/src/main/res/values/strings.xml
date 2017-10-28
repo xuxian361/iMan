@@ -158,6 +158,8 @@
     <string name="post_ad_again">Post Ad Again</string>
     <string name="by_str">By</string>
     <string name="msg_list_null_tips">该社区还没有发布消息\n你可以...</string>
+    <string name="my_community_null_tips">你还没有加入或者创建社区呢\n你可以...</string>
+    <string name="or_str">or</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

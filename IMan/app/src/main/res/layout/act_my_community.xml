@@ -15,11 +15,70 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/rv_community"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:paddingBottom="15dp"
-        android:paddingTop="10dp" />
+        android:layout_height="match_parent">
 
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_community"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingBottom="15dp"
+            android:paddingTop="10dp" />
+
+        <LinearLayout
+            android:id="@+id/ll_null_tips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:orientation="vertical"
+            android:visibility="gone">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:lineSpacingMultiplier="1.3"
+                android:text="@string/my_community_null_tips"
+                android:textColor="@color/txt_gray"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tv_add_community"
+                android:layout_width="130dp"
+                android:layout_height="@dimen/button_height"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/semi_bg_blue"
+                android:gravity="center"
+                android:text="@string/add_community"
+                android:textColor="@color/white"
+                android:textSize="13sp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:gravity="center"
+                android:lineSpacingMultiplier="1.3"
+                android:text="@string/or_str"
+                android:textColor="@color/txt_gray"
+                android:textSize="13sp" />
+
+            <TextView
+                android:id="@+id/tv_create_community"
+                android:layout_width="150dp"
+                android:layout_height="@dimen/button_height"
+                android:layout_gravity="center"
+                android:background="@drawable/semi_bg_blue_stroke"
+                android:gravity="center"
+                android:text="@string/create_community"
+                android:textColor="@color/txt_blue"
+                android:textSize="13sp" />
+
+        </LinearLayout>
+
+    </RelativeLayout>
 </LinearLayout>
