@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
@@ -48,6 +49,7 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import lombok.Data;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -64,6 +66,10 @@ public class MyPostActivity extends BaseActivity {
     RecyclerView rvPost;
     @BindView(R.id.swipe_refresh)
     SwipeRefreshLayout swipeRefresh;
+    @BindView(R.id.tv_create_ad)
+    TextView tvCreateAd;
+    @BindView(R.id.ll_null_tips)
+    LinearLayout llNullTips;
 
     private int page = 1; //当前页码
     private int perpage = 10; //每页显示条数
@@ -182,25 +188,48 @@ public class MyPostActivity extends BaseActivity {
 
     private void showData(List<PostItemEntity> listData) {
         try {
-            if (listData.size() == 0) {
+            if (listData.size() == 0 && page == 1) {
                 canLoadMore = false;
                 myPostAdapter.loadMoreEnd();
+
+                llNullTips.setVisibility(View.VISIBLE);
+                rvPost.setVisibility(View.GONE);
+
             } else {
-                page = page + 1;
-                canLoadMore = true;
-                myPostAdapter.loadMoreComplete();
-                for (int i = 0; i < listData.size(); i++) {
-                    PostItemEntity item = listData.get(i);
-                    if (item != null) {
-                        listPost.add(item);
+                llNullTips.setVisibility(View.GONE);
+                rvPost.setVisibility(View.VISIBLE);
+
+                if (listData.size() == 0) {
+                    canLoadMore = false;
+                    myPostAdapter.loadMoreEnd();
+                } else {
+                    page = page + 1;
+                    canLoadMore = true;
+                    myPostAdapter.loadMoreComplete();
+                    for (int i = 0; i < listData.size(); i++) {
+                        PostItemEntity item = listData.get(i);
+                        if (item != null) {
+                            listPost.add(item);
+                        }
                     }
+                    myPostAdapter.setNewData(listPost);
+                    myPostAdapter.notifyDataSetChanged();
                 }
-                myPostAdapter.setNewData(listPost);
-                myPostAdapter.notifyDataSetChanged();
+
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @OnClick(R.id.tv_create_ad)
+    public void onViewClicked() {
+        goCreateAd();
+    }
+
+    //创建广告
+    private void goCreateAd() {
+        UIHelper.jump(this, CreateAdvertisementActivity.class);
     }
 
     private class MyPostAdapter extends BaseQuickAdapter<PostItemEntity, BaseViewHolder>
@@ -446,6 +475,14 @@ public class MyPostActivity extends BaseActivity {
                             listPost.remove(itemData.getItem());
                             myPostAdapter.notifyDataSetChanged();
                             myPostAdapter.closeAllItems();
+
+                            if (listPost.size() == 0) {
+                                llNullTips.setVisibility(View.VISIBLE);
+                                rvPost.setVisibility(View.GONE);
+                            } else {
+                                llNullTips.setVisibility(View.GONE);
+                                rvPost.setVisibility(View.VISIBLE);
+                            }
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
