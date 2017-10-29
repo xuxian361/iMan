@@ -28,6 +28,7 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import de.hdodenhof.circleimageview.CircleImageView;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -41,7 +42,7 @@ public class ContactInfoActivity extends BaseActivity {
     @BindView(R.id.title_bar)
     TitleBarView titleBar;
     @BindView(R.id.iv_header)
-    ImageView ivHeader;
+    CircleImageView ivHeader;
     @BindView(R.id.tv_username)
     TextView tvUsername;
     @BindView(R.id.iv_gender)

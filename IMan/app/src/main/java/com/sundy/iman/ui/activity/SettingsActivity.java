@@ -296,6 +296,7 @@ public class SettingsActivity extends BaseActivity {
                     String msg = logoutEntity.getMsg();
                     //清除登录用户本地信息
                     PaperUtils.clearUserInfo();
+                    PaperUtils.clearPostReadRecord();
                     if (code == Constants.CODE_SUCCESS) {
 
                     } else {

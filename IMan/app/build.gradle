@@ -132,7 +132,7 @@ dependencies {
     compile 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
     //Paper DB 数据存储
-    compile 'io.paperdb:paperdb:2.1'
+    compile 'io.paperdb:paperdb:2.6'
     //日志打印
     compile 'com.orhanobut:logger:2.1.1'
     //Flow Layout控件

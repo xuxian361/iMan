@@ -527,11 +527,12 @@ public class CommunityMsgListActivity extends BaseActivity {
 
                 //是否已读
                 boolean isRead = PaperUtils.isPostRead(community_id, post_id);
-                Logger.e("----->isRead = " + isRead);
                 if (isRead) {
                     view_top.setBackgroundColor(ContextCompat.getColor(CommunityMsgListActivity.this, R.color.bg_gray));
+                    iv_dot.setImageResource(R.mipmap.icon_dot_gray);
                 } else {
                     view_top.setBackgroundColor(ContextCompat.getColor(CommunityMsgListActivity.this, R.color.bg_blue));
+                    iv_dot.setImageResource(R.mipmap.icon_dot_blue);
                 }
 
                 //判断是否已展开
@@ -639,6 +640,17 @@ public class CommunityMsgListActivity extends BaseActivity {
                     break;
                 case R.id.iv_header:
                 case R.id.tv_creator_name:
+                    Logger.e("----->跳转用户信息");
+                    if (itemData != null) {
+                        PostItemEntity postItemEntity = itemData.getItem();
+                        if (postItemEntity != null) {
+                            PostItemEntity.MemberEntity memberEntity = postItemEntity.getMembers();
+                            if (memberEntity != null) {
+                                goMemberInfo(memberEntity);
+                            }
+                        }
+                    }
+                    break;
                 case R.id.iv_chat:
                     Logger.e("----->跳转聊天");
                     if (itemData != null) {
@@ -660,6 +672,16 @@ public class CommunityMsgListActivity extends BaseActivity {
             private int position;
             private PostItemEntity item;
         }
+    }
+
+    //跳转用户信息
+    private void goMemberInfo(PostItemEntity.MemberEntity memberEntity) {
+        String profile_id = memberEntity.getId();
+        if (profile_id.equals(PaperUtils.getMId()))
+            return;
+        Bundle bundle = new Bundle();
+        bundle.putString("profile_id", profile_id);
+        UIHelper.jump(this, ContactInfoActivity.class, bundle);
     }
 
     //举报消息

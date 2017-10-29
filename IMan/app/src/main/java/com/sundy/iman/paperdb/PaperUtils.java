@@ -127,5 +127,9 @@ public class PaperUtils {
         PostListInReadPaper.saveReadId(community_id, post_id);
     }
 
+    //清除所有本地保存的post 已读消息记录
+    public static void clearPostReadRecord() {
+        PostListInReadPaper.deleteAllPostReadIds();
+    }
 
 }

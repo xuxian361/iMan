@@ -13,6 +13,7 @@
         android:layout_alignBottom="@+id/ll_content"
         android:layout_alignTop="@+id/ll_content"
         android:layout_marginLeft="@dimen/layout_margin_size"
+        android:layout_marginTop="7dp"
         android:background="@color/bg_blue" />
 
     <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -20,7 +21,6 @@
         android:layout_width="15dp"
         android:layout_height="15dp"
         android:layout_marginLeft="14dp"
-        android:layout_marginTop="25dp"
         android:src="@mipmap/icon_dot_blue"
         app:civ_border_color="@color/white"
         app:civ_border_width="3dp" />
@@ -33,7 +33,7 @@
         android:layout_marginRight="15dp"
         android:orientation="vertical"
         android:paddingBottom="20dp"
-        android:paddingTop="23dp">
+        android:paddingTop="5dp">
 
         <RelativeLayout
             android:layout_width="match_parent"

@@ -24,23 +24,32 @@ public class PostListInReadPaper {
             if (!listReads.contains(post_id)) {
                 listReads.add(post_id);
             }
+        } else {
+            listReads.add(post_id);
         }
 
-        Paper.book().write("post_read_" + community_id, listReads);
+        Paper.book("post_read").write(community_id, listReads);
     }
 
     /**
      * 根据社区ID来清除已读的post记录
      */
     public static void deletePostReadIds(String community_id) {
-        Paper.book().delete("post_read_" + community_id);
+        Paper.book("post_read").delete(community_id);
+    }
+
+    /**
+     * 清除已读的post记录
+     */
+    public static void deleteAllPostReadIds() {
+        Paper.book("post_read").destroy();
     }
 
     /**
      * 获取已读的post记录
      */
     public static List<String> getPostReadIds(String community_id) {
-        return Paper.book().read("post_read_" + community_id, null);
+        return Paper.book("post_read").read(community_id, null);
     }
 
 }
