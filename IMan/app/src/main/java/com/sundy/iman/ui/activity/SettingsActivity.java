@@ -304,6 +304,8 @@ public class SettingsActivity extends BaseActivity {
                     btnLogout.setVisibility(View.GONE);
                     //发送登出Event 事件，刷新页面
                     sendLogoutEvent();
+
+                    goLogin();
                 }
             }
 
@@ -317,6 +319,11 @@ public class SettingsActivity extends BaseActivity {
 
             }
         });
+    }
+
+    //跳转登录
+    private void goLogin() {
+        UIHelper.jump(this, LoginActivity.class);
     }
 
     //发送登出Event 事件，刷新页面

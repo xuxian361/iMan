@@ -488,6 +488,7 @@ public class CommunityMsgListActivity extends BaseActivity {
                     tv_content.setText(content);
                 }
 
+                //标签
                 if (TextUtils.isEmpty(tagStr)) {
                     flTab.setVisibility(View.GONE);
                 } else {
@@ -509,6 +510,7 @@ public class CommunityMsgListActivity extends BaseActivity {
                     }
                 }
 
+                //用户信息
                 if (TextUtils.isEmpty(username)) {
                     tv_creator_name.setText(getString(R.string.iman));
                 } else {
@@ -516,20 +518,23 @@ public class CommunityMsgListActivity extends BaseActivity {
                 }
                 ImageHelper.displayPortrait(CommunityMsgListActivity.this, profileImg, iv_header);
 
-
+                //附件
                 if (attachment != null && attachment.size() > 0) {
 
                 } else {
 
                 }
 
+                //是否已读
                 boolean isRead = PaperUtils.isPostRead(community_id, post_id);
+                Logger.e("----->isRead = " + isRead);
                 if (isRead) {
                     view_top.setBackgroundColor(ContextCompat.getColor(CommunityMsgListActivity.this, R.color.bg_gray));
                 } else {
                     view_top.setBackgroundColor(ContextCompat.getColor(CommunityMsgListActivity.this, R.color.bg_blue));
                 }
 
+                //判断是否已展开
                 if (listExpands.contains(post_id)) {
                     ll_detail.setVisibility(View.VISIBLE);
                     iv_arrow.setImageResource(R.mipmap.icon_graytriangle_up);
@@ -538,6 +543,7 @@ public class CommunityMsgListActivity extends BaseActivity {
                     iv_arrow.setImageResource(R.mipmap.icon_graytriangle);
                 }
 
+                //点击事件监听
                 helper.setOnClickListener(R.id.rel_item, this);
                 helper.setTag(R.id.rel_item, R.id.item_tag, itemData);
 
@@ -552,6 +558,7 @@ public class CommunityMsgListActivity extends BaseActivity {
                 helper.setTag(R.id.iv_chat, R.id.item_tag, itemData);
 
 
+                //点击"more"
                 iv_more.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
