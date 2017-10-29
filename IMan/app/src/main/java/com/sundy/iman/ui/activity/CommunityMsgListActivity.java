@@ -6,6 +6,7 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -168,6 +169,8 @@ public class CommunityMsgListActivity extends BaseActivity {
 
         linearLayoutManager = new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         rvMsg.setLayoutManager(linearLayoutManager);
+        LinearSnapHelper snapHelper = new LinearSnapHelper();
+        snapHelper.attachToRecyclerView(rvMsg);
 
         myPostAdapter = new PostAdapter(R.layout.item_post, listPost);
         myPostAdapter.openLoadAnimation();
@@ -559,6 +562,7 @@ public class CommunityMsgListActivity extends BaseActivity {
                             listExpands.remove(post_id);
                         } else {
                             listExpands.add(post_id);
+                            linearLayoutManager.scrollToPositionWithOffset(itemData.getPosition(),0);
                         }
 
                         myPostAdapter.notifyItemChanged(itemData.getPosition());
