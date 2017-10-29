@@ -8,6 +8,8 @@ import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.helper.LocaleHelper;
 import com.sundy.iman.utils.DeviceUtils;
 
+import java.util.List;
+
 /**
  * Paper DB 工具类
  * Created by sundy on 17/9/21.
@@ -101,6 +103,28 @@ public class PaperUtils {
     //获取App 版本信息
     public static AppVersionEntity getAppVersion() {
         return AppVersionPaper.getAppVersion();
+    }
+
+    //获取Post 列表中已读的IDs
+    public static List<String> getPostReadIds(String community_id) {
+        return PostListInReadPaper.getPostReadIds(community_id);
+    }
+
+    //获取Post 是否已读
+    public static boolean isPostRead(String community_id, String post_id) {
+        boolean isRead = false;
+        List<String> readIds = getPostReadIds(community_id);
+        if (readIds != null && readIds.size() > 0) {
+            if (readIds.contains(post_id)) {
+                isRead = true;
+            }
+        }
+        return isRead;
+    }
+
+    //保存Post 列表中已读的ID
+    public static void savePostReadID(String community_id, String post_id) {
+        PostListInReadPaper.saveReadId(community_id, post_id);
     }
 
 

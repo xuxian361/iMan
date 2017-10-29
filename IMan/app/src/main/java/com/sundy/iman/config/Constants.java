@@ -30,11 +30,14 @@ public class Constants {
     // 3-联系我们,
     // 4-如何获取imcoin,
     // 5-推广社区疑问
+    // 6-Use of imcoin
     public static final int TYPE_TERMS_OF_CONDITION = 1;
     public static final int TYPE_PRIVACY = 2;
     public static final int TYPE_CONTACT_US = 3;
     public static final int TYPE_HOW_GET_IMCOIN = 4;
     public static final int TYPE_PROMOTE_COMMUNITY_QUESTION = 5;
+    public static final int TYPE_USE_OF_IMCOIN = 6;
+
 
 
 }

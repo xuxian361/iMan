@@ -3,6 +3,7 @@ package com.sundy.iman.ui.activity;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,6 +21,7 @@ import com.orhanobut.logger.Logger;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
+import com.sundy.iman.entity.CollectAdvertisingEntity;
 import com.sundy.iman.entity.CommunityInfoEntity;
 import com.sundy.iman.entity.JoinCommunityEntity;
 import com.sundy.iman.entity.MsgEvent;
@@ -90,6 +92,8 @@ public class CommunityMsgListActivity extends BaseActivity {
     private PostAdapter myPostAdapter;
     private List<PostItemEntity> listPost = new ArrayList<>();
     private WrapContentLinearLayoutManager linearLayoutManager;
+
+    private List<String> listExpands = new ArrayList<>();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -429,6 +433,7 @@ public class CommunityMsgListActivity extends BaseActivity {
                 ImageView iv_chat = helper.getView(R.id.iv_chat);
                 ImageView iv_more = helper.getView(R.id.iv_more);
 
+                String post_id = item.getId();
                 String title = item.getTitle();
                 String type = item.getType(); //类型: 1-普通post，2-广告
                 String create_time = item.getCreate_time();
@@ -438,18 +443,24 @@ public class CommunityMsgListActivity extends BaseActivity {
                 String username = memberEntity.getUsername();
                 String profileImg = memberEntity.getProfile_image();
                 List<PostItemEntity.AttachmentEntity> attachment = item.getAttachment();
+                String is_collect = item.getIs_collect(); //是否领取过奖励: 1-是，0-否
 
                 ItemData itemData = new ItemData();
                 itemData.setItem(item);
                 itemData.setPosition(helper.getLayoutPosition());
 
                 tv_title.setText(title);
-                if (type.equals("1")) {
+                if (type.equals("1")) { //普通post
                     iv_tag_coin.setVisibility(View.GONE);
                     iv_collect.setVisibility(View.GONE);
-                } else {
+                } else { //广告
                     iv_tag_coin.setVisibility(View.VISIBLE);
-                    iv_collect.setVisibility(View.VISIBLE);
+
+                    if (is_collect.equals("1")) {
+                        iv_collect.setVisibility(View.GONE);
+                    } else {
+                        iv_collect.setVisibility(View.VISIBLE);
+                    }
                 }
 
                 if (!TextUtils.isEmpty(create_time)) {
@@ -501,8 +512,33 @@ public class CommunityMsgListActivity extends BaseActivity {
 
                 }
 
+                boolean isRead = PaperUtils.isPostRead(community_id, post_id);
+                if (isRead) {
+                    view_top.setBackgroundColor(ContextCompat.getColor(CommunityMsgListActivity.this, R.color.bg_gray));
+                } else {
+                    view_top.setBackgroundColor(ContextCompat.getColor(CommunityMsgListActivity.this, R.color.bg_blue));
+                }
+
+                if (listExpands.contains(post_id)) {
+                    ll_detail.setVisibility(View.VISIBLE);
+                    iv_arrow.setImageResource(R.mipmap.icon_graytriangle_up);
+                } else {
+                    ll_detail.setVisibility(View.GONE);
+                    iv_arrow.setImageResource(R.mipmap.icon_graytriangle);
+                }
+
                 helper.setOnClickListener(R.id.rel_item, this);
                 helper.setTag(R.id.rel_item, R.id.item_tag, itemData);
+
+                helper.setOnClickListener(R.id.iv_collect, this);
+                helper.setTag(R.id.iv_collect, R.id.item_tag, itemData);
+
+                helper.setOnClickListener(R.id.iv_header, this);
+                helper.setTag(R.id.iv_header, R.id.item_tag, itemData);
+                helper.setOnClickListener(R.id.tv_creator_name, this);
+                helper.setTag(R.id.tv_creator_name, R.id.item_tag, itemData);
+                helper.setOnClickListener(R.id.iv_chat, this);
+                helper.setTag(R.id.iv_chat, R.id.item_tag, itemData);
 
 
             } catch (Exception e) {
@@ -517,9 +553,38 @@ public class CommunityMsgListActivity extends BaseActivity {
                 case R.id.rel_item:
                     Logger.e("----->展开Item");
                     if (itemData != null) {
+                        String post_id = itemData.getItem().getId();
+                        PaperUtils.savePostReadID(community_id, post_id);
+                        if (listExpands.contains(post_id)) {
+                            listExpands.remove(post_id);
+                        } else {
+                            listExpands.add(post_id);
+                        }
 
+                        myPostAdapter.notifyItemChanged(itemData.getPosition());
                     }
                     break;
+                case R.id.iv_collect:
+                    Logger.e("----->领取广告奖励");
+                    if (itemData != null) {
+                        collectAdvertising(itemData);
+                    }
+                    break;
+                case R.id.iv_header:
+                case R.id.tv_creator_name:
+                case R.id.iv_chat:
+                    Logger.e("----->跳转聊天");
+                    if (itemData != null) {
+                        PostItemEntity postItemEntity = itemData.getItem();
+                        if (postItemEntity != null) {
+                            PostItemEntity.MemberEntity memberEntity = postItemEntity.getMembers();
+                            if (memberEntity != null) {
+                                goChat(memberEntity);
+                            }
+                        }
+                    }
+                    break;
+
             }
         }
 
@@ -531,6 +596,61 @@ public class CommunityMsgListActivity extends BaseActivity {
 
         }
     }
+
+    //领取广告奖励
+    private void collectAdvertising(final PostAdapter.ItemData itemData) {
+        final PostItemEntity postItemEntity = itemData.getItem();
+        if (postItemEntity != null) {
+            Map<String, String> param = new HashMap<>();
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("post_id", postItemEntity.getId()); //post id
+            param.put("creator_id", postItemEntity.getCreator_id()); //post的作者ID
+            param.put("community_id", community_id); //社区ID
+            param.put("income", postItemEntity.getPar_amount()); //奖励金额
+            Call<CollectAdvertisingEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .collectAdvertising(ParamHelper.formatData(param));
+            call.enqueue(new RetrofitCallback<CollectAdvertisingEntity>() {
+                @Override
+                public void onSuccess(Call<CollectAdvertisingEntity> call, Response<CollectAdvertisingEntity> response) {
+                    CollectAdvertisingEntity collectAdvertisingEntity = response.body();
+                    if (collectAdvertisingEntity != null) {
+                        int code = collectAdvertisingEntity.getCode();
+                        String msg = collectAdvertisingEntity.getMsg();
+                        if (code == Constants.CODE_SUCCESS) {
+                            MainApp.getInstance().showToast(getString(R.string.you_have_collect_imcoin));
+
+                            postItemEntity.setIs_collect("1");
+                            listPost.set(itemData.getPosition(), postItemEntity);
+                            myPostAdapter.notifyItemChanged(itemData.getPosition());
+
+                        } else {
+                            MainApp.getInstance().showToast(msg);
+                        }
+                    }
+                }
+
+                @Override
+                public void onAfter() {
+
+                }
+
+                @Override
+                public void onFailure(Call<CollectAdvertisingEntity> call, Throwable t) {
+
+                }
+            });
+        }
+    }
+
+    //跳转聊天页面
+    private void goChat(PostItemEntity.MemberEntity memberEntity) {
+        Bundle bundle = new Bundle();
+        bundle.putString("userId", memberEntity.getId());
+        bundle.putString("easemod_id", memberEntity.getEasemob_account());
+        UIHelper.jump(this, ChatActivity.class, bundle);
+    }
+
 
     private BaseQuickAdapter.RequestLoadMoreListener onLoadMoreListener = new BaseQuickAdapter.RequestLoadMoreListener() {
         @Override

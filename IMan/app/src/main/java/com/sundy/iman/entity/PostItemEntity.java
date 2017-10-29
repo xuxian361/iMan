@@ -19,7 +19,7 @@ public class PostItemEntity implements Serializable {
     private String att_num; //附件数
     private String total_amount; //总金额
     private String balance; //剩余金额
-    private String par_amount; //没人可得金额
+    private String par_amount; //每人可得金额
     private String location; //位置
     private String latitude; //纬度
     private String longitude; //经度
@@ -27,6 +27,7 @@ public class PostItemEntity implements Serializable {
     private String creator_id; //创建者ID
     private String is_creator; //是否是作者: 1-是，0-否
     private String create_time; //创建时间
+    private String is_collect; //是否领取过奖励: 1-是，0-否
     private String status; //post状态: 1-有效，2-过期，3-取消
 
     private List<AttachmentEntity> attachment; //附件列表

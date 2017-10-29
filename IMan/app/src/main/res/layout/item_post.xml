@@ -91,7 +91,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="visible">
+            android:visibility="gone">
 
             <RelativeLayout
                 android:id="@+id/rel_media"
@@ -158,7 +158,6 @@
                     android:layout_toLeftOf="@+id/ll_btn"
                     android:layout_toRightOf="@+id/iv_header"
                     android:singleLine="true"
-                    android:text="Username"
                     android:textColor="@color/txt_normal"
                     android:textSize="13sp" />
 
