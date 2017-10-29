@@ -173,6 +173,7 @@
                         android:id="@+id/iv_collect"
                         android:layout_width="30dp"
                         android:layout_height="20dp"
+                        android:layout_gravity="center"
                         android:layout_marginRight="10dp"
                         android:scaleType="fitCenter"
                         android:src="@mipmap/icon_golden_b"
@@ -182,14 +183,16 @@
                         android:id="@+id/iv_chat"
                         android:layout_width="30dp"
                         android:layout_height="20dp"
+                        android:layout_gravity="center"
                         android:layout_marginRight="10dp"
                         android:scaleType="fitCenter"
                         android:src="@mipmap/icon_blue_chat" />
 
                     <ImageView
                         android:id="@+id/iv_more"
-                        android:layout_width="30dp"
-                        android:layout_height="20dp"
+                        android:layout_width="32dp"
+                        android:layout_height="24dp"
+                        android:layout_gravity="center"
                         android:scaleType="fitCenter"
                         android:src="@mipmap/icon_blue_more" />
 

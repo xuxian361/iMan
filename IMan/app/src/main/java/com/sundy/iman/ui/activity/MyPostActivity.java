@@ -101,6 +101,7 @@ public class MyPostActivity extends BaseActivity {
                 page = 1;
                 if (listPost != null)
                     listPost.clear();
+                myPostAdapter.notifyDataSetChanged();
                 getPostList();
             }
         });

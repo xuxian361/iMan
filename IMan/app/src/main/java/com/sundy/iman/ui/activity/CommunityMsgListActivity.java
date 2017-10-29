@@ -24,6 +24,7 @@ import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.CollectAdvertisingEntity;
 import com.sundy.iman.entity.CommunityInfoEntity;
+import com.sundy.iman.entity.DeletePostEntity;
 import com.sundy.iman.entity.JoinCommunityEntity;
 import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.PostItemEntity;
@@ -41,6 +42,8 @@ import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
 import com.sundy.iman.view.dialog.CommonDialog;
 import com.sundy.iman.view.popupwindow.CommunityMenuPopup;
+import com.sundy.iman.view.popupwindow.PostItemMenuPopup;
+import com.sundy.iman.view.popupwindow.PostItemMenuSelfPopup;
 import com.zhy.view.flowlayout.FlowLayout;
 import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
@@ -95,6 +98,8 @@ public class CommunityMsgListActivity extends BaseActivity {
     private WrapContentLinearLayoutManager linearLayoutManager;
 
     private List<String> listExpands = new ArrayList<>();
+    private PostItemMenuPopup postItemMenuPopup;
+    private PostItemMenuSelfPopup postItemMenuSelfPopup;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -163,6 +168,7 @@ public class CommunityMsgListActivity extends BaseActivity {
                 page = 1;
                 if (listPost != null)
                     listPost.clear();
+                myPostAdapter.notifyDataSetChanged();
                 getPostList();
             }
         });
@@ -286,6 +292,7 @@ public class CommunityMsgListActivity extends BaseActivity {
                     page = page + 1;
                     canLoadMore = true;
                     myPostAdapter.loadMoreComplete();
+
                     for (int i = 0; i < listData.size(); i++) {
                         PostItemEntity item = listData.get(i);
                         if (item != null) {
@@ -417,13 +424,13 @@ public class CommunityMsgListActivity extends BaseActivity {
         }
 
         @Override
-        protected void convert(BaseViewHolder helper, PostItemEntity item) {
+        protected void convert(BaseViewHolder helper, final PostItemEntity item) {
             try {
                 RelativeLayout rel_item = helper.getView(R.id.rel_item);
                 ImageView view_top = helper.getView(R.id.view_top);
                 CircleImageView iv_dot = helper.getView(R.id.iv_dot);
                 TextView tv_time = helper.getView(R.id.tv_time);
-                ImageView iv_arrow = helper.getView(R.id.iv_arrow);
+                final ImageView iv_arrow = helper.getView(R.id.iv_arrow);
                 ImageView iv_tag_coin = helper.getView(R.id.iv_tag_coin);
                 TextView tv_title = helper.getView(R.id.tv_title);
                 LinearLayout ll_detail = helper.getView(R.id.ll_detail);
@@ -434,9 +441,10 @@ public class CommunityMsgListActivity extends BaseActivity {
                 TextView tv_creator_name = helper.getView(R.id.tv_creator_name);
                 ImageView iv_collect = helper.getView(R.id.iv_collect);
                 ImageView iv_chat = helper.getView(R.id.iv_chat);
-                ImageView iv_more = helper.getView(R.id.iv_more);
+                final ImageView iv_more = helper.getView(R.id.iv_more);
 
-                String post_id = item.getId();
+                final String post_id = item.getId();
+                final String creator_id = item.getCreator_id();
                 String title = item.getTitle();
                 String type = item.getType(); //类型: 1-普通post，2-广告
                 String create_time = item.getCreate_time();
@@ -448,7 +456,7 @@ public class CommunityMsgListActivity extends BaseActivity {
                 List<PostItemEntity.AttachmentEntity> attachment = item.getAttachment();
                 String is_collect = item.getIs_collect(); //是否领取过奖励: 1-是，0-否
 
-                ItemData itemData = new ItemData();
+                final ItemData itemData = new ItemData();
                 itemData.setItem(item);
                 itemData.setPosition(helper.getLayoutPosition());
 
@@ -544,6 +552,54 @@ public class CommunityMsgListActivity extends BaseActivity {
                 helper.setTag(R.id.iv_chat, R.id.item_tag, itemData);
 
 
+                iv_more.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        String userId = PaperUtils.getMId();
+                        if (userId.equals(creator_id)) {
+                            if (postItemMenuSelfPopup == null) {
+                                postItemMenuSelfPopup = new PostItemMenuSelfPopup(CommunityMsgListActivity.this);
+                            }
+                            postItemMenuSelfPopup.setOnClickListener(new PostItemMenuSelfPopup.OnClickListener() {
+
+                                @Override
+                                public void deleteClick() {
+                                    postItemMenuSelfPopup.dismiss();
+                                    deletePost(itemData);
+                                }
+
+                                @Override
+                                public void shareClick(int type) {
+                                    Logger.e("----->分享");
+                                    postItemMenuSelfPopup.dismiss();
+
+                                }
+                            });
+                            postItemMenuSelfPopup.showPopup(iv_more);
+                        } else {
+                            if (postItemMenuPopup == null) {
+                                postItemMenuPopup = new PostItemMenuPopup(CommunityMsgListActivity.this);
+                            }
+                            postItemMenuPopup.setOnClickListener(new PostItemMenuPopup.OnClickListener() {
+                                @Override
+                                public void reportClick() {
+                                    postItemMenuPopup.dismiss();
+                                    goReportMsg(post_id, creator_id);
+                                }
+
+                                @Override
+                                public void shareClick(int type) {
+                                    Logger.e("----->分享");
+                                    postItemMenuPopup.dismiss();
+
+                                }
+                            });
+                            postItemMenuPopup.showPopup(iv_more);
+                        }
+                    }
+                });
+
+
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -562,7 +618,7 @@ public class CommunityMsgListActivity extends BaseActivity {
                             listExpands.remove(post_id);
                         } else {
                             listExpands.add(post_id);
-                            linearLayoutManager.scrollToPositionWithOffset(itemData.getPosition(),0);
+                            linearLayoutManager.scrollToPositionWithOffset(itemData.getPosition(), 0);
                         }
 
                         myPostAdapter.notifyItemChanged(itemData.getPosition());
@@ -588,7 +644,6 @@ public class CommunityMsgListActivity extends BaseActivity {
                         }
                     }
                     break;
-
             }
         }
 
@@ -597,8 +652,67 @@ public class CommunityMsgListActivity extends BaseActivity {
 
             private int position;
             private PostItemEntity item;
-
         }
+    }
+
+    //举报消息
+    private void goReportMsg(String post_id, String create_id) {
+        Bundle bundle = new Bundle();
+        bundle.putString("post_id", post_id);
+        bundle.putString("creator_id", create_id);
+        UIHelper.jump(this, ReportPostActivity.class, bundle);
+    }
+
+    //删除Post
+    private void deletePost(final PostAdapter.ItemData itemData) {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("post_id", itemData.getItem().getId());
+        Call<DeletePostEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .deletePost(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<DeletePostEntity>() {
+            @Override
+            public void onSuccess(Call<DeletePostEntity> call, Response<DeletePostEntity> response) {
+                DeletePostEntity deletePostEntity = response.body();
+                if (deletePostEntity != null) {
+                    int code = deletePostEntity.getCode();
+                    String msg = deletePostEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        try {
+                            listPost.remove(itemData.getItem());
+                            myPostAdapter.notifyDataSetChanged();
+
+                            if (listPost.size() == 0) {
+                                tvTips.setVisibility(View.VISIBLE);
+                                tvPost.setVisibility(View.VISIBLE);
+                                viewLine.setVisibility(View.GONE);
+                                rvMsg.setVisibility(View.GONE);
+                            } else {
+                                tvTips.setVisibility(View.GONE);
+                                tvPost.setVisibility(View.GONE);
+                                viewLine.setVisibility(View.VISIBLE);
+                                rvMsg.setVisibility(View.VISIBLE);
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<DeletePostEntity> call, Throwable t) {
+
+            }
+        });
     }
 
     //领取广告奖励
@@ -671,16 +785,15 @@ public class CommunityMsgListActivity extends BaseActivity {
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
-            Logger.e("----->onLoadMoreRequested ");
             switch (newState) {
                 case 0:
-                    Logger.e("----->已经停止滚动 ");
+//                    Logger.e("----->已经停止滚动 ");
                     break;
                 case 1:
-                    Logger.e("----->正在被拖拽 ");
+//                    Logger.e("----->正在被拖拽 ");
                     break;
                 case 2:
-                    Logger.e("----->正在依靠惯性滚动 ");
+//                    Logger.e("----->正在依靠惯性滚动 ");
                     break;
             }
         }
@@ -692,10 +805,10 @@ public class CommunityMsgListActivity extends BaseActivity {
             int lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition();//可见范围内的最后一项的位置
             int itemCount = linearLayoutManager.getItemCount();//recyclerview中的item的所有的数目
 
-            Logger.e("----->firstVisibleItemPosition " + firstVisibleItemPosition);
-            Logger.e("----->lastVisibleItemPosition " + lastVisibleItemPosition);
-            Logger.e("----->itemCount " + itemCount);
-            Logger.e("----->dy " + dy);
+//            Logger.e("----->firstVisibleItemPosition " + firstVisibleItemPosition);
+//            Logger.e("----->lastVisibleItemPosition " + lastVisibleItemPosition);
+//            Logger.e("----->itemCount " + itemCount);
+//            Logger.e("----->dy " + dy);
         }
     };
 
@@ -705,6 +818,14 @@ public class CommunityMsgListActivity extends BaseActivity {
         if (communityMenuPopup != null) {
             communityMenuPopup.dismiss();
             communityMenuPopup = null;
+        }
+        if (postItemMenuPopup != null) {
+            postItemMenuPopup.dismiss();
+            postItemMenuPopup = null;
+        }
+        if (postItemMenuSelfPopup != null) {
+            postItemMenuSelfPopup.dismiss();
+            postItemMenuSelfPopup = null;
         }
     }
 }
