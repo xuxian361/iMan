@@ -39,6 +39,9 @@ public class PostItemEntity implements Serializable {
         private String id;
         private String att_type; //附件类型: 1-图片，2-视频
         private String url; //附件链接
+        private String path; //附件存放路径
+        private String thumbnail; //缩略图
+
     }
 
     @Data

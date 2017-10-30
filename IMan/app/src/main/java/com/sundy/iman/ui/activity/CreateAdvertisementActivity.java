@@ -250,7 +250,7 @@ public class CreateAdvertisementActivity extends BaseActivity {
             llState.addView(tvState);
         }
 
-        mediaAdapter = new MediaAdapter(this, selectMediaEntities, 10);
+        mediaAdapter = new MediaAdapter(this, selectMediaEntities, 9);
         photoLayoutManager = new StaggeredGridLayoutManager(5, OrientationHelper.VERTICAL);
         rvMedia.setLayoutManager(photoLayoutManager);
         mediaAdapter.setOnItemClickListener(onItemClickListener);
@@ -431,58 +431,115 @@ public class CreateAdvertisementActivity extends BaseActivity {
             if (resultCode == RESULT_OK) {
                 List<MediaItem> mMediaSelectedList = MediaPickerActivity.getMediaItemSelected(data);
                 if (mMediaSelectedList != null) {
-                    try {
-                        for (MediaItem mediaItem : mMediaSelectedList) {
-                            if (mediaItem != null) {
-                                String mediaPath = mediaItem.getPathOrigin(CreateAdvertisementActivity.this);
-                                Logger.e("------>mediaPath= " + mediaPath);
-                                if (!TextUtils.isEmpty(mediaPath)) {
-                                    if (MediaFileUtils.isVideoFileType(mediaPath)) { //视频
-                                        File file = new File(mediaPath);
-                                        if (file.exists()) {
-                                            long fileSize = FileUtils.getFileSize(file); //单位：B
-                                            float fileSizeMb = fileSize / 1024.0f / 1024.0f;
-                                            if (fileSizeMb > VIDEO_MAX_SIZE) {
-                                                MainApp.getInstance().showToast(getString(R.string.video_size_more_than_100));
-                                                return;
+                    if (selectMediaEntities.size() + mMediaSelectedList.size() <= 9) {
+                        try {
+                            for (MediaItem mediaItem : mMediaSelectedList) {
+                                if (mediaItem != null) {
+                                    String mediaPath = mediaItem.getPathOrigin(CreateAdvertisementActivity.this);
+                                    Logger.e("------>mediaPath= " + mediaPath);
+                                    if (!TextUtils.isEmpty(mediaPath)) {
+                                        if (MediaFileUtils.isVideoFileType(mediaPath)) { //视频
+                                            File file = new File(mediaPath);
+                                            if (file.exists()) {
+                                                long fileSize = FileUtils.getFileSize(file); //单位：B
+                                                float fileSizeMb = fileSize / 1024.0f / 1024.0f;
+                                                if (fileSizeMb > VIDEO_MAX_SIZE) {
+                                                    MainApp.getInstance().showToast(getString(R.string.video_size_more_than_100));
+                                                    return;
+                                                }
+                                                getQiNiuToken(file);
                                             }
-                                            getQiNiuToken(file);
-                                        }
-                                    } else { //图片
-                                        String targetDir = FileUtils.getImageCache();
-                                        //压缩图片
-                                        Luban.with(CreateAdvertisementActivity.this)
-                                                .load(mediaPath)                                   // 传人要压缩的图片列表
-                                                .ignoreBy(100)                                  // 忽略不压缩图片的大小
-                                                .setTargetDir(targetDir)                        // 设置压缩后文件存储位置
-                                                .setCompressListener(new OnCompressListener() { //设置回调
-                                                    @Override
-                                                    public void onStart() {
-                                                        // TODO 压缩开始前调用，可以在方法内启动 loading UI
-                                                        Logger.i("----->压缩开始");
-                                                    }
-
-                                                    @Override
-                                                    public void onSuccess(File file) {
-                                                        // TODO 压缩成功后调用，返回压缩后的图片文件
-                                                        if (file != null) {
-                                                            Logger.i("----->压缩成功 :" + file.getPath());
-                                                            getQiNiuToken(file);
+                                        } else { //图片
+                                            String targetDir = FileUtils.getImageCache();
+                                            //压缩图片
+                                            Luban.with(CreateAdvertisementActivity.this)
+                                                    .load(mediaPath)                                   // 传人要压缩的图片列表
+                                                    .ignoreBy(100)                                  // 忽略不压缩图片的大小
+                                                    .setTargetDir(targetDir)                        // 设置压缩后文件存储位置
+                                                    .setCompressListener(new OnCompressListener() { //设置回调
+                                                        @Override
+                                                        public void onStart() {
+                                                            // TODO 压缩开始前调用，可以在方法内启动 loading UI
+                                                            Logger.i("----->压缩开始");
                                                         }
-                                                    }
 
-                                                    @Override
-                                                    public void onError(Throwable e) {
-                                                        // TODO 当压缩过程出现问题时调用
-                                                        Logger.i("----->压缩失败");
-                                                    }
-                                                }).launch();    //启动压缩
+                                                        @Override
+                                                        public void onSuccess(File file) {
+                                                            // TODO 压缩成功后调用，返回压缩后的图片文件
+                                                            if (file != null) {
+                                                                Logger.i("----->压缩成功 :" + file.getPath());
+                                                                getQiNiuToken(file);
+                                                            }
+                                                        }
+
+                                                        @Override
+                                                        public void onError(Throwable e) {
+                                                            // TODO 当压缩过程出现问题时调用
+                                                            Logger.i("----->压缩失败");
+                                                        }
+                                                    }).launch();    //启动压缩
+                                        }
                                     }
                                 }
                             }
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    } catch (Exception e) {
-                        e.printStackTrace();
+                    } else {
+                        try {
+                            for (int i = 0; i < 9 - selectMediaEntities.size(); i++) {
+                                MediaItem mediaItem = mMediaSelectedList.get(i);
+                                if (mediaItem != null) {
+                                    String mediaPath = mediaItem.getPathOrigin(CreateAdvertisementActivity.this);
+                                    Logger.e("------>mediaPath= " + mediaPath);
+                                    if (!TextUtils.isEmpty(mediaPath)) {
+                                        if (MediaFileUtils.isVideoFileType(mediaPath)) { //视频
+                                            File file = new File(mediaPath);
+                                            if (file.exists()) {
+                                                long fileSize = FileUtils.getFileSize(file); //单位：B
+                                                float fileSizeMb = fileSize / 1024.0f / 1024.0f;
+                                                if (fileSizeMb > VIDEO_MAX_SIZE) {
+                                                    MainApp.getInstance().showToast(getString(R.string.video_size_more_than_100));
+                                                    return;
+                                                }
+                                                getQiNiuToken(file);
+                                            }
+                                        } else { //图片
+                                            String targetDir = FileUtils.getImageCache();
+                                            //压缩图片
+                                            Luban.with(CreateAdvertisementActivity.this)
+                                                    .load(mediaPath)                                   // 传人要压缩的图片列表
+                                                    .ignoreBy(100)                                  // 忽略不压缩图片的大小
+                                                    .setTargetDir(targetDir)                        // 设置压缩后文件存储位置
+                                                    .setCompressListener(new OnCompressListener() { //设置回调
+                                                        @Override
+                                                        public void onStart() {
+                                                            // TODO 压缩开始前调用，可以在方法内启动 loading UI
+                                                            Logger.i("----->压缩开始");
+                                                        }
+
+                                                        @Override
+                                                        public void onSuccess(File file) {
+                                                            // TODO 压缩成功后调用，返回压缩后的图片文件
+                                                            if (file != null) {
+                                                                Logger.i("----->压缩成功 :" + file.getPath());
+                                                                getQiNiuToken(file);
+                                                            }
+                                                        }
+
+                                                        @Override
+                                                        public void onError(Throwable e) {
+                                                            // TODO 当压缩过程出现问题时调用
+                                                            Logger.i("----->压缩失败");
+                                                        }
+                                                    }).launch();    //启动压缩
+                                        }
+                                    }
+                                }
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
                     }
                 } else {
                     Logger.e("Error to get media, NULL");

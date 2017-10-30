@@ -1,24 +1,31 @@
 package com.sundy.iman.ui.activity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.LinearSnapHelper;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.chad.library.adapter.base.BaseViewHolder;
 import com.orhanobut.logger.Logger;
+import com.previewlibrary.GPreviewBuilder;
+import com.previewlibrary.enitity.ThumbViewInfo;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
@@ -175,8 +182,6 @@ public class CommunityMsgListActivity extends BaseActivity {
 
         linearLayoutManager = new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
         rvMsg.setLayoutManager(linearLayoutManager);
-        LinearSnapHelper snapHelper = new LinearSnapHelper();
-        snapHelper.attachToRecyclerView(rvMsg);
 
         myPostAdapter = new PostAdapter(R.layout.item_post, listPost);
         myPostAdapter.openLoadAnimation();
@@ -434,7 +439,6 @@ public class CommunityMsgListActivity extends BaseActivity {
                 ImageView iv_tag_coin = helper.getView(R.id.iv_tag_coin);
                 TextView tv_title = helper.getView(R.id.tv_title);
                 LinearLayout ll_detail = helper.getView(R.id.ll_detail);
-                RelativeLayout rel_media = helper.getView(R.id.rel_media);
                 TextView tv_content = helper.getView(R.id.tv_content);
                 final TagFlowLayout flTab = helper.getView(R.id.fl_tab);
                 CircleImageView iv_header = helper.getView(R.id.iv_header);
@@ -442,6 +446,12 @@ public class CommunityMsgListActivity extends BaseActivity {
                 ImageView iv_collect = helper.getView(R.id.iv_collect);
                 ImageView iv_chat = helper.getView(R.id.iv_chat);
                 final ImageView iv_more = helper.getView(R.id.iv_more);
+                FrameLayout frame_media = helper.getView(R.id.frame_media);
+                ImageView iv_img = helper.getView(R.id.iv_img);
+                RecyclerView rv_media = helper.getView(R.id.rv_media);
+
+                View include_single = helper.getView(R.id.include_single);
+                View include_multiple = helper.getView(R.id.include_multiple);
 
                 final String post_id = item.getId();
                 final String creator_id = item.getCreator_id();
@@ -520,9 +530,49 @@ public class CommunityMsgListActivity extends BaseActivity {
 
                 //附件
                 if (attachment != null && attachment.size() > 0) {
+                    frame_media.setVisibility(View.VISIBLE);
 
+                    int size = attachment.size();
+                    Logger.e("---->size = " + size);
+                    if (size == 1) {
+                        include_single.setVisibility(View.VISIBLE);
+                        include_multiple.setVisibility(View.GONE);
+
+                        PostItemEntity.AttachmentEntity attachmentEntity = attachment.get(0);
+                        final String url = attachmentEntity.getUrl();
+                        final String att_type = attachmentEntity.getAtt_type();//附件类型: 1-图片，2-视频
+                        final String thumbnail = attachmentEntity.getThumbnail();
+                        Logger.e("------->url = " + url);
+
+                        Glide.with(CommunityMsgListActivity.this)
+                                .load(url)
+                                .dontAnimate()
+                                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                .into(iv_img);
+                        iv_img.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                ArrayList<ThumbViewInfo> listImg = new ArrayList<ThumbViewInfo>();
+                                ThumbViewInfo thumbViewInfo = new ThumbViewInfo(url);
+                                listImg.add(thumbViewInfo);
+                                scaleImg(listImg, 0);
+                            }
+                        });
+                    } else {
+                        include_single.setVisibility(View.GONE);
+                        include_multiple.setVisibility(View.VISIBLE);
+
+                        if (size == 2 || size == 4)
+                            rv_media.setLayoutManager(new GridLayoutManager(CommunityMsgListActivity.this, 2));
+                        else
+                            rv_media.setLayoutManager(new GridLayoutManager(CommunityMsgListActivity.this, 3));
+
+                        PostMediaAdapter mediaAdapter = new PostMediaAdapter(R.layout.item_media, attachment);
+                        rv_media.setAdapter(mediaAdapter);
+                        rv_media.setNestedScrollingEnabled(false);
+                    }
                 } else {
-
+                    frame_media.setVisibility(View.GONE);
                 }
 
                 //是否已读
@@ -672,6 +722,7 @@ public class CommunityMsgListActivity extends BaseActivity {
             private int position;
             private PostItemEntity item;
         }
+
     }
 
     //跳转用户信息
@@ -798,6 +849,92 @@ public class CommunityMsgListActivity extends BaseActivity {
         UIHelper.jump(this, ChatActivity.class, bundle);
     }
 
+    private class PostMediaAdapter extends BaseQuickAdapter<PostItemEntity.AttachmentEntity, BaseViewHolder> {
+
+        private List<PostItemEntity.AttachmentEntity> data = new ArrayList<>();
+        private ArrayList<ThumbViewInfo> listImg = new ArrayList<>();
+
+        public PostMediaAdapter(@LayoutRes int layoutResId, @Nullable List<PostItemEntity.AttachmentEntity> data) {
+            super(layoutResId, data);
+            this.data = data;
+
+            for (int i = 0; i < data.size(); i++) {
+                PostItemEntity.AttachmentEntity entity = data.get(i);
+                if (entity != null) {
+                    String att_type = entity.getAtt_type();
+                    String url = entity.getUrl();
+                    String thumbnail = entity.getThumbnail();
+
+                    if (att_type.equals("1")) {
+                        ThumbViewInfo thumbViewInfo = new ThumbViewInfo(url);
+                        listImg.add(thumbViewInfo);
+                    } else {
+                        ThumbViewInfo thumbViewInfo = new ThumbViewInfo(thumbnail);
+                        listImg.add(thumbViewInfo);
+                    }
+                }
+            }
+        }
+
+        @Override
+        protected void convert(final BaseViewHolder helper, PostItemEntity.AttachmentEntity item) {
+            ImageView iv_photo = helper.getView(R.id.iv_photo);
+            ImageView iv_video = helper.getView(R.id.iv_video);
+            final String url = item.getUrl();
+            String thumbnail = item.getThumbnail();
+            final String att_type = item.getAtt_type();
+
+            if (att_type.equals("1")) { //图片
+                iv_video.setVisibility(View.GONE);
+                ImageHelper.displayImageLocal(mContext, url, iv_photo);
+            } else {
+                iv_video.setVisibility(View.VISIBLE);
+                ImageHelper.displayImageLocal(mContext, thumbnail, iv_photo);
+            }
+
+            iv_photo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if (att_type.equals("1")) //图片
+                    {
+                        int curPosition = helper.getLayoutPosition();
+                        scaleImg(listImg, curPosition);
+                    } else {
+                        playVideo(url);
+                    }
+                }
+            });
+        }
+    }
+
+    //查看大图
+    private void scaleImg(ArrayList<ThumbViewInfo> thumbViewInfoList, int position) {
+        GPreviewBuilder.from(this)
+                .setData(thumbViewInfoList)
+                .setCurrentIndex(position)
+                .setType(GPreviewBuilder.IndicatorType.Number)
+                .start();
+    }
+
+    //播放视频
+    private void playVideo(String videoPath) {
+        try {
+            if (videoPath.startsWith("http")) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                Uri uri = Uri.parse(videoPath);
+                intent.setDataAndType(uri, "video/*");
+                startActivity(intent);
+            } else {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                Uri uri = Uri.parse("file://" + videoPath);
+                intent.setDataAndType(uri, "video/mp4");
+                startActivity(intent);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     private BaseQuickAdapter.RequestLoadMoreListener onLoadMoreListener = new BaseQuickAdapter.RequestLoadMoreListener() {
         @Override
@@ -834,10 +971,11 @@ public class CommunityMsgListActivity extends BaseActivity {
             int lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition();//可见范围内的最后一项的位置
             int itemCount = linearLayoutManager.getItemCount();//recyclerview中的item的所有的数目
 
-//            Logger.e("----->firstVisibleItemPosition " + firstVisibleItemPosition);
-//            Logger.e("----->lastVisibleItemPosition " + lastVisibleItemPosition);
-//            Logger.e("----->itemCount " + itemCount);
-//            Logger.e("----->dy " + dy);
+            //第一个可视View 的位置
+            int FirstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+            rvMsg.setEnabled(FirstVisibleItemPosition == 0);
+            //最后一个可视View 的位置
+            lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition();
         }
     };
 

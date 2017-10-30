@@ -32,8 +32,8 @@
         android:layout_marginLeft="36dp"
         android:layout_marginRight="15dp"
         android:orientation="vertical"
-        android:paddingBottom="20dp"
-        android:paddingTop="5dp">
+        android:paddingBottom="50dp"
+        android:paddingTop="2dp">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -91,15 +91,28 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:visibility="gone">
+            android:visibility="visible">
 
-            <RelativeLayout
-                android:id="@+id/rel_media"
+            <FrameLayout
+                android:id="@+id/frame_media"
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
+                android:layout_height="wrap_content"
                 android:layout_marginTop="5dp">
 
-            </RelativeLayout>
+                <include
+                    android:id="@+id/include_single"
+                    layout="@layout/item_media_single"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="gone" />
+
+                <include
+                    android:id="@+id/include_multiple"
+                    layout="@layout/item_media_multiple"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content" />
+
+            </FrameLayout>
 
             <TextView
                 android:id="@+id/tv_content"

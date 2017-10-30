@@ -76,7 +76,7 @@ public class MyPostActivity extends BaseActivity {
     private boolean canLoadMore = true;
     private MyPostAdapter myPostAdapter;
     private List<PostItemEntity> listPost = new ArrayList<>();
-
+    private WrapContentLinearLayoutManager linearLayoutManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -106,7 +106,8 @@ public class MyPostActivity extends BaseActivity {
             }
         });
 
-        rvPost.setLayoutManager(new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        linearLayoutManager = new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        rvPost.setLayoutManager(linearLayoutManager);
         rvPost.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
         myPostAdapter = new MyPostAdapter(R.layout.item_my_post, listPost);
@@ -116,6 +117,7 @@ public class MyPostActivity extends BaseActivity {
         myPostAdapter.setEnableLoadMore(true);
         myPostAdapter.setOnLoadMoreListener(onLoadMoreListener, rvPost);
         rvPost.setAdapter(myPostAdapter);
+        rvPost.addOnScrollListener(onScrollListener);
     }
 
     private void initTitle() {
@@ -572,6 +574,25 @@ public class MyPostActivity extends BaseActivity {
             if (canLoadMore) {
                 getPostList();
             }
+        }
+    };
+
+    //解决滑动冲突
+    private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+        private int lastVisibleItemPosition;
+
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            //第一个可视View 的位置
+            int FirstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+            rvPost.setEnabled(FirstVisibleItemPosition == 0);
+            //最后一个可视View 的位置
+            lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition();
+        }
+
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
         }
     };
 
