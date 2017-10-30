@@ -190,7 +190,8 @@
         <activity
             android:name=".ui.activity.CommunityMsgListActivity"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait" />
+            android:configChanges="orientation|keyboardHidden|screenSize"
+            android:screenOrientation="portrait"  />
         <activity
             android:name=".ui.activity.CreatePostActivity"
             android:launchMode="singleTop"

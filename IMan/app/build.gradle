@@ -32,7 +32,7 @@ android {
     defaultConfig {
         multiDexEnabled = true
         applicationId "com.sundy.iman"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 25
         versionCode 1
         versionName "1.0.0"
@@ -177,4 +177,6 @@ dependencies {
     //数字进度条
     compile 'com.daimajia.numberprogressbar:library:1.4@aar'
     compile project(':libraries:mediapicker')
+    //IJKPlayer播放器
+    compile 'com.shuyu:GSYVideoPlayer:2.1.1'
 }
