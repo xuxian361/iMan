@@ -688,9 +688,20 @@ public class CommunityMsgListActivity extends BaseActivity {
                 if (listExpands.contains(post_id)) {
                     ll_detail.setVisibility(View.VISIBLE);
                     iv_arrow.setImageResource(R.mipmap.icon_graytriangle_up);
+                    iv_tag_coin.setVisibility(View.GONE);
                 } else {
                     ll_detail.setVisibility(View.GONE);
                     iv_arrow.setImageResource(R.mipmap.icon_graytriangle);
+
+                    if (type.equals("1")) { //普通post
+                        iv_tag_coin.setVisibility(View.GONE);
+                    } else { //广告
+                        if (is_collect.equals("1")) {
+                            iv_tag_coin.setVisibility(View.GONE);
+                        } else {
+                            iv_tag_coin.setVisibility(View.VISIBLE);
+                        }
+                    }
                 }
 
                 //点击事件监听
@@ -707,32 +718,53 @@ public class CommunityMsgListActivity extends BaseActivity {
                 helper.setOnClickListener(R.id.iv_chat, this);
                 helper.setTag(R.id.iv_chat, R.id.item_tag, itemData);
 
-
                 //点击"more"
                 iv_more.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        String userId = PaperUtils.getMId();
-                        if (userId.equals(creator_id)) {
-                            if (postItemMenuSelfPopup == null) {
-                                postItemMenuSelfPopup = new PostItemMenuSelfPopup(CommunityMsgListActivity.this);
+                        if (PaperUtils.isLogin()) { //已登录
+                            String userId = PaperUtils.getMId();
+                            if (userId.equals(creator_id)) {
+                                if (postItemMenuSelfPopup == null) {
+                                    postItemMenuSelfPopup = new PostItemMenuSelfPopup(CommunityMsgListActivity.this);
+                                }
+                                postItemMenuSelfPopup.setOnClickListener(new PostItemMenuSelfPopup.OnClickListener() {
+
+                                    @Override
+                                    public void deleteClick() {
+                                        postItemMenuSelfPopup.dismiss();
+                                        deletePost(itemData);
+                                    }
+
+                                    @Override
+                                    public void shareClick(int shareType) {
+                                        Logger.e("----->分享");
+                                        postItemMenuSelfPopup.dismiss();
+                                        getShareInfo(1, post_id, creator_id, shareType);
+                                    }
+                                });
+                                postItemMenuSelfPopup.showPopup(iv_more);
+                            } else {
+                                if (postItemMenuPopup == null) {
+                                    postItemMenuPopup = new PostItemMenuPopup(CommunityMsgListActivity.this);
+                                }
+                                postItemMenuPopup.setOnClickListener(new PostItemMenuPopup.OnClickListener() {
+                                    @Override
+                                    public void reportClick() {
+                                        postItemMenuPopup.dismiss();
+                                        goReportMsg(post_id, creator_id);
+                                    }
+
+                                    @Override
+                                    public void shareClick(int shareType) {
+                                        Logger.e("----->分享");
+                                        postItemMenuPopup.dismiss();
+                                        getShareInfo(1, post_id, creator_id, shareType);
+
+                                    }
+                                });
+                                postItemMenuPopup.showPopup(iv_more);
                             }
-                            postItemMenuSelfPopup.setOnClickListener(new PostItemMenuSelfPopup.OnClickListener() {
-
-                                @Override
-                                public void deleteClick() {
-                                    postItemMenuSelfPopup.dismiss();
-                                    deletePost(itemData);
-                                }
-
-                                @Override
-                                public void shareClick(int shareType) {
-                                    Logger.e("----->分享");
-                                    postItemMenuSelfPopup.dismiss();
-                                    getShareInfo(1, post_id, creator_id, shareType);
-                                }
-                            });
-                            postItemMenuSelfPopup.showPopup(iv_more);
                         } else {
                             if (postItemMenuPopup == null) {
                                 postItemMenuPopup = new PostItemMenuPopup(CommunityMsgListActivity.this);
@@ -741,7 +773,7 @@ public class CommunityMsgListActivity extends BaseActivity {
                                 @Override
                                 public void reportClick() {
                                     postItemMenuPopup.dismiss();
-                                    goReportMsg(post_id, creator_id);
+                                    goLogin();
                                 }
 
                                 @Override
@@ -749,14 +781,12 @@ public class CommunityMsgListActivity extends BaseActivity {
                                     Logger.e("----->分享");
                                     postItemMenuPopup.dismiss();
                                     getShareInfo(1, post_id, creator_id, shareType);
-
                                 }
                             });
                             postItemMenuPopup.showPopup(iv_more);
                         }
                     }
                 });
-
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -785,7 +815,11 @@ public class CommunityMsgListActivity extends BaseActivity {
                 case R.id.iv_collect:
                     Logger.e("----->领取广告奖励");
                     if (itemData != null) {
-                        collectAdvertising(itemData);
+                        if (PaperUtils.isLogin()) {
+                            collectAdvertising(itemData);
+                        } else {
+                            goLogin();
+                        }
                     }
                     break;
                 case R.id.iv_header:
@@ -804,12 +838,16 @@ public class CommunityMsgListActivity extends BaseActivity {
                 case R.id.iv_chat:
                     Logger.e("----->跳转聊天");
                     if (itemData != null) {
-                        PostItemEntity postItemEntity = itemData.getItem();
-                        if (postItemEntity != null) {
-                            PostItemEntity.MemberEntity memberEntity = postItemEntity.getMembers();
-                            if (memberEntity != null) {
-                                goChat(memberEntity);
+                        if (PaperUtils.isLogin()) {
+                            PostItemEntity postItemEntity = itemData.getItem();
+                            if (postItemEntity != null) {
+                                PostItemEntity.MemberEntity memberEntity = postItemEntity.getMembers();
+                                if (memberEntity != null) {
+                                    goChat(memberEntity);
+                                }
                             }
+                        } else {
+                            goLogin();
                         }
                     }
                     break;
@@ -823,6 +861,11 @@ public class CommunityMsgListActivity extends BaseActivity {
             private PostItemEntity item;
         }
 
+    }
+
+    //跳转登录
+    private void goLogin() {
+        UIHelper.jump(this, LoginActivity.class);
     }
 
     //获取分享信息
@@ -915,6 +958,7 @@ public class CommunityMsgListActivity extends BaseActivity {
             Logger.e("------>onCancel");
         }
     };
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);

@@ -30,6 +30,7 @@ public class MainApp extends MultiDexApplication {
     private ToastUtil toastUtil;    //用做Toast显示，注意这个虽然不是单例，但是最好做为单例使用
     private ExecutorService executorService;    //线程池
 
+    //SUNDY
     {
         PlatformConfig.setWeixin("wx967daebe835fbeac", "5bb696d9ccd75a38c8a0bfe0675559b3");
         PlatformConfig.setQQZone("100424468", "c7394704798a158208a74ab60104f0ba");

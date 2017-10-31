@@ -15,6 +15,7 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
+import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.GetHomeListEntity;
 import com.sundy.iman.entity.LocationEntity;
 import com.sundy.iman.helper.UIHelper;
@@ -22,6 +23,7 @@ import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.LocationPaper;
+import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.ui.activity.AddCommunityActivity;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
@@ -161,20 +163,18 @@ public class MsgFragment extends BaseFragment {
                         Logger.i("获取定位信息成功");
                         stopLocation();
                         saveLocation(location);
+                        getHomePostList(location.getLatitude(), location.getLongitude());
                     } else {
                         Logger.w("获取定位信息失败");
-
                     }
                 } else {
                     //定位失败
                     Logger.e("定位失败");
-
                 }
             } else {
                 Logger.e("定位失败，loc is null");
                 //获取默认定位
                 LocationEntity locationEntity = LocationPaper.getLocation();
-
             }
         }
     };
@@ -194,18 +194,25 @@ public class MsgFragment extends BaseFragment {
     }
 
     //首页列表
-    private void getHomePostList() {
+    private void getHomePostList(double latitude, double longitude) {
         Map<String, String> param = new HashMap<>();
-        param.put("mid", "");
-        param.put("session_key", "");
-        param.put("latitude", "");
-        param.put("longitude", "");
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("latitude", latitude + "");
+        param.put("longitude", longitude + "");
         Call<GetHomeListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .getHomeList(ParamHelper.formatData(param));
         call.enqueue(new RetrofitCallback<GetHomeListEntity>() {
             @Override
             public void onSuccess(Call<GetHomeListEntity> call, Response<GetHomeListEntity> response) {
+                GetHomeListEntity getHomeListEntity = response.body();
+                if (getHomeListEntity != null) {
+                    int code = getHomeListEntity.getCode();
+                    String msg = getHomeListEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
 
+                    }
+                }
             }
 
             @Override

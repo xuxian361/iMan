@@ -222,6 +222,14 @@ public class ContactInfoActivity extends BaseActivity {
 
     @OnClick(R.id.btn_chat)
     public void onViewClicked() {
-        goChat();
+        if (PaperUtils.isLogin())
+            goChat();
+        else
+            goLogin();
+    }
+
+    //跳转登录
+    private void goLogin() {
+        UIHelper.jump(this, LoginActivity.class);
     }
 }

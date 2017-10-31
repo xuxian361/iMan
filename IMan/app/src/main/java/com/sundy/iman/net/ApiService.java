@@ -300,7 +300,6 @@ public interface ApiService {
     @GET(Apis.URL_GET_SHARE_INFO)
     Call<ShareInfoEntity> getShareInfo(@QueryMap Map<String, String> map);
 
-
     /**
      * 图片上传
      *

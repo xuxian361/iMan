@@ -7,9 +7,12 @@
     <ImageView
         android:id="@+id/iv_img"
         android:layout_width="wrap_content"
-        android:layout_height="160dp"
-        android:minWidth="120dp"
-        android:scaleType="fitStart" />
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true"
+        android:maxHeight="140dp"
+        android:minHeight="60dp"
+        android:minWidth="100dp"
+        android:scaleType="fitCenter" />
 
 
     <com.sundy.iman.utils.video.CoolCoverVideo
