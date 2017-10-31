@@ -1,7 +1,8 @@
 package com.sundy.iman.ui.activity;
 
 import android.content.Intent;
-import android.graphics.Point;
+import android.content.pm.ActivityInfo;
+import android.content.res.Configuration;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -30,9 +31,9 @@ import com.chad.library.adapter.base.BaseViewHolder;
 import com.orhanobut.logger.Logger;
 import com.previewlibrary.GPreviewBuilder;
 import com.previewlibrary.enitity.ThumbViewInfo;
-import com.shuyu.gsyvideoplayer.utils.CommonUtil;
-import com.shuyu.gsyvideoplayer.utils.Debuger;
-import com.shuyu.gsyvideoplayer.utils.ListVideoUtil;
+import com.shuyu.gsyvideoplayer.GSYVideoManager;
+import com.shuyu.gsyvideoplayer.builder.GSYVideoOptionBuilder;
+import com.shuyu.gsyvideoplayer.video.StandardGSYVideoPlayer;
 import com.shuyu.gsyvideoplayer.video.base.GSYVideoPlayer;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
@@ -119,9 +120,7 @@ public class CommunityMsgListActivity extends BaseActivity {
     private PostItemMenuPopup postItemMenuPopup;
     private PostItemMenuSelfPopup postItemMenuSelfPopup;
 
-    private ListVideoUtil listVideoUtil;
-    private int lastVisibleItem;
-    private int firstVisibleItem;
+    boolean mFull = false;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -183,38 +182,6 @@ public class CommunityMsgListActivity extends BaseActivity {
     }
 
     private void init() {
-        listVideoUtil = new ListVideoUtil(this);
-        listVideoUtil.setFullViewContainer(videoFullContainer);
-        listVideoUtil.setHideStatusBar(true);
-        listVideoUtil.setHideActionBar(true);
-
-        //小窗口关闭被点击的时候回调处理回复页面
-        listVideoUtil.setVideoAllCallBack(new VideoSimpleListener() {
-            @Override
-            public void onPrepared(String url, Object... objects) {
-                super.onPrepared(url, objects);
-                Debuger.printfLog("Duration " + listVideoUtil.getDuration() + " CurrentPosition "
-                        + listVideoUtil.getCurrentPositionWhenPlaying());
-            }
-
-            @Override
-            public void onQuitSmallWidget(String url, Object... objects) {
-                super.onQuitSmallWidget(url, objects);
-                //大于0说明有播放,//对应的播放列表TAG
-                if (listVideoUtil.getPlayPosition() >= 0 && listVideoUtil.getPlayTAG().equals(PostAdapter.TAG)) {
-                    //当前播放的位置
-                    int position = listVideoUtil.getPlayPosition();
-                    //不可视的是时候
-                    if ((position < firstVisibleItem || position > lastVisibleItem)) {
-                        //释放掉视频
-                        listVideoUtil.releaseVideoPlayer();
-                        myPostAdapter.notifyDataSetChanged();
-                    }
-                }
-
-            }
-        });
-
         communityMenuPopup = new CommunityMenuPopup(this);
         communityMenuPopup.setOnClickListener(clickListener);
 
@@ -477,9 +444,13 @@ public class CommunityMsgListActivity extends BaseActivity {
             implements View.OnClickListener {
 
         public final static String TAG = "PostAdapter";
+        public GSYVideoOptionBuilder gsyVideoOptionBuilder;
 
         public PostAdapter(@LayoutRes int layoutResId, @Nullable List<PostItemEntity> data) {
             super(layoutResId, data);
+
+            gsyVideoOptionBuilder = new GSYVideoOptionBuilder();
+
         }
 
         @Override
@@ -502,10 +473,8 @@ public class CommunityMsgListActivity extends BaseActivity {
                 final ImageView iv_more = helper.getView(R.id.iv_more);
                 FrameLayout frame_media = helper.getView(R.id.frame_media);
                 ImageView iv_img = helper.getView(R.id.iv_img);
+                final StandardGSYVideoPlayer gsyVideoPlayer = helper.getView(R.id.video_item_player);
                 RecyclerView rv_media = helper.getView(R.id.rv_media);
-                ImageView list_item_btn = helper.getView(R.id.list_item_btn);
-                FrameLayout list_item_container = helper.getView(R.id.list_item_container);
-                RelativeLayout rel_video = helper.getView(R.id.rel_video);
 
                 View include_single = helper.getView(R.id.include_single);
                 View include_multiple = helper.getView(R.id.include_multiple);
@@ -595,8 +564,8 @@ public class CommunityMsgListActivity extends BaseActivity {
                         include_multiple.setVisibility(View.GONE);
 
                         PostItemEntity.AttachmentEntity attachmentEntity = attachment.get(0);
-//                        final String url = attachmentEntity.getUrl();
-                        final String url = "http://baobab.wdjcdn.com/14564977406580.mp4";
+                        final String url = attachmentEntity.getUrl();
+//                        final String url = "http://baobab.wdjcdn.com/14564977406580.mp4";
 
                         final String att_type = attachmentEntity.getAtt_type();//附件类型: 1-图片，2-视频
                         final String thumbnail = attachmentEntity.getThumbnail();
@@ -604,7 +573,7 @@ public class CommunityMsgListActivity extends BaseActivity {
 
                         if (att_type.equals("1")) //图片
                         {
-                            rel_video.setVisibility(View.GONE);
+                            gsyVideoPlayer.setVisibility(View.GONE);
                             iv_img.setVisibility(View.VISIBLE);
 
                             Glide.with(CommunityMsgListActivity.this)
@@ -622,7 +591,7 @@ public class CommunityMsgListActivity extends BaseActivity {
                                 }
                             });
                         } else {
-                            rel_video.setVisibility(View.VISIBLE);
+                            gsyVideoPlayer.setVisibility(View.VISIBLE);
                             iv_img.setVisibility(View.GONE);
 
                             ImageView imageView = new ImageView(CommunityMsgListActivity.this);
@@ -630,18 +599,54 @@ public class CommunityMsgListActivity extends BaseActivity {
                             imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
                             ImageHelper.displayImageNet(CommunityMsgListActivity.this, thumbnail, imageView);
 
-                            listVideoUtil.addVideoPlayer(helper.getLayoutPosition(), imageView, TAG, list_item_container, list_item_btn);
-                            list_item_btn.setOnClickListener(new View.OnClickListener() {
+                            gsyVideoOptionBuilder
+                                    .setIsTouchWiget(false)
+                                    .setThumbImageView(imageView)
+                                    .setUrl(url)
+                                    .setVideoTitle(title)
+                                    .setCacheWithPlay(true)
+                                    .setRotateViewAuto(true)
+                                    .setLockLand(true)
+                                    .setPlayTag(TAG)
+                                    .setShowFullAnimation(true)
+                                    .setNeedLockFull(true)
+                                    .setPlayPosition(helper.getLayoutPosition())
+                                    .setStandardVideoAllCallBack(new VideoSimpleListener() {
+                                        @Override
+                                        public void onPrepared(String url, Object... objects) {
+                                            super.onPrepared(url, objects);
+                                            /*if (!gsyVideoPlayer.isIfCurrentIsFullscreen()) {
+                                                //静音
+                                                GSYVideoManager.instance().setNeedMute(true);
+                                            }*/
+                                            GSYVideoManager.instance().setNeedMute(false);
+                                        }
+
+                                        @Override
+                                        public void onQuitFullscreen(String url, Object... objects) {
+                                            super.onQuitFullscreen(url, objects);
+                                            //全屏不静音
+//                                            GSYVideoManager.instance().setNeedMute(true);
+                                            GSYVideoManager.instance().setNeedMute(false);
+                                        }
+
+                                        @Override
+                                        public void onEnterFullscreen(String url, Object... objects) {
+                                            super.onEnterFullscreen(url, objects);
+                                            GSYVideoManager.instance().setNeedMute(false);
+                                        }
+                                    }).build(gsyVideoPlayer);
+                            //增加title
+                            gsyVideoPlayer.getTitleTextView().setVisibility(View.GONE);
+
+                            //设置返回键
+                            gsyVideoPlayer.getBackButton().setVisibility(View.GONE);
+
+                            //设置全屏按键功能
+                            gsyVideoPlayer.getFullscreenButton().setOnClickListener(new View.OnClickListener() {
                                 @Override
                                 public void onClick(View v) {
-                                    notifyDataSetChanged();
-                                    //listVideoUtil.setLoop(true);
-                                    listVideoUtil.setPlayPositionAndTag(helper.getLayoutPosition(), TAG);
-//                                    listVideoUtil.setTitle(title);
-                                    //listVideoUtil.setCachePath(new File(FileUtils.getPath()));
-                                    listVideoUtil.startPlay(url);
-                                    //必须在startPlay之后设置才能生效
-//                                    listVideoUtil.getGsyVideoPlayer().getTitleTextView().setVisibility(View.VISIBLE);
+                                    gsyVideoPlayer.startWindowFullscreen(CommunityMsgListActivity.this, true, true);
                                 }
                             });
                         }
@@ -1035,6 +1040,9 @@ public class CommunityMsgListActivity extends BaseActivity {
     };
 
     private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+
+        int firstVisibleItem, lastVisibleItem;
+
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
@@ -1055,42 +1063,59 @@ public class CommunityMsgListActivity extends BaseActivity {
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
 
-            //第一个可视View 的位置
-            int FirstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
-            rvMsg.setEnabled(FirstVisibleItemPosition == 0);
-            //最后一个可视View 的位置
-
             firstVisibleItem = linearLayoutManager.findFirstVisibleItemPosition();
             lastVisibleItem = linearLayoutManager.findLastVisibleItemPosition();
-            Debuger.printfLog("firstVisibleItem " + firstVisibleItem + " lastVisibleItem " + lastVisibleItem);
-            //大于0说明有播放,//对应的播放列表TAG
-            if (listVideoUtil.getPlayPosition() >= 0 && listVideoUtil.getPlayTAG().equals(PostAdapter.TAG)) {
+            //大于0说明有播放
+            if (GSYVideoManager.instance().getPlayPosition() >= 0) {
                 //当前播放的位置
-                int position = listVideoUtil.getPlayPosition();
-                //不可视的是时候
-                if ((position < firstVisibleItem || position > lastVisibleItem)) {
-                    //如果是小窗口就不需要处理
-                    if (!listVideoUtil.isSmall() && !listVideoUtil.isFull()) {
-                        //小窗口
-                        int size = CommonUtil.dip2px(CommunityMsgListActivity.this, 150);
-                        //actionbar为true才不会掉下面去
-                        listVideoUtil.showSmallVideo(new Point(size, size), true, true);
-                    }
-                } else {
-                    if (listVideoUtil.isSmall()) {
-                        listVideoUtil.smallVideoToNormal();
+                int position = GSYVideoManager.instance().getPlayPosition();
+                //对应的播放列表TAG
+                if (GSYVideoManager.instance().getPlayTag().equals(PostAdapter.TAG)
+                        && (position < firstVisibleItem || position > lastVisibleItem)) {
+
+                    //如果滑出去了上面和下面就是否，和今日头条一样
+                    //是否全屏
+                    if (!mFull) {
+                        GSYVideoPlayer.releaseAllVideos();
+                        myPostAdapter.notifyDataSetChanged();
                     }
                 }
             }
+
+            rvMsg.setEnabled(firstVisibleItem == 0);
+
         }
     };
 
     @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        //如果旋转了就全屏
+        if (newConfig.orientation != ActivityInfo.SCREEN_ORIENTATION_USER) {
+            mFull = false;
+        } else {
+            mFull = true;
+        }
+    }
+
+    @Override
     public void onBackPressed() {
-        if (listVideoUtil.backFromFull()) {
+        if (StandardGSYVideoPlayer.backFromWindowFull(this)) {
             return;
         }
         super.onBackPressed();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        GSYVideoManager.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        GSYVideoManager.onResume();
     }
 
     @Override
@@ -1108,7 +1133,6 @@ public class CommunityMsgListActivity extends BaseActivity {
             postItemMenuSelfPopup.dismiss();
             postItemMenuSelfPopup = null;
         }
-        listVideoUtil.releaseVideoPlayer();
         GSYVideoPlayer.releaseAllVideos();
     }
 }

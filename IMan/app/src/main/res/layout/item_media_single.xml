@@ -11,28 +11,11 @@
         android:minWidth="120dp"
         android:scaleType="fitStart" />
 
-    <RelativeLayout
-        android:id="@+id/rel_video"
+
+    <com.sundy.iman.utils.video.CoolCoverVideo
+        android:id="@+id/video_item_player"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <FrameLayout
-            android:id="@+id/list_item_container"
-            android:layout_width="match_parent"
-            android:layout_height="180dp"
-            android:scaleType="centerCrop"
-            android:src="@drawable/default_image" />
-
-        <ImageView
-            android:id="@+id/list_item_btn"
-            android:layout_width="60dp"
-            android:layout_height="60dp"
-            android:layout_centerHorizontal="true"
-            android:layout_centerVertical="true"
-            android:layout_gravity="center_vertical"
-            android:src="@drawable/video_click_play_selector" />
-
-    </RelativeLayout>
+        android:layout_height="160dp" />
 
 
 </RelativeLayout>
