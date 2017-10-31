@@ -12,6 +12,8 @@ import com.orhanobut.logger.Logger;
 import com.previewlibrary.ZoomMediaLoader;
 import com.sundy.iman.impl.GlideImageLoader;
 import com.sundy.iman.utils.ToastUtil;
+import com.umeng.socialize.PlatformConfig;
+import com.umeng.socialize.UMShareAPI;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -27,6 +29,11 @@ public class MainApp extends MultiDexApplication {
     private static MainApp instance;
     private ToastUtil toastUtil;    //用做Toast显示，注意这个虽然不是单例，但是最好做为单例使用
     private ExecutorService executorService;    //线程池
+
+    {
+        PlatformConfig.setWeixin("wx967daebe835fbeac", "5bb696d9ccd75a38c8a0bfe0675559b3");
+        PlatformConfig.setQQZone("100424468", "c7394704798a158208a74ab60104f0ba");
+    }
 
     @Override
     public void onCreate() {
@@ -45,6 +52,9 @@ public class MainApp extends MultiDexApplication {
         Logger.addLogAdapter(new AndroidLogAdapter());
 
         ZoomMediaLoader.getInstance().init(new GlideImageLoader());
+
+        //友盟分享
+        UMShareAPI.get(this);
     }
 
     /******************************* Method *******************************/

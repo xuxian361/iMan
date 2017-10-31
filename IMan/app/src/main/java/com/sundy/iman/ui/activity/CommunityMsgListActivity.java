@@ -45,6 +45,7 @@ import com.sundy.iman.entity.JoinCommunityEntity;
 import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.PostItemEntity;
 import com.sundy.iman.entity.PostListEntity;
+import com.sundy.iman.entity.ShareInfoEntity;
 import com.sundy.iman.helper.ImageHelper;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.impl.VideoSimpleListener;
@@ -61,6 +62,12 @@ import com.sundy.iman.view.dialog.CommonDialog;
 import com.sundy.iman.view.popupwindow.CommunityMenuPopup;
 import com.sundy.iman.view.popupwindow.PostItemMenuPopup;
 import com.sundy.iman.view.popupwindow.PostItemMenuSelfPopup;
+import com.umeng.socialize.ShareAction;
+import com.umeng.socialize.UMShareAPI;
+import com.umeng.socialize.UMShareListener;
+import com.umeng.socialize.bean.SHARE_MEDIA;
+import com.umeng.socialize.media.UMImage;
+import com.umeng.socialize.media.UMWeb;
 import com.zhy.view.flowlayout.FlowLayout;
 import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
@@ -88,6 +95,7 @@ import retrofit2.Response;
  */
 
 public class CommunityMsgListActivity extends BaseActivity {
+
 
     @BindView(R.id.title_bar)
     TitleBarView titleBar;
@@ -120,7 +128,8 @@ public class CommunityMsgListActivity extends BaseActivity {
     private PostItemMenuPopup postItemMenuPopup;
     private PostItemMenuSelfPopup postItemMenuSelfPopup;
 
-    boolean mFull = false;
+    private boolean mFull = false;
+    private UMWeb umWeb; //分享出去的带网页的友盟控件
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -448,9 +457,7 @@ public class CommunityMsgListActivity extends BaseActivity {
 
         public PostAdapter(@LayoutRes int layoutResId, @Nullable List<PostItemEntity> data) {
             super(layoutResId, data);
-
             gsyVideoOptionBuilder = new GSYVideoOptionBuilder();
-
         }
 
         @Override
@@ -719,10 +726,10 @@ public class CommunityMsgListActivity extends BaseActivity {
                                 }
 
                                 @Override
-                                public void shareClick(int type) {
+                                public void shareClick(int shareType) {
                                     Logger.e("----->分享");
                                     postItemMenuSelfPopup.dismiss();
-
+                                    getShareInfo(1, post_id, creator_id, shareType);
                                 }
                             });
                             postItemMenuSelfPopup.showPopup(iv_more);
@@ -738,9 +745,10 @@ public class CommunityMsgListActivity extends BaseActivity {
                                 }
 
                                 @Override
-                                public void shareClick(int type) {
+                                public void shareClick(int shareType) {
                                     Logger.e("----->分享");
                                     postItemMenuPopup.dismiss();
+                                    getShareInfo(1, post_id, creator_id, shareType);
 
                                 }
                             });
@@ -815,6 +823,102 @@ public class CommunityMsgListActivity extends BaseActivity {
             private PostItemEntity item;
         }
 
+    }
+
+    //获取分享信息
+    private void getShareInfo(int type, String post_id, String creator_id, final int shareType) {
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("type", type + "");
+        param.put("post_id", post_id);
+        param.put("creator_id", creator_id);
+        Call<ShareInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .getShareInfo(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<ShareInfoEntity>() {
+            @Override
+            public void onSuccess(Call<ShareInfoEntity> call, Response<ShareInfoEntity> response) {
+                ShareInfoEntity shareInfoEntity = response.body();
+                if (shareInfoEntity != null) {
+                    int code = shareInfoEntity.getCode();
+                    if (code == Constants.CODE_SUCCESS) {
+                        ShareInfoEntity.DataEntity dataEntity = shareInfoEntity.getData();
+                        if (dataEntity != null) {
+                            String shareUrl = dataEntity.getUrl();
+                            String title = dataEntity.getTitle();
+                            String desc = dataEntity.getDescription();
+                            String img = dataEntity.getImage();
+
+                            umWeb = new UMWeb(shareUrl);
+                            umWeb.setTitle(title);
+                            umWeb.setThumb(new UMImage(CommunityMsgListActivity.this, img));
+                            umWeb.setDescription(desc);
+                            doShare(shareType);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<ShareInfoEntity> call, Throwable t) {
+
+            }
+        });
+    }
+
+    //分享
+    private void doShare(int share_type) {
+        if (umWeb == null) {
+            return;
+        }
+        SHARE_MEDIA share_media = SHARE_MEDIA.SINA;
+        if (share_type == 1) {
+            share_media = SHARE_MEDIA.WEIXIN;
+        } else if (share_type == 2) {
+            share_media = SHARE_MEDIA.WEIXIN_CIRCLE;
+        } else if (share_type == 3) {
+            share_media = SHARE_MEDIA.QQ;
+        } else if (share_type == 4) {
+            share_media = SHARE_MEDIA.QZONE;
+        }
+        new ShareAction(this)
+                .withMedia(umWeb)
+                .setPlatform(share_media)
+                .setCallback(shareListener)
+                .share();
+
+    }
+
+    private UMShareListener shareListener = new UMShareListener() {
+        @Override
+        public void onStart(SHARE_MEDIA platform) {
+            Logger.e("------>onStart");
+        }
+
+        @Override
+        public void onResult(SHARE_MEDIA platform) {
+            Logger.e("------>onResult");
+        }
+
+        @Override
+        public void onError(SHARE_MEDIA platform, Throwable t) {
+            Logger.e("------>onError");
+        }
+
+        @Override
+        public void onCancel(SHARE_MEDIA platform) {
+            Logger.e("------>onCancel");
+        }
+    };
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        UMShareAPI.get(this).onActivityResult(requestCode, resultCode, data);
     }
 
     //跳转用户信息
@@ -1134,5 +1238,6 @@ public class CommunityMsgListActivity extends BaseActivity {
             postItemMenuSelfPopup = null;
         }
         GSYVideoPlayer.releaseAllVideos();
+        UMShareAPI.get(this).release();
     }
 }

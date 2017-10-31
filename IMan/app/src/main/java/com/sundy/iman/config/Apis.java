@@ -98,6 +98,9 @@ public class Apis {
     //解析url（二维码值）
     public static final String URL_PARSE_URL = "url/parse";
 
+    //获取分享内容
+    public static final String URL_GET_SHARE_INFO = "share/getShareInfo";
+
     //图片上传
     public static final String URL_UPLOAD_IMAGE = "";
 

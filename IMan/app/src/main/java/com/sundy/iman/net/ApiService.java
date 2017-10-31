@@ -25,6 +25,7 @@ import com.sundy.iman.entity.QiNiuTokenListEntity;
 import com.sundy.iman.entity.QuitPromoteCommunityEntity;
 import com.sundy.iman.entity.ReportPostEntity;
 import com.sundy.iman.entity.SaveMemberEntity;
+import com.sundy.iman.entity.ShareInfoEntity;
 import com.sundy.iman.entity.StaticContentEntity;
 import com.sundy.iman.entity.TagListEntity;
 import com.sundy.iman.entity.UpdatePostEntity;
@@ -290,6 +291,15 @@ public interface ApiService {
     @FormUrlEncoded
     @POST(Apis.URL_PARSE_URL)
     Call<ParseUrlEntity> parseUrl(@FieldMap Map<String, String> map);
+
+    /**
+     * 获取分享内容
+     *
+     * @return
+     */
+    @GET(Apis.URL_GET_SHARE_INFO)
+    Call<ShareInfoEntity> getShareInfo(@QueryMap Map<String, String> map);
+
 
     /**
      * 图片上传
