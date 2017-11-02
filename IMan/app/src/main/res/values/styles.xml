@@ -93,12 +93,12 @@
 
     <style name="TextAppearance.ExpandedTitle" parent="Theme.AppCompat.Light">
         <item name="android:textColor">@color/txt_black</item>
-        <item name="android:textSize">28sp</item>
+        <item name="android:textSize">36sp</item>
     </style>
 
     <style name="TextAppearance.CollapsedTitle" parent="Theme.AppCompat.Light">
         <item name="android:textColor">@color/txt_black</item>
-        <item name="android:textSize">14sp</item>
+        <item name="android:textSize">16sp</item>
     </style>
 
 

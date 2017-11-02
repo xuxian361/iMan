@@ -98,7 +98,7 @@ public static final int *;
 }
 #rxgalleryfinal
 -dontwarn io.reactivex.**
--keep io.reactivex.**
+-keep class io.reactivex.**{ *; }
 -keepclassmembers class io.reactivex.** { *; }
 -dontwarn java.lang.invoke.*
 -keep class uk.co.senab.photoview** { *; }
@@ -222,3 +222,19 @@ public static final int *;
 -keep class com.android.dingtalk.share.ddsharemodule.** { *; }
 -keepattributes Signature
 #友盟分享--------end------
+#环信------------start-----
+-keep class com.hyphenate.** {*;}
+-dontwarn  com.hyphenate.**
+#环信------------end-------
+#Eventbus------------start-----
+-keepattributes *Annotation*
+-keepclassmembers class ** {
+    @org.greenrobot.eventbus.Subscribe <methods>;
+}
+-keep enum org.greenrobot.eventbus.ThreadMode { *; }
+
+# Only required if you use AsyncExecutor
+-keepclassmembers class * extends org.greenrobot.eventbus.util.ThrowableFailureEvent {
+    <init>(java.lang.Throwable);
+}
+#Eventbus------------end-------

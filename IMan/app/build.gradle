@@ -21,10 +21,12 @@ android {
 
     // 移除lint检查的error
     lintOptions {
+        checkReleaseBuilds false
         abortOnError false
         warning 'InvalidPackage'
-
+        disable 'MissingTranslation'
     }
+
     packagingOptions {
         exclude 'META-INF/services/javax.annotation.processing.Processor'
     }
@@ -43,7 +45,7 @@ android {
             abiFilters "armeabi", "armeabi-v7a", "arm64-v8a", "x86", "x86_64"
         }
         manifestPlaceholders = [
-                EASEMOB_APPKEY: "1185170930178964#iman",
+                EASEMOB_APPKEY_VALUE: "1185170930178964#iman",
                 GAO_DE_MAP_KEY: "285db644f8bc3cc08439e4a2907816b2"
         ]
 
@@ -87,13 +89,13 @@ android {
         //测试：59cb048daed1795e4300005a
         //发布：59cb1990ae1bf824b6000021
         google {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "google", UMENG_APPKEY_VALUE: "59cb048daed1795e4300005a"]
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "google", UMENG_APPKEY_VALUE: "59cb1990ae1bf824b6000021"]
         }
         baidu {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "baidu", UMENG_APPKEY_VALUE: "59cb048daed1795e4300005a"]
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "baidu", UMENG_APPKEY_VALUE: "59cb1990ae1bf824b6000021"]
         }
         tencent {
-            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "tencent", UMENG_APPKEY_VALUE: "59cb048daed1795e4300005a"]
+            manifestPlaceholders = [UMENG_CHANNEL_VALUE: "tencent", UMENG_APPKEY_VALUE: "59cb1990ae1bf824b6000021"]
         }
     }
 }
@@ -179,4 +181,5 @@ dependencies {
     compile project(':libraries:mediapicker')
     //IJKPlayer播放器
     compile 'com.shuyu:GSYVideoPlayer:2.1.1'
+
 }
