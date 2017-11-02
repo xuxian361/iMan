@@ -324,4 +324,30 @@ public class FileUtils {
     }
 
 
+    // 保存图片到手机指定目录
+    public static String saveBitmap(String imgName, byte[] bytes) {
+        String path = null;
+        if (existSD()) {
+            FileOutputStream fos = null;
+            try {
+                File file = new File(getImageCache(), imgName + ".jpg");
+                path = file.getPath();
+                fos = new FileOutputStream(path);
+                fos.write(bytes);
+            } catch (IOException e) {
+                e.printStackTrace();
+                path = null;
+            } finally {
+                try {
+                    if (fos != null) {
+                        fos.close();
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+        return path;
+    }
+
 }

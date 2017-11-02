@@ -704,6 +704,14 @@ public class CommunityMsgListActivity extends BaseActivity {
                     }
                 }
 
+                //是否是自己发的
+                if (creator_id.equals(PaperUtils.getMId())) //自己发的
+                {
+                    iv_chat.setVisibility(View.GONE);
+                } else {
+                    iv_chat.setVisibility(View.VISIBLE);
+                }
+
                 //点击事件监听
                 helper.setOnClickListener(R.id.rel_item, this);
                 helper.setTag(R.id.rel_item, R.id.item_tag, itemData);
@@ -887,9 +895,9 @@ public class CommunityMsgListActivity extends BaseActivity {
                     if (code == Constants.CODE_SUCCESS) {
                         ShareInfoEntity.DataEntity dataEntity = shareInfoEntity.getData();
                         if (dataEntity != null) {
-                            String shareUrl = dataEntity.getUrl();
-                            String title = dataEntity.getTitle();
-                            String desc = dataEntity.getDescription();
+                            final String shareUrl = dataEntity.getUrl();
+                            final String title = dataEntity.getTitle();
+                            final String desc = dataEntity.getDescription();
                             String img = dataEntity.getImage();
 
                             umWeb = new UMWeb(shareUrl);

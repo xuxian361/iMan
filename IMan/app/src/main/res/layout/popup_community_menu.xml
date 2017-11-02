@@ -124,7 +124,8 @@
                 android:layout_weight="1"
                 android:orientation="vertical"
                 android:paddingBottom="6dp"
-                android:paddingTop="6dp">
+                android:paddingTop="6dp"
+                android:visibility="invisible">
 
                 <ImageView
                     android:layout_width="16dp"

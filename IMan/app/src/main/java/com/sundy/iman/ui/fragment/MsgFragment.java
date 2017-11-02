@@ -3,11 +3,14 @@ package com.sundy.iman.ui.fragment;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -38,7 +41,6 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import butterknife.Unbinder;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -55,17 +57,39 @@ public class MsgFragment extends BaseFragment {
     public AMapLocationClient locationClient = null;
     //声明AMapLocationClientOption对象
     public AMapLocationClientOption locationOption = null;
-    @BindView(R.id.iv_add_community)
-    ImageView ivAddCommunity;
     Unbinder unbinder;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.collapsing)
+    CollapsingToolbarLayout collapsing;
+    @BindView(R.id.appbar)
+    AppBarLayout appbar;
+    @BindView(R.id.scrollView)
+    NestedScrollView scrollView;
+
 
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_msg, container, false);
         unbinder = ButterKnife.bind(this, view);
+
+        init();
         return view;
     }
+
+    private void init() {
+        scrollView.setOnScrollChangeListener(onScrollChangeListener);
+    }
+
+    private NestedScrollView.OnScrollChangeListener onScrollChangeListener = new NestedScrollView.OnScrollChangeListener() {
+        @Override
+        public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
+            Logger.e("-------->scrollY = " + scrollY);
+
+
+        }
+    };
 
     @Override
     public void onStart() {
@@ -240,10 +264,10 @@ public class MsgFragment extends BaseFragment {
         unbinder.unbind();
     }
 
-    @OnClick(R.id.iv_add_community)
-    public void onViewClicked() {
-        goAddCommunity();
-    }
+//    @OnClick(R.id.iv_add_community)
+//    public void onViewClicked() {
+//        goAddCommunity();
+//    }
 
     //跳转添加社区
     private void goAddCommunity() {

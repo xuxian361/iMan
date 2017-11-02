@@ -9,29 +9,29 @@ import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
-import com.sundy.iman.entity.CountryCodeEntity;
 import com.sundy.iman.entity.LoginEntity;
 import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.VerificationCodeEntity;
-import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.utils.CommonUtils;
 import com.sundy.iman.utils.PhoneFormatCheckUtils;
+import com.sundy.iman.utils.ViewAnimUtils;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -48,24 +48,42 @@ import retrofit2.Response;
 
 public class LoginActivity extends BaseActivity {
 
-    @BindView(R.id.et_account)
-    EditText etAccount;
+
+    private final int MSG_COUNT_DOWN = 1;
+    private final int MSG_STOP_COUNT = 0;
+    private final int DURATION = 60; //间隔时间：秒
+    private static final int duration = 300;
+
+    @BindView(R.id.btn_close)
+    ImageView btnClose;
+    @BindView(R.id.rel_title_bar)
+    RelativeLayout relTitleBar;
+    @BindView(R.id.et_mobile)
+    EditText etMobile;
     @BindView(R.id.et_code)
     EditText etCode;
     @BindView(R.id.btn_get_code)
     TextView btnGetCode;
     @BindView(R.id.btn_login)
     TextView btnLogin;
-    @BindView(R.id.btn_close)
-    ImageView btnClose;
-    @BindView(R.id.tv_area)
-    TextView tvArea;
-    @BindView(R.id.ll_area)
-    LinearLayout llArea;
-
-    private final int MSG_COUNT_DOWN = 1;
-    private final int MSG_STOP_COUNT = 0;
-    private final int DURATION = 60; //间隔时间：秒
+    @BindView(R.id.ll_front)
+    LinearLayout llFront;
+    @BindView(R.id.et_email)
+    EditText etEmail;
+    @BindView(R.id.et_code2)
+    EditText etCode2;
+    @BindView(R.id.btn_get_code2)
+    TextView btnGetCode2;
+    @BindView(R.id.btn_login2)
+    TextView btnLogin2;
+    @BindView(R.id.ll_back)
+    LinearLayout llBack;
+    @BindView(R.id.frame)
+    FrameLayout frame;
+    @BindView(R.id.tv_email_login)
+    TextView tvEmailLogin;
+    @BindView(R.id.tv_mobile_login)
+    TextView tvMobileLogin;
     private int second = DURATION;
     private Handler mHandler = new Handler() {
         @Override
@@ -91,28 +109,27 @@ public class LoginActivity extends BaseActivity {
         }
     };
 
-    private CountryCodeEntity.DataEntity curCountryCode;//当前选择的国家码
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_login);
         ButterKnife.bind(this);
-        EventBus.getDefault().register(this);
         init();
     }
 
     private void init() {
-        tvArea.setText("+86");
-        etAccount.addTextChangedListener(textWatcherAccount);
-        etCode.addTextChangedListener(textWatcherCode);
+        etMobile.addTextChangedListener(watcherMobile);
+        etCode.addTextChangedListener(watcherMobileCode);
+        etEmail.addTextChangedListener(watcherEmail);
+        etCode2.addTextChangedListener(watcherEmailCode);
         btnGetCode.setSelected(false);
         btnGetCode.setEnabled(false);
         btnLogin.setSelected(false);
         btnLogin.setEnabled(false);
     }
 
-    private TextWatcher textWatcherAccount = new TextWatcher() {
+    private TextWatcher watcherMobile = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -125,7 +142,7 @@ public class LoginActivity extends BaseActivity {
 
         @Override
         public void afterTextChanged(Editable editable) {
-            String mobile = etAccount.getText().toString().trim();
+            String mobile = etMobile.getText().toString().trim();
             String verification_code = etCode.getText().toString().trim();
             if (PhoneFormatCheckUtils.isPhoneLegal(mobile)) {
                 stopCountDown();
@@ -146,7 +163,7 @@ public class LoginActivity extends BaseActivity {
         }
     };
 
-    private TextWatcher textWatcherCode = new TextWatcher() {
+    private TextWatcher watcherEmail = new TextWatcher() {
         @Override
         public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
@@ -159,7 +176,41 @@ public class LoginActivity extends BaseActivity {
 
         @Override
         public void afterTextChanged(Editable editable) {
-            String mobile = etAccount.getText().toString().trim();
+            String email = etEmail.getText().toString().trim();
+            String verification_code = etCode2.getText().toString().trim();
+            if (CommonUtils.isEmail(email)) {
+                stopCountDown();
+            } else {
+                btnGetCode2.setSelected(false);
+                btnGetCode2.setEnabled(false);
+            }
+
+            if (TextUtils.isEmpty(verification_code) || verification_code.length() < 4
+                    || TextUtils.isEmpty(email)
+                    || !CommonUtils.isEmail(email)) {
+                btnLogin2.setSelected(false);
+                btnLogin2.setEnabled(false);
+            } else {
+                btnLogin2.setSelected(true);
+                btnLogin2.setEnabled(true);
+            }
+        }
+    };
+
+    private TextWatcher watcherMobileCode = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            String mobile = etMobile.getText().toString().trim();
             String verification_code = etCode.getText().toString().trim();
             if (TextUtils.isEmpty(verification_code) || verification_code.length() < 4
                     || TextUtils.isEmpty(mobile)
@@ -169,6 +220,33 @@ public class LoginActivity extends BaseActivity {
             } else {
                 btnLogin.setSelected(true);
                 btnLogin.setEnabled(true);
+            }
+        }
+    };
+
+    private TextWatcher watcherEmailCode = new TextWatcher() {
+        @Override
+        public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public void afterTextChanged(Editable editable) {
+            String email = etEmail.getText().toString().trim();
+            String verification_code = etCode2.getText().toString().trim();
+            if (TextUtils.isEmpty(verification_code) || verification_code.length() < 4
+                    || TextUtils.isEmpty(email)
+                    || !CommonUtils.isEmail(email)) {
+                btnLogin2.setSelected(false);
+                btnLogin2.setEnabled(false);
+            } else {
+                btnLogin2.setSelected(true);
+                btnLogin2.setEnabled(true);
             }
         }
     };
@@ -189,44 +267,11 @@ public class LoginActivity extends BaseActivity {
         }
     }
 
-    @OnClick({R.id.btn_get_code, R.id.btn_login, R.id.ll_area, R.id.btn_close})
-    public void onViewClicked(View view) {
-        switch (view.getId()) {
-            case R.id.btn_get_code:
-                getCode();
-                break;
-            case R.id.btn_login:
-                login();
-                break;
-            case R.id.ll_area:
-                goSelectCountryCode();
-                break;
-            case R.id.btn_close:
-                finish();
-                break;
-        }
-    }
-
-    //跳转选择国家码
-    private void goSelectCountryCode() {
-        Bundle bundle = new Bundle();
-        bundle.putSerializable("Country_Code", curCountryCode);
-        UIHelper.jump(this, SelectCountryCodeActivity.class, bundle);
-    }
-
     //获取手机验证码
-    private void getCode() {
-        String phone = etAccount.getText().toString().trim();
-        String area_code = tvArea.getText().toString().trim();
-        if (TextUtils.isEmpty(area_code)) {
-            area_code = "86";
-        } else {
-            if (area_code.startsWith("+")) {
-                area_code = area_code.substring(1, area_code.length());
-            }
-        }
+    private void getMobileCode() {
+        String phone = etMobile.getText().toString().trim();
         Map<String, String> param = new HashMap<>();
-        param.put("area_code", area_code);
+        param.put("area_code", "86");
         param.put("phone", phone);
         param.put("type", "1"); //类型 1-登录
         Call<VerificationCodeEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
@@ -267,19 +312,11 @@ public class LoginActivity extends BaseActivity {
     }
 
     //登录
-    private void login() {
-        String phone = etAccount.getText().toString().trim();
+    private void loginByMobile() {
+        String phone = etMobile.getText().toString().trim();
         String verification_code = etCode.getText().toString().trim();
-        String area_code = tvArea.getText().toString().trim();
-        if (TextUtils.isEmpty(area_code)) {
-            area_code = "86";
-        } else {
-            if (area_code.startsWith("+")) {
-                area_code = area_code.substring(1, area_code.length());
-            }
-        }
         Map<String, String> param = new HashMap<>();
-        param.put("area_code", area_code);
+        param.put("area_code", "86");
         param.put("phone", phone);
         param.put("verification_code", verification_code); //类型 1-登录
         Call<LoginEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
@@ -368,21 +405,6 @@ public class LoginActivity extends BaseActivity {
         EventBus.getDefault().post(msgEvent);
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onEventMainThread(MsgEvent event) {
-        if (event != null) {
-            String msg = event.getMsg();
-            switch (msg) {
-                case MsgEvent.EVENT_GET_COUNTRY_CODE:
-                    curCountryCode = (CountryCodeEntity.DataEntity) event.getObj();
-                    if (curCountryCode != null) {
-                        tvArea.setText(curCountryCode.getCode());
-                    }
-                    break;
-            }
-        }
-    }
-
     @Override
     protected void onStop() {
         super.onStop();
@@ -392,11 +414,61 @@ public class LoginActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        EventBus.getDefault().unregister(this);
         if (mHandler != null) {
             stopCountDown();
             mHandler = null;
         }
     }
 
+    @OnClick({R.id.btn_close, R.id.btn_get_code, R.id.btn_login, R.id.btn_get_code2, R.id.btn_login2, R.id.tv_email_login, R.id.tv_mobile_login})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.btn_close:
+                finish();
+                break;
+            case R.id.btn_get_code:
+                getMobileCode();
+                break;
+            case R.id.btn_login:
+                loginByMobile();
+                break;
+            case R.id.btn_get_code2:
+                break;
+            case R.id.btn_login2:
+                break;
+            case R.id.tv_email_login:
+                ViewAnimUtils.flip(frame, duration, -1);
+                frame.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        switchViewVisibility();
+                    }
+                }, duration);
+                break;
+            case R.id.tv_mobile_login:
+                ViewAnimUtils.flip(frame, duration, 1);
+                frame.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        switchViewVisibility();
+                    }
+                }, duration);
+                break;
+        }
+    }
+
+
+    private void switchViewVisibility() {
+        if (llBack.isShown()) {
+            llBack.setVisibility(View.GONE);
+            llFront.setVisibility(View.VISIBLE);
+            tvEmailLogin.setVisibility(View.VISIBLE);
+            tvMobileLogin.setVisibility(View.GONE);
+        } else {
+            llBack.setVisibility(View.VISIBLE);
+            llFront.setVisibility(View.GONE);
+            tvEmailLogin.setVisibility(View.GONE);
+            tvMobileLogin.setVisibility(View.VISIBLE);
+        }
+    }
 }

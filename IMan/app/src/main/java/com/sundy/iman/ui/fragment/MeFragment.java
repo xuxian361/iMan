@@ -4,6 +4,10 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.v4.widget.NestedScrollView;
+import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -159,6 +163,14 @@ public class MeFragment extends BaseFragment {
     ImageView ivArrowScan;
     @BindView(R.id.rel_scan)
     RelativeLayout relScan;
+    @BindView(R.id.toolbar)
+    Toolbar toolbar;
+    @BindView(R.id.collapsing)
+    CollapsingToolbarLayout collapsing;
+    @BindView(R.id.appbar)
+    AppBarLayout appbar;
+    @BindView(R.id.scrollView)
+    NestedScrollView scrollView;
 
     @Nullable
     @Override
@@ -179,6 +191,8 @@ public class MeFragment extends BaseFragment {
                 getMemberInfo();
             }
         });
+
+        scrollView.setSmoothScrollingEnabled(true);
     }
 
     @Override

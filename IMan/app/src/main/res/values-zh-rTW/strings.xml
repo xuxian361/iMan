@@ -168,6 +168,11 @@
     <string name="share_to">Share to</string>
     <string name="report_this_msg">Report this message</string>
     <string name="delete_this_msg">Delete this message</string>
+    <string name="message">Message</string>
+    <string name="please_choose">Please choose</string>
+    <string name="login_email_hint">Email</string>
+    <string name="use_email_login">Use email to login</string>
+    <string name="use_mobile_login">Use mobile number to login</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.
