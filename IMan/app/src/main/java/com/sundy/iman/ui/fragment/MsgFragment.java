@@ -11,6 +11,7 @@ import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -41,6 +42,7 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import butterknife.Unbinder;
 import retrofit2.Call;
 import retrofit2.Response;
@@ -66,7 +68,8 @@ public class MsgFragment extends BaseFragment {
     AppBarLayout appbar;
     @BindView(R.id.scrollView)
     NestedScrollView scrollView;
-
+    @BindView(R.id.btn_add)
+    ImageView btnAdd;
 
     @Nullable
     @Override
@@ -79,17 +82,7 @@ public class MsgFragment extends BaseFragment {
     }
 
     private void init() {
-        scrollView.setOnScrollChangeListener(onScrollChangeListener);
     }
-
-    private NestedScrollView.OnScrollChangeListener onScrollChangeListener = new NestedScrollView.OnScrollChangeListener() {
-        @Override
-        public void onScrollChange(NestedScrollView v, int scrollX, int scrollY, int oldScrollX, int oldScrollY) {
-            Logger.e("-------->scrollY = " + scrollY);
-
-
-        }
-    };
 
     @Override
     public void onStart() {
@@ -264,10 +257,10 @@ public class MsgFragment extends BaseFragment {
         unbinder.unbind();
     }
 
-//    @OnClick(R.id.iv_add_community)
-//    public void onViewClicked() {
-//        goAddCommunity();
-//    }
+    @OnClick(R.id.btn_add)
+    public void onViewClicked() {
+        goAddCommunity();
+    }
 
     //跳转添加社区
     private void goAddCommunity() {

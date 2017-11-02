@@ -97,6 +97,7 @@ public class WebActivity extends BaseActivity {
         webSettings.setJavaScriptCanOpenWindowsAutomatically(true);
         webSettings.setAllowFileAccess(true);
         webSettings.setSupportZoom(true);
+        webSettings.setDisplayZoomControls(false);
         webSettings.setBuiltInZoomControls(true);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             webSettings.setMixedContentMode(webSettings.getMixedContentMode());

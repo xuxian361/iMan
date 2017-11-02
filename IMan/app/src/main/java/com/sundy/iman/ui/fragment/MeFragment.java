@@ -192,7 +192,6 @@ public class MeFragment extends BaseFragment {
             }
         });
 
-        scrollView.setSmoothScrollingEnabled(true);
     }
 
     @Override
@@ -201,10 +200,12 @@ public class MeFragment extends BaseFragment {
         if (PaperUtils.isLogin()) {
             relNotLogin.setVisibility(View.GONE);
             relLogined.setVisibility(View.VISIBLE);
+            refreshLayout.setEnableRefresh(true);
             showMemberInfo(PaperUtils.getUserInfo());
         } else {
             relNotLogin.setVisibility(View.VISIBLE);
             relLogined.setVisibility(View.GONE);
+            refreshLayout.setEnableRefresh(false);
         }
     }
 
