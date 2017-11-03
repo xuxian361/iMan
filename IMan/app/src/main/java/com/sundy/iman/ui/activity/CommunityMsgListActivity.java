@@ -741,7 +741,7 @@ public class CommunityMsgListActivity extends BaseActivity {
                                     @Override
                                     public void deleteClick() {
                                         postItemMenuSelfPopup.dismiss();
-                                        deletePost(itemData);
+                                        showDeleteDialog(itemData);
                                     }
 
                                     @Override
@@ -869,6 +869,20 @@ public class CommunityMsgListActivity extends BaseActivity {
             private PostItemEntity item;
         }
 
+    }
+
+    //删除消息弹框
+    private void showDeleteDialog(final PostAdapter.ItemData itemData) {
+        final CommonDialog dialog = new CommonDialog(this);
+        dialog.getTitle().setVisibility(View.GONE);
+        dialog.getContent().setText(getString(R.string.if_confirm_delete_post));
+        dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                deletePost(itemData);
+            }
+        });
     }
 
     //跳转登录
