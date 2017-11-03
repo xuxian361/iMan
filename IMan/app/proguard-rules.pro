@@ -238,3 +238,8 @@ public static final int *;
     <init>(java.lang.Throwable);
 }
 #Eventbus------------end-------
+#Greendao
+-keepclassmembers class * extends org.greenrobot.greendao.AbstractDao {
+public static java.lang.String TABLENAME;
+}
+-keep class **$Properties

@@ -27,11 +27,11 @@ public class LaunchPaper {
     /**
      * 获取启动的记录
      * return
-     * true: 已经启动过
-     * false: 第一次启动
+     * true: 第一次启动
+     * false: 不是第一次启动
      */
     public static boolean getLaunchRecord() {
-        return Paper.book().read(PAPER_KEY, false);
+        return Paper.book().read(PAPER_KEY, true);
     }
 
 }

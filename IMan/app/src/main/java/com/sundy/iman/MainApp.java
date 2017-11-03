@@ -10,6 +10,7 @@ import android.widget.Toast;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 import com.previewlibrary.ZoomMediaLoader;
+import com.sundy.iman.helper.ChatHelper;
 import com.sundy.iman.impl.GlideImageLoader;
 import com.sundy.iman.utils.ToastUtil;
 import com.umeng.socialize.PlatformConfig;
@@ -56,6 +57,10 @@ public class MainApp extends MultiDexApplication {
 
         //友盟分享
         UMShareAPI.get(this);
+
+        //环信初始化
+        ChatHelper.getInstance().init(this);
+
     }
 
     /******************************* Method *******************************/

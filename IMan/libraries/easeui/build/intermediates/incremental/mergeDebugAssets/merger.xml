@@ -1,0 +1,2 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="3"><dataSet config="main"><source path="/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/assets"/><source path="/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/generated/assets/shaders/debug"/></dataSet><dataSet config="debug"><source path="/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/debug/assets"/></dataSet></merger>

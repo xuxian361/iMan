@@ -17,6 +17,7 @@ import com.sundy.iman.entity.AppVersionEntity;
 import com.sundy.iman.entity.LogoutEntity;
 import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.StaticContentEntity;
+import com.sundy.iman.helper.ChatHelper;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
@@ -297,6 +298,10 @@ public class SettingsActivity extends BaseActivity {
                     //清除登录用户本地信息
                     PaperUtils.clearUserInfo();
                     PaperUtils.clearPostReadRecord();
+
+                    //登出环信
+                    ChatHelper.getInstance().logout(false, null);
+
                     if (code == Constants.CODE_SUCCESS) {
 
                     } else {

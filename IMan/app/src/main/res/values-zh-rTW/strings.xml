@@ -173,6 +173,8 @@
     <string name="login_email_hint">Email</string>
     <string name="use_email_login">Use email to login</string>
     <string name="use_mobile_login">Use mobile number to login</string>
+    <string name="network_not_available">The network is not available</string>
+    <string name="msg_recall_by_user">%1$s 撤回了一条消息</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

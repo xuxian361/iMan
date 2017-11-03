@@ -14,7 +14,11 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.hyphenate.EMCallBack;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
@@ -23,6 +27,7 @@ import com.sundy.iman.entity.LoginEntity;
 import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.VerificationCodeEntity;
+import com.sundy.iman.helper.ChatHelper;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
@@ -127,6 +132,10 @@ public class LoginActivity extends BaseActivity {
         btnGetCode.setEnabled(false);
         btnLogin.setSelected(false);
         btnLogin.setEnabled(false);
+        btnGetCode2.setSelected(false);
+        btnGetCode2.setEnabled(false);
+        btnLogin2.setSelected(false);
+        btnLogin2.setEnabled(false);
     }
 
     private TextWatcher watcherMobile = new TextWatcher() {
@@ -313,6 +322,11 @@ public class LoginActivity extends BaseActivity {
 
     //登录
     private void loginByMobile() {
+        if (!EaseCommonUtils.isNetWorkConnected(this)) {
+            Toast.makeText(this, R.string.network_not_available, Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         String phone = etMobile.getText().toString().trim();
         String verification_code = etCode.getText().toString().trim();
         Map<String, String> param = new HashMap<>();
@@ -325,7 +339,6 @@ public class LoginActivity extends BaseActivity {
         call.enqueue(new RetrofitCallback<LoginEntity>() {
             @Override
             public void onSuccess(Call<LoginEntity> call, Response<LoginEntity> response) {
-                hideProgress();
                 LoginEntity loginEntity = response.body();
                 if (loginEntity != null) {
                     int code = loginEntity.getCode();
@@ -364,11 +377,9 @@ public class LoginActivity extends BaseActivity {
         param.put("profile_id", mid);
         Call<MemberInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .getMemberInfo(ParamHelper.formatData(param));
-        showProgress();
         call.enqueue(new RetrofitCallback<MemberInfoEntity>() {
             @Override
             public void onSuccess(Call<MemberInfoEntity> call, Response<MemberInfoEntity> response) {
-                hideProgress();
                 MemberInfoEntity memberInfoEntity = response.body();
                 if (memberInfoEntity != null) {
                     int code = memberInfoEntity.getCode();
@@ -377,9 +388,10 @@ public class LoginActivity extends BaseActivity {
                         MemberInfoEntity.DataEntity dataEntity = memberInfoEntity.getData();
                         if (dataEntity != null) {
                             //保存登录用户信息
-                            PaperUtils.saveUserInfo(memberInfoEntity);
-                            sendLoginEvent();
-                            finish();
+                            PaperUtils.saveUserInfo(memberInfoEntity); //保存到Paper
+                            ChatHelper.getInstance().updateSelfUserInfo(memberInfoEntity); //保存到数据库
+                            //登录环信
+                            loginHx(dataEntity.getEasemob_account(), dataEntity.getEasemob_password());
                         }
                     } else {
                         MainApp.getInstance().showToast(msg);
@@ -394,6 +406,33 @@ public class LoginActivity extends BaseActivity {
             @Override
             public void onFailure(Call<MemberInfoEntity> call, Throwable t) {
 
+            }
+        });
+    }
+
+    //登录环信
+    private void loginHx(String userName, String password) {
+        EMClient.getInstance().login(userName, password, new EMCallBack() {//回调
+            @Override
+            public void onSuccess() {
+                hideProgress();
+                EMClient.getInstance().groupManager().loadAllGroups();
+                EMClient.getInstance().chatManager().loadAllConversations();
+                Logger.e("登录聊天服务器成功！");
+
+                sendLoginEvent();
+                finish();
+            }
+
+            @Override
+            public void onProgress(int progress, String status) {
+
+            }
+
+            @Override
+            public void onError(int code, String message) {
+                Logger.e("登录聊天服务器失败！");
+                hideProgress();
             }
         });
     }

@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'org.greenrobot.greendao'
 
 android {
     compileSdkVersion 25
@@ -111,6 +112,14 @@ configurations.all {
     }
 }
 
+//greenDao----start//
+greendao {
+    schemaVersion 1
+    daoPackage 'com.sundy.iman.greendao'
+    targetGenDir 'src/main/java'
+}
+//greenDao----end//
+
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     androidTestCompile('com.android.support.test.espresso:espresso-core:2.2.2', {
@@ -130,6 +139,8 @@ dependencies {
     compile 'com.squareup.okhttp3:okhttp:3.9.0'
     //消息传递
     compile 'org.greenrobot:eventbus:3.0.0'
+    //GreenDao 数据库
+    compile 'org.greenrobot:greendao:3.2.2'
     //依赖注入
     compile 'com.jakewharton:butterknife:8.8.1'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.8.1'
@@ -181,5 +192,5 @@ dependencies {
     compile project(':libraries:mediapicker')
     //IJKPlayer播放器
     compile 'com.shuyu:GSYVideoPlayer:2.1.1'
-
+    compile project(':libraries:easeui')
 }

@@ -24,7 +24,7 @@ public class PaperUtils {
 
     //设置第一次启动APP标志
     public static void setFirstLaunchApp() {
-        LaunchPaper.saveLaunchRecord(true);
+        LaunchPaper.saveLaunchRecord(false);
     }
 
     //获取App 当前语言

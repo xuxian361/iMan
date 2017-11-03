@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.view.KeyEvent;
 
+import com.hyphenate.chat.EMClient;
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
 import com.sundy.iman.helper.UIHelper;
@@ -82,9 +83,14 @@ public class LoadingActivity extends BaseActivity {
                 }
             };
         }
-        if (!PaperUtils.isFirstLaunchApp()) {
+        if (PaperUtils.isFirstLaunchApp()) {
             handler.sendEmptyMessageDelayed(MSG_GO_GUIDE, DELAY_TIME);
         } else {
+            boolean isLoginBefore = EMClient.getInstance().isLoggedInBefore();
+            if (PaperUtils.isLogin() && isLoginBefore) {
+                EMClient.getInstance().chatManager().loadAllConversations();
+                EMClient.getInstance().groupManager().loadAllGroups();
+            }
             handler.sendEmptyMessageDelayed(MSG_GO_INTENT, DELAY_TIME);
         }
     }
