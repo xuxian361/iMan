@@ -9,10 +9,13 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
 
+import com.hyphenate.easeui.EaseConstant;
+import com.hyphenate.util.EMLog;
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.AppVersionEntity;
+import com.sundy.iman.helper.ChatHelper;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnBaseListener;
 import com.sundy.iman.net.ParamHelper;
@@ -32,6 +35,7 @@ public class MainActivity extends BaseActivity implements OnBaseListener {
 
     private static final String TAG = "MainActivity";
     private Fragment mContent;
+    private boolean isExceptionDialogShow = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -121,17 +125,70 @@ public class MainActivity extends BaseActivity implements OnBaseListener {
 
     @Override
     protected void onNewIntent(Intent intent) {
-        Logger.e(TAG, "-------->onNewIntent");
+        Logger.e("-------->onNewIntent");
         super.onNewIntent(intent);
         if (intent.getAction() == null) {
-            Logger.e(TAG, "-------->null");
+            Logger.e("-------->null");
             UIHelper.jump(this, MainActivity.class);
             overridePendingTransition(R.anim.in_alpha, R.anim.out_alpha);
             finish();
         } else {
-            Logger.e(TAG, "-------->not null");
+            Logger.e("-------->not null");
             //其他逻辑
+            showExceptionDialogFromIntent(intent);
         }
+    }
+
+    private void showExceptionDialogFromIntent(Intent intent) {
+        EMLog.e(TAG, "showExceptionDialogFromIntent");
+        if (!isExceptionDialogShow && intent.getBooleanExtra(EaseConstant.ACCOUNT_CONFLICT, false)) {
+            showExceptionDialog(EaseConstant.ACCOUNT_CONFLICT);
+        } else if (!isExceptionDialogShow && intent.getBooleanExtra(EaseConstant.ACCOUNT_REMOVED, false)) {
+            showExceptionDialog(EaseConstant.ACCOUNT_REMOVED);
+        } else if (!isExceptionDialogShow && intent.getBooleanExtra(EaseConstant.ACCOUNT_FORBIDDEN, false)) {
+            showExceptionDialog(EaseConstant.ACCOUNT_FORBIDDEN);
+        } else if (intent.getBooleanExtra(EaseConstant.ACCOUNT_KICKED_BY_CHANGE_PASSWORD, false) ||
+                intent.getBooleanExtra(EaseConstant.ACCOUNT_KICKED_BY_OTHER_DEVICE, false)) {
+            this.finish();
+            startActivity(new Intent(this, LoginActivity.class));
+        }
+    }
+
+    /**
+     * show the dialog when user met some exception: such as login on another device, user removed or user forbidden
+     */
+    private void showExceptionDialog(String exceptionType) {
+        isExceptionDialogShow = true;
+        ChatHelper.getInstance().logout(false, null);
+        if (!MainActivity.this.isFinishing()) {
+            // clear up global variables
+            final CommonDialog dialog = new CommonDialog(this);
+            dialog.setCanceledOnTouchOutside(false);
+            dialog.getTitle().setText(getString(R.string.account_exception));
+            dialog.getContent().setText(getExceptionMessageId(exceptionType));
+            dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    dialog.dismiss();
+                    isExceptionDialogShow = false;
+                    finish();
+                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                }
+            });
+        }
+    }
+
+    private int getExceptionMessageId(String exceptionType) {
+        if (exceptionType.equals(EaseConstant.ACCOUNT_CONFLICT)) {
+            return R.string.connect_conflict_str;
+        } else if (exceptionType.equals(EaseConstant.ACCOUNT_REMOVED)) {
+            return R.string.em_user_remove_str;
+        } else if (exceptionType.equals(EaseConstant.ACCOUNT_FORBIDDEN)) {
+            return R.string.user_forbidden_str;
+        }
+        return R.string.Network_error;
     }
 
     @Override

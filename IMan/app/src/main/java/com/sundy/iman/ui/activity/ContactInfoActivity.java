@@ -3,6 +3,7 @@ package com.sundy.iman.ui.activity;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
+import android.view.View;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -57,6 +58,8 @@ public class ContactInfoActivity extends BaseActivity {
     Switch switchNotification;
     @BindView(R.id.btn_chat)
     TextView btnChat;
+    @BindView(R.id.btn_add_contact)
+    TextView btnAddContact;
 
     private String profile_id;
     private MemberInfoEntity.DataEntity dataEntity;
@@ -220,16 +223,23 @@ public class ContactInfoActivity extends BaseActivity {
         UIHelper.jump(this, ChatActivity.class, bundle);
     }
 
-    @OnClick(R.id.btn_chat)
-    public void onViewClicked() {
-        if (PaperUtils.isLogin())
-            goChat();
-        else
-            goLogin();
-    }
-
     //跳转登录
     private void goLogin() {
         UIHelper.jump(this, LoginActivity.class);
+    }
+
+    @OnClick({R.id.btn_chat, R.id.btn_add_contact})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.btn_chat:
+                if (PaperUtils.isLogin())
+                    goChat();
+                else
+                    goLogin();
+                break;
+            case R.id.btn_add_contact:
+                //SUNDY
+                break;
+        }
     }
 }

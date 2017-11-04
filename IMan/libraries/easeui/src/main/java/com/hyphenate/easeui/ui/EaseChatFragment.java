@@ -774,10 +774,6 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
         } else if (chatType == EaseConstant.CHATTYPE_CHATROOM) {
             message.setChatType(ChatType.ChatRoom);
         }
-        //send 扩展消息
-        message.setAttribute("nickname", "Sundy");
-        message.setAttribute("avatarURLPath", "http://www.baidu.com");
-
         //send message
         EMClient.getInstance().chatManager().sendMessage(message);
         //refresh ui

@@ -33,4 +33,15 @@ public class EaseConstant {
     
     public static final String EXTRA_CHAT_TYPE = "chatType";
     public static final String EXTRA_USER_ID = "easemod_id";
+
+    public static final String ACCOUNT_REMOVED = "account_removed";
+    public static final String ACCOUNT_CONFLICT = "conflict";
+    public static final String ACCOUNT_FORBIDDEN = "user_forbidden";
+    public static final String ACCOUNT_KICKED_BY_CHANGE_PASSWORD = "kicked_by_change_password";
+    public static final String ACCOUNT_KICKED_BY_OTHER_DEVICE = "kicked_by_another_device";
+
+    //环信用户: 环信扩展消息
+    public static final String CONS_ATTR_AVATAR = "avatarURLPath";
+    public static final String CONS_ATTR_NICK_NAME = "nickname";
+
 }

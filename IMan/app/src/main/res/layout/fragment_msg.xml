@@ -52,13 +52,12 @@
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-        <TextView
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/rv_msg"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:lineSpacingExtra="380dp"
-            android:padding="@dimen/activity_horizontal_margin"
-            android:text="dafdsfadfadfkjhkjhhhjhhjhjkhhjkjhkhkjhkkjjhkhjkkjhjkjjkjhkjjkjkhjkjkjkjjkjkhjkhjkkhjhkjhjkhjhjkhkjhkhkjhjhkhjhjkhjkkj"
-            android:textSize="20sp" />
+            android:layout_height="match_parent"
+            android:paddingBottom="10dp"
+            android:paddingTop="0dp" />
 
     </android.support.v4.widget.NestedScrollView>
 

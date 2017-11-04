@@ -1,12 +1,13 @@
 package com.sundy.iman.helper;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
 import android.util.Log;
 
 import com.hyphenate.EMCallBack;
+import com.hyphenate.EMConnectionListener;
+import com.hyphenate.EMError;
 import com.hyphenate.EMMessageListener;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMCmdMessageBody;
@@ -19,12 +20,14 @@ import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.model.EaseAtMessageHelper;
 import com.hyphenate.easeui.model.EaseNotifier;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
+import com.hyphenate.util.EMLog;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.greendao.ImUserInfo;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.ui.activity.ChatActivity;
+import com.sundy.iman.ui.activity.MainActivity;
 
 import java.util.List;
 
@@ -35,6 +38,7 @@ import java.util.List;
 public class ChatHelper {
 
     private static final String TAG = "ChatHelper";
+    private Context appContext;
     private static final ChatHelper ourInstance = new ChatHelper();
     private EMOptions emOptions;
 
@@ -52,11 +56,48 @@ public class ChatHelper {
     }
 
     //初始化环信
-    public void init(Application application) {
-        EaseUI.getInstance().init(application, ChatHelper.getInstance().getEmOptions());
+    public void init(Context context) {
+        this.appContext = context;
+        EaseUI.getInstance().init(context, ChatHelper.getInstance().getEmOptions());
         registerMessageListener();
+        registerConnectionListener();
         initUserProvider();
         initNotify();
+    }
+
+    private void registerConnectionListener() {
+        EMConnectionListener connectionListener = new EMConnectionListener() {
+            @Override
+            public void onDisconnected(int error) {
+                EMLog.d("global listener", "onDisconnect" + error);
+                if (error == EMError.USER_REMOVED) {
+                    onUserException(EaseConstant.ACCOUNT_REMOVED);
+                } else if (error == EMError.USER_LOGIN_ANOTHER_DEVICE) {
+                    onUserException(EaseConstant.ACCOUNT_CONFLICT);
+                } else if (error == EMError.SERVER_SERVICE_RESTRICTED) {
+                    onUserException(EaseConstant.ACCOUNT_FORBIDDEN);
+                } else if (error == EMError.USER_KICKED_BY_CHANGE_PASSWORD) {
+                    onUserException(EaseConstant.ACCOUNT_KICKED_BY_CHANGE_PASSWORD);
+                } else if (error == EMError.USER_KICKED_BY_OTHER_DEVICE) {
+                    onUserException(EaseConstant.ACCOUNT_KICKED_BY_OTHER_DEVICE);
+                }
+            }
+
+            @Override
+            public void onConnected() {
+                // in case group and contact were already synced, we supposed to notify sdk we are ready to receive the events
+            }
+        };
+        EMClient.getInstance().addConnectionListener(connectionListener);
+    }
+
+    protected void onUserException(String exception) {
+        EMLog.e(TAG, "onUserException: " + exception);
+        Intent intent = new Intent(appContext, MainActivity.class);
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        intent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
+        intent.putExtra(exception, true);
+        appContext.startActivity(intent);
     }
 
     //添加/更新环信用户自己信息：
@@ -198,6 +239,24 @@ public class ChatHelper {
                             if (!EaseUI.getInstance().hasForegroundActivies()) {
                                 getNotifier().onNewMsg(message);
                             }
+
+                            if (i == 0) {
+                                Log.e(TAG, "----------------------------->");
+                                String avatar = message.getStringAttribute(EaseConstant.CONS_ATTR_AVATAR, "");
+                                String nickname = message.getStringAttribute(EaseConstant.CONS_ATTR_NICK_NAME, "");
+                                Log.e(TAG, "-------->message body =" + message.getBody().toString());
+                                Log.e(TAG, "-------->user_avatar =" + avatar);
+                                Log.e(TAG, "-------->name =" + nickname);
+                                Log.e(TAG, "-----------------------------<");
+                                ImUserInfo imUserInfoEntity = DbHelper.getInstance().getUserInfoByHxId(message.getFrom());
+                                if (imUserInfoEntity == null) {
+                                    imUserInfoEntity = new ImUserInfo();
+                                }
+                                imUserInfoEntity.setEasemob_account(message.getFrom());
+                                imUserInfoEntity.setProfile_image(avatar);
+                                imUserInfoEntity.setUsername(nickname);
+                                DbHelper.getInstance().addUserInfoEntity(imUserInfoEntity);
+                            }
                         }
                     }
                 } catch (Exception e) {
@@ -231,7 +290,7 @@ public class ChatHelper {
             @Override
             public void onMessageRecalled(List<EMMessage> messages) {
                 for (EMMessage msg : messages) {
-                    if(msg.getChatType() == EMMessage.ChatType.GroupChat && EaseAtMessageHelper.get().isAtMeMsg(msg)){
+                    if (msg.getChatType() == EMMessage.ChatType.GroupChat && EaseAtMessageHelper.get().isAtMeMsg(msg)) {
                         EaseAtMessageHelper.get().removeAtMeGroup(msg.getTo());
                     }
                     EMMessage msgNotification = EMMessage.createReceiveMessage(EMMessage.Type.TXT);
@@ -263,7 +322,7 @@ public class ChatHelper {
     }
 
     //保存接收消息者用户信息
-    public void saveReceiverEntity(String userId, String username,String hxId, String gender, String avatar) {
+    public void saveReceiverEntity(String userId, String username, String hxId, String gender, String avatar) {
         ImUserInfo imUserInfoEntity = DbHelper.getInstance().getUserInfoByHxId(hxId);
         if (imUserInfoEntity == null)
             imUserInfoEntity = new ImUserInfo();
@@ -278,10 +337,8 @@ public class ChatHelper {
     /**
      * logout
      *
-     * @param unbindDeviceToken
-     *            whether you need unbind your device token
-     * @param callback
-     *            callback
+     * @param unbindDeviceToken whether you need unbind your device token
+     * @param callback          callback
      */
     public void logout(boolean unbindDeviceToken, final EMCallBack callback) {
         Log.d(TAG, "logout: " + unbindDeviceToken);

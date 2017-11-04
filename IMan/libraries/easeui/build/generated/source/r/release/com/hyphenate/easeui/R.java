@@ -2392,8 +2392,9 @@ containing a value of this type.
         public static int ee_8=0x7f020121;
         public static int ee_9=0x7f020122;
         public static int ic_launcher=0x7f020123;
-        public static int notification_template_icon_bg=0x7f020125;
-        public static int recall_message_bg=0x7f020124;
+        public static int icon_default_portrait=0x7f020124;
+        public static int notification_template_icon_bg=0x7f020126;
+        public static int recall_message_bg=0x7f020125;
     }
     public static final class id {
         public static int action0=0x7f0a00c2;

@@ -175,6 +175,13 @@
     <string name="use_mobile_login">Use mobile number to login</string>
     <string name="network_not_available">The network is not available</string>
     <string name="msg_recall_by_user">%1$s 撤回了一条消息</string>
+    <string name="account_exception">账号异常</string>
+    <string name="connect_conflict_str">同一帐号已在其他设备登录</string>
+    <string name="em_user_remove_str">此用户已被移除</string>
+    <string name="user_forbidden_str">用户被服务器限制连接</string>
+    <string name="check_more">查看更多</string>
+    <string name="were_mentioned_str">[有人@我]</string>
+    <string name="add_to_contact">加为联系人</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

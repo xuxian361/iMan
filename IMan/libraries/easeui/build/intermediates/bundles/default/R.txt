@@ -831,8 +831,9 @@ int drawable ee_7 0x7f020120
 int drawable ee_8 0x7f020121
 int drawable ee_9 0x7f020122
 int drawable ic_launcher 0x7f020123
-int drawable notification_template_icon_bg 0x7f020125
-int drawable recall_message_bg 0x7f020124
+int drawable icon_default_portrait 0x7f020124
+int drawable notification_template_icon_bg 0x7f020126
+int drawable recall_message_bg 0x7f020125
 int id action0 0x7f0a00c2
 int id action_bar 0x7f0a0051
 int id action_bar_activity_content 0x7f0a0000

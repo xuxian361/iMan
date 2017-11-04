@@ -155,6 +155,20 @@
                 android:textColor="@color/txt_white"
                 android:textSize="14sp" />
 
+            <TextView
+                android:id="@+id/btn_add_contact"
+                android:layout_width="wrap_content"
+                android:layout_height="@dimen/button_height"
+                android:layout_gravity="center"
+                android:layout_marginTop="10dp"
+                android:background="@drawable/semi_bg_blue_stroke"
+                android:gravity="center"
+                android:minWidth="@dimen/button_min_width"
+                android:text="@string/add_to_contact"
+                android:textColor="@color/txt_blue"
+                android:textSize="14sp" />
+
+
         </LinearLayout>
 
     </ScrollView>
