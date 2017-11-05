@@ -994,6 +994,8 @@ public class CommunityMsgListActivity extends BaseActivity {
             return;
         Bundle bundle = new Bundle();
         bundle.putString("profile_id", profile_id);
+        bundle.putString("type", "0");
+        bundle.putString("goal_id", community_id);
         UIHelper.jump(this, ContactInfoActivity.class, bundle);
     }
 

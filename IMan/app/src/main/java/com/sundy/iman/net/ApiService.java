@@ -1,6 +1,7 @@
 package com.sundy.iman.net;
 
 import com.sundy.iman.config.Apis;
+import com.sundy.iman.entity.AddContactEntity;
 import com.sundy.iman.entity.AppVersionEntity;
 import com.sundy.iman.entity.CancelPostEntity;
 import com.sundy.iman.entity.ChangeLanguageEntity;
@@ -299,6 +300,15 @@ public interface ApiService {
      */
     @GET(Apis.URL_GET_SHARE_INFO)
     Call<ShareInfoEntity> getShareInfo(@QueryMap Map<String, String> map);
+
+    /**
+     * 添加联系人
+     *
+     * @return
+     */
+    @GET(Apis.URL_ADD_CONTACT)
+    Call<AddContactEntity> addContact(@QueryMap Map<String, String> map);
+
 
     /**
      * 图片上传

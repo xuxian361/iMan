@@ -101,6 +101,9 @@ public class Apis {
     //获取分享内容
     public static final String URL_GET_SHARE_INFO = "share/getShareInfo";
 
+    //添加联系人
+    public static final String URL_ADD_CONTACT = "contact/addContact";
+
     //图片上传
     public static final String URL_UPLOAD_IMAGE = "";
 

@@ -142,9 +142,16 @@ public class ChatActivity extends BaseActivity implements EaseChatFragment.EaseC
 
     //跳转用户详情
     private void goUserDetail(String profile_id) {
-        Bundle bundle = new Bundle();
-        bundle.putString("profile_id", profile_id);
-        UIHelper.jump(this, ContactInfoActivity.class, bundle);
+        String meID = PaperUtils.getMId();
+        if (meID.equals(profile_id)) {
+            UIHelper.jump(this, EditProfileActivity.class);
+        } else {
+            Bundle bundle = new Bundle();
+            bundle.putString("profile_id", profile_id);
+            bundle.putString("type", "1");
+            bundle.putString("goal_id", "");
+            UIHelper.jump(this, ContactInfoActivity.class, bundle);
+        }
     }
 
 }

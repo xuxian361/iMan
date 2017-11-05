@@ -720,6 +720,8 @@ public class MsgFragment extends BaseFragment {
         Logger.e("----->profile_id =" + profile_id);
         Bundle bundle = new Bundle();
         bundle.putString("profile_id", profile_id);
+        bundle.putString("type", "1");
+        bundle.putString("goal_id", "");
         UIHelper.jump(mContext, ContactInfoActivity.class, bundle);
     }
 

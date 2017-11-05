@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
+import com.sundy.iman.entity.AddContactEntity;
 import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.helper.ImageHelper;
 import com.sundy.iman.helper.UIHelper;
@@ -64,6 +65,10 @@ public class ContactInfoActivity extends BaseActivity {
     private String profile_id;
     private MemberInfoEntity.DataEntity dataEntity;
 
+    private String contact_id; //用户ID
+    private String goal_id; //目标ID: 当类型为0时，则为社区ID
+    private String type; //类型: 0-社区；1-单聊 ；2-群聊（目前没有） ；3-扫二维码 （目前没有）
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +85,8 @@ public class ContactInfoActivity extends BaseActivity {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             profile_id = bundle.getString("profile_id");
+            type = bundle.containsKey("type") ? bundle.getString("type") : "";
+            goal_id = bundle.containsKey("goal_id") ? bundle.getString("goal_id") : "";
         }
     }
 
@@ -121,7 +128,7 @@ public class ContactInfoActivity extends BaseActivity {
         @Override
         public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
             if (b) {
-
+                //SUNDY
             } else {
 
             }
@@ -244,8 +251,49 @@ public class ContactInfoActivity extends BaseActivity {
                     goLogin();
                 break;
             case R.id.btn_add_contact:
-                //SUNDY
+                addContact();
                 break;
         }
+    }
+
+    //添加联系人
+    private void addContact() {
+        contact_id = profile_id;
+
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("contact_id", contact_id); //联系人ID
+        param.put("type", type); //类型: 0-社区；1-单聊 ；2-群聊（目前没有） ；3-扫二维码 （目前没有）
+        param.put("goal_id", goal_id); //目标ID: 当类型为0时，则为社区ID
+        showProgress();
+        Call<AddContactEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .addContact(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<AddContactEntity>() {
+            @Override
+            public void onSuccess(Call<AddContactEntity> call, Response<AddContactEntity> response) {
+                AddContactEntity addContactEntity = response.body();
+                if (addContactEntity != null) {
+                    int code = addContactEntity.getCode();
+                    String msg = addContactEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        btnAddContact.setVisibility(View.GONE);
+                        MainApp.getInstance().showToast(getString(R.string.add_contact_success));
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+                hideProgress();
+            }
+
+            @Override
+            public void onFailure(Call<AddContactEntity> call, Throwable t) {
+
+            }
+        });
     }
 }
