@@ -94,6 +94,7 @@ public class MsgFragment extends BaseFragment {
 
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 100;
     private final static int MSG_REFRESH = 2;
+    private final static int MSG_CLEAR = 3;
 
     //声明AMapLocationClient类对象
     public AMapLocationClient locationClient = null;
@@ -127,6 +128,11 @@ public class MsgFragment extends BaseFragment {
                     break;
                 case 1:
                     onConnectionConnected();
+                    break;
+                case MSG_CLEAR:
+                    conversationList.clear();
+                    conversationAdapter.setNewData(conversationList);
+                    conversationAdapter.notifyDataSetChanged();
                     break;
                 case MSG_REFRESH: {
                     conversationList.clear();
@@ -237,6 +243,10 @@ public class MsgFragment extends BaseFragment {
         if (PaperUtils.isLogin()) {
             if (!handler.hasMessages(MSG_REFRESH)) {
                 handler.sendEmptyMessage(MSG_REFRESH);
+            }
+        }else {
+            if (!handler.hasMessages(MSG_CLEAR)) {
+                handler.sendEmptyMessage(MSG_CLEAR);
             }
         }
     }
