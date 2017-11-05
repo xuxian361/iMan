@@ -37,6 +37,9 @@ public class MemberInfoEntity extends BaseResEntity {
         private String easemob_account; //环信账号
         private String easemob_password; //环信密码
         private String easemob_uuid; //环信uuID
+        private String post_total; //Post 总数
+        private String is_contact; //是否是联系人: 1-是，0-否
+
 
     }
 }

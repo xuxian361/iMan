@@ -6,14 +6,14 @@
     <!-- Bottom View Start-->
     <LinearLayout
         android:id="@+id/bottom_wrapper"
-        android:layout_width="80dp"
+        android:layout_width="74dp"
         android:layout_height="match_parent"
         android:weightSum="1">
 
         <TextView
             android:id="@+id/tv_item_del"
             android:layout_width="match_parent"
-            android:layout_height="72dp"
+            android:layout_height="66dp"
             android:layout_gravity="center"
             android:layout_marginTop="3dp"
             android:background="@color/bg_red"
@@ -37,7 +37,7 @@
         <RelativeLayout
             android:id="@+id/rel_item"
             android:layout_width="match_parent"
-            android:layout_height="80dp"
+            android:layout_height="74dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_marginTop="5dp"
@@ -53,8 +53,8 @@
 
                 <com.hyphenate.easeui.widget.EaseImageView
                     android:id="@+id/avatar"
-                    android:layout_width="46dp"
-                    android:layout_height="46dp"
+                    android:layout_width="50dp"
+                    android:layout_height="50dp"
                     android:layout_centerVertical="true"
                     android:scaleType="fitXY"
                     android:src="@mipmap/icon_default_portrait" />
@@ -84,12 +84,13 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginLeft="7dp"
-                android:layout_marginTop="10dp"
+                android:layout_marginTop="12dp"
                 android:layout_toLeftOf="@+id/time"
                 android:layout_toRightOf="@id/avatar_container"
                 android:singleLine="true"
                 android:textColor="@color/txt_black"
-                android:textSize="16sp" />
+                android:textSize="16sp"
+                android:textStyle="bold"/>
 
             <TextView
                 android:id="@+id/time"
@@ -130,15 +131,15 @@
                 android:id="@+id/message"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="3dp"
                 android:layout_marginRight="10dp"
+                android:layout_below="@+id/name"
                 android:layout_toRightOf="@id/mentioned"
                 android:ellipsize="end"
-                android:padding="7dp"
                 android:singleLine="true"
+                android:layout_marginLeft="7dp"
+                android:layout_marginTop="3dp"
                 android:textColor="@color/txt_normal"
-                android:textSize="13sp" />
+                android:textSize="12sp" />
 
         </RelativeLayout>
     </LinearLayout>

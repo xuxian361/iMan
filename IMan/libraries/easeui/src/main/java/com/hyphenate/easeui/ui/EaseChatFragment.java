@@ -266,42 +266,44 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
 
     protected void onConversationInit() {
         conversation = EMClient.getInstance().chatManager().getConversation(toChatUsername, EaseCommonUtils.getConversationType(chatType), true);
-        conversation.markAllMessagesAsRead();
-        // the number of messages loaded into conversation is getChatOptions().getNumberOfMessagesLoaded
-        // you can change this number
+        if (conversation != null) {
+            conversation.markAllMessagesAsRead();
+            // the number of messages loaded into conversation is getChatOptions().getNumberOfMessagesLoaded
+            // you can change this number
 
-        if (!isRoaming) {
-            final List<EMMessage> msgs = conversation.getAllMessages();
-            int msgCount = msgs != null ? msgs.size() : 0;
-            if (msgCount < conversation.getAllMsgCount() && msgCount < pagesize) {
-                String msgId = null;
-                if (msgs != null && msgs.size() > 0) {
-                    msgId = msgs.get(0).getMsgId();
-                }
-                conversation.loadMoreMsgFromDB(msgId, pagesize - msgCount);
-            }
-        } else {
-            fetchQueue.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        EMClient.getInstance().chatManager().fetchHistoryMessages(
-                                toChatUsername, EaseCommonUtils.getConversationType(chatType), pagesize, "");
-                        final List<EMMessage> msgs = conversation.getAllMessages();
-                        int msgCount = msgs != null ? msgs.size() : 0;
-                        if (msgCount < conversation.getAllMsgCount() && msgCount < pagesize) {
-                            String msgId = null;
-                            if (msgs != null && msgs.size() > 0) {
-                                msgId = msgs.get(0).getMsgId();
-                            }
-                            conversation.loadMoreMsgFromDB(msgId, pagesize - msgCount);
-                        }
-                        messageList.refreshSelectLast();
-                    } catch (HyphenateException e) {
-                        e.printStackTrace();
+            if (!isRoaming) {
+                final List<EMMessage> msgs = conversation.getAllMessages();
+                int msgCount = msgs != null ? msgs.size() : 0;
+                if (msgCount < conversation.getAllMsgCount() && msgCount < pagesize) {
+                    String msgId = null;
+                    if (msgs != null && msgs.size() > 0) {
+                        msgId = msgs.get(0).getMsgId();
                     }
+                    conversation.loadMoreMsgFromDB(msgId, pagesize - msgCount);
                 }
-            });
+            } else {
+                fetchQueue.execute(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            EMClient.getInstance().chatManager().fetchHistoryMessages(
+                                    toChatUsername, EaseCommonUtils.getConversationType(chatType), pagesize, "");
+                            final List<EMMessage> msgs = conversation.getAllMessages();
+                            int msgCount = msgs != null ? msgs.size() : 0;
+                            if (msgCount < conversation.getAllMsgCount() && msgCount < pagesize) {
+                                String msgId = null;
+                                if (msgs != null && msgs.size() > 0) {
+                                    msgId = msgs.get(0).getMsgId();
+                                }
+                                conversation.loadMoreMsgFromDB(msgId, pagesize - msgCount);
+                            }
+                            messageList.refreshSelectLast();
+                        } catch (HyphenateException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                });
+            }
         }
     }
 

@@ -210,6 +210,13 @@ public class ContactInfoActivity extends BaseActivity {
             } else {
                 ivGender.setImageResource(R.mipmap.icon_female);
             }
+
+            String is_contact = dataEntity.getIs_contact(); //是否是联系人:1-是，0-否
+            if (is_contact.equals("1")) {
+                btnAddContact.setVisibility(View.GONE);
+            } else {
+                btnAddContact.setVisibility(View.VISIBLE);
+            }
         }
     }
 
@@ -218,7 +225,6 @@ public class ContactInfoActivity extends BaseActivity {
         if (dataEntity == null)
             return;
         Bundle bundle = new Bundle();
-        bundle.putString("userId", dataEntity.getId());
         bundle.putString("easemod_id", dataEntity.getEasemob_account());
         UIHelper.jump(this, ChatActivity.class, bundle);
     }

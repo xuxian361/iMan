@@ -1106,7 +1106,6 @@ public class CommunityMsgListActivity extends BaseActivity {
     //跳转聊天页面
     private void goChat(PostItemEntity.MemberEntity memberEntity) {
         Bundle bundle = new Bundle();
-        bundle.putString("userId", memberEntity.getId());
         bundle.putString("easemod_id", memberEntity.getEasemob_account());
         UIHelper.jump(this, ChatActivity.class, bundle);
     }

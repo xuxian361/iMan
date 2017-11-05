@@ -182,6 +182,8 @@
     <string name="check_more">查看更多</string>
     <string name="were_mentioned_str">[有人@我]</string>
     <string name="add_to_contact">加为联系人</string>
+    <string name="delete_conversation_messages_tips">删除后，将清空该聊天的消息记录</string>
+    <string name="user_kicked_by_other_device">账号被其他设备踢出</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

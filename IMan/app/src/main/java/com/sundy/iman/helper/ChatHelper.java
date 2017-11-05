@@ -1,5 +1,6 @@
 package com.sundy.iman.helper;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.text.TextUtils;
@@ -41,6 +42,7 @@ public class ChatHelper {
     private Context appContext;
     private static final ChatHelper ourInstance = new ChatHelper();
     private EMOptions emOptions;
+    private EaseUI easeUI;
 
     public static ChatHelper getInstance() {
         return ourInstance;
@@ -58,7 +60,8 @@ public class ChatHelper {
     //初始化环信
     public void init(Context context) {
         this.appContext = context;
-        EaseUI.getInstance().init(context, ChatHelper.getInstance().getEmOptions());
+        easeUI = EaseUI.getInstance();
+        easeUI.init(context, getEmOptions());
         registerMessageListener();
         registerConnectionListener();
         initUserProvider();
@@ -122,7 +125,7 @@ public class ChatHelper {
 
     //初始化环信用户提供者
     private void initUserProvider() {
-        EaseUI.getInstance().setUserProfileProvider(new EaseUI.EaseUserProfileProvider() {
+        easeUI.setUserProfileProvider(new EaseUI.EaseUserProfileProvider() {
             @Override
             public EaseUser getUser(String hxId) {
                 ImUserInfo entity = DbHelper.getInstance().getUserInfoByHxId(hxId);
@@ -154,7 +157,7 @@ public class ChatHelper {
 
     //初始化通知
     private void initNotify() {
-        EaseUI.getInstance().getNotifier().setNotificationInfoProvider(new EaseNotifier.EaseNotificationInfoProvider() {
+        easeUI.getNotifier().setNotificationInfoProvider(new EaseNotifier.EaseNotificationInfoProvider() {
             private Context appContext = MainApp.getInstance();
 
             @Override
@@ -176,7 +179,7 @@ public class ChatHelper {
                 if (message.getType() == EMMessage.Type.TXT) {
                     ticker = ticker.replaceAll("\\[.{2,3}\\]", "[表情]");
                 }
-                EaseUser user = EaseUI.getInstance().getUserProfileProvider().getUser(message.getFrom());
+                EaseUser user = easeUI.getUserProfileProvider().getUser(message.getFrom());
                 if (user != null) {
                     return user.getNick() + ": " + ticker;
                 } else {
@@ -197,15 +200,7 @@ public class ChatHelper {
                 Intent intent = new Intent(appContext, ChatActivity.class);
                 EMMessage.ChatType chatType = message.getChatType();
                 if (chatType == EMMessage.ChatType.Chat) { // single chat message
-                    intent.putExtra("userId", message.getFrom());
-                    intent.putExtra("chatType", EaseConstant.CHATTYPE_SINGLE);
-                } else {
-                    intent.putExtra("userId", message.getTo());
-                    if (chatType == EMMessage.ChatType.GroupChat) {
-                        intent.putExtra("chatType", EaseConstant.CHATTYPE_GROUP);
-                    } else {
-                        intent.putExtra("chatType", EaseConstant.CHATTYPE_CHATROOM);
-                    }
+                    intent.putExtra("easemod_id", message.getFrom());
                 }
                 return intent;
             }
@@ -218,7 +213,7 @@ public class ChatHelper {
      * @return
      */
     public EaseNotifier getNotifier() {
-        return EaseUI.getInstance().getNotifier();
+        return easeUI.getNotifier();
     }
 
     /**
@@ -236,7 +231,7 @@ public class ChatHelper {
                         for (int i = 0; i < messages.size(); i++) {
                             EMMessage message = messages.get(i);
                             // in background, do not refresh UI, notify it in notification bar
-                            if (!EaseUI.getInstance().hasForegroundActivies()) {
+                            if (!easeUI.hasForegroundActivies()) {
                                 getNotifier().onNewMsg(message);
                             }
 
@@ -368,5 +363,15 @@ public class ChatHelper {
             }
         });
     }
+
+
+    public void pushActivity(Activity activity) {
+        easeUI.pushActivity(activity);
+    }
+
+    public void popActivity(Activity activity) {
+        easeUI.popActivity(activity);
+    }
+
 
 }

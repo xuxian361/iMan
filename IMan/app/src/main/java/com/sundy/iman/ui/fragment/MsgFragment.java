@@ -36,6 +36,7 @@ import com.hyphenate.EMError;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMConversation;
 import com.hyphenate.chat.EMMessage;
+import com.hyphenate.easeui.model.EaseAtMessageHelper;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.easeui.utils.EaseSmileUtils;
 import com.hyphenate.easeui.utils.EaseUserUtils;
@@ -46,6 +47,7 @@ import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.GetHomeListEntity;
 import com.sundy.iman.entity.LocationEntity;
+import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.greendao.ImUserInfo;
 import com.sundy.iman.helper.DbHelper;
 import com.sundy.iman.helper.UIHelper;
@@ -55,13 +57,17 @@ import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.LocationPaper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.ui.activity.AddCommunityActivity;
+import com.sundy.iman.ui.activity.ChatActivity;
 import com.sundy.iman.ui.activity.ContactInfoActivity;
+import com.sundy.iman.view.dialog.CommonDialog;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
 import com.yanzhenjie.permission.PermissionNo;
 import com.yanzhenjie.permission.PermissionYes;
 import com.yanzhenjie.permission.Rationale;
 import com.yanzhenjie.permission.RationaleListener;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -188,17 +194,19 @@ public class MsgFragment extends BaseFragment {
     private void init() {
         rvMsg.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false));
         conversationAdapter = new ConversationAdapter(R.layout.item_conversation, conversationList);
-        View headerView = mInflate.inflate(R.layout.layout_msg_header_nearby, null);
+        View headerView = mInflate.inflate(R.layout.layout_msg_header_nearby, null);  //SUNDY
         conversationAdapter.addHeaderView(headerView);
         rvMsg.setAdapter(conversationAdapter);
     }
 
     private void setUpView() {
-        conversationList.addAll(loadConversationList());
-        conversationAdapter.setNewData(conversationList);
-        conversationAdapter.notifyDataSetChanged();
+        if (PaperUtils.isLogin()) {
+            conversationList.addAll(loadConversationList());
+            conversationAdapter.setNewData(conversationList);
+            conversationAdapter.notifyDataSetChanged();
 
-        EMClient.getInstance().addConnectionListener(connectionListener);
+            EMClient.getInstance().addConnectionListener(connectionListener);
+        }
     }
 
     protected EMConnectionListener connectionListener = new EMConnectionListener() {
@@ -226,8 +234,10 @@ public class MsgFragment extends BaseFragment {
      * refresh ui
      */
     public void refresh() {
-        if (!handler.hasMessages(MSG_REFRESH)) {
-            handler.sendEmptyMessage(MSG_REFRESH);
+        if (PaperUtils.isLogin()) {
+            if (!handler.hasMessages(MSG_REFRESH)) {
+                handler.sendEmptyMessage(MSG_REFRESH);
+            }
         }
     }
 
@@ -543,6 +553,10 @@ public class MsgFragment extends BaseFragment {
 
             helper.setOnClickListener(R.id.ll_item, this);
             helper.setTag(R.id.ll_item, R.id.item_tag, itemData);
+
+            helper.setOnClickListener(R.id.avatar_container, this);
+            helper.setTag(R.id.avatar_container, R.id.item_tag, itemData);
+
         }
 
         @Override
@@ -609,7 +623,7 @@ public class MsgFragment extends BaseFragment {
                     Logger.e("----->删除Item");
                     //删除社区
                     if (itemData != null) {
-
+                        showDeleteMsgDialog(itemData);
                     }
                     break;
                 case R.id.ll_item:
@@ -621,6 +635,20 @@ public class MsgFragment extends BaseFragment {
                     String hxId = itemData.getItem().conversationId();
                     if (!TextUtils.isEmpty(hxId)) {
                         ImUserInfo user = DbHelper.getInstance().getUserInfoByHxId(hxId);
+                        if (user != null) {
+                            goChat(user.getEasemob_account());
+                        }
+                    }
+                    break;
+                case R.id.avatar_container:
+                    Logger.e("----->点击头像");
+                    if (isOpen(itemData.getPosition())) {
+                        closeItem(itemData.getPosition());
+                        return;
+                    }
+                    String hxId2 = itemData.getItem().conversationId();
+                    if (!TextUtils.isEmpty(hxId2)) {
+                        ImUserInfo user = DbHelper.getInstance().getUserInfoByHxId(hxId2);
                         if (user != null) {
                             goUserDetail(user.getUserId());
                         }
@@ -636,6 +664,55 @@ public class MsgFragment extends BaseFragment {
             private EMConversation item;
 
         }
+    }
+
+    //删除个人聊天消息
+    private void showDeleteMsgDialog(final ConversationAdapter.ItemData itemData) {
+        final CommonDialog dialog = new CommonDialog(mContext);
+        dialog.getTitle().setVisibility(View.GONE);
+        dialog.getContent().setText(getString(R.string.delete_conversation_messages_tips));
+        dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                deleteConversation(itemData);
+            }
+        });
+    }
+
+    //删除聊天会话
+    private void deleteConversation(ConversationAdapter.ItemData itemData) {
+        EMConversation tobeDeleteCons = itemData.getItem();
+        if (tobeDeleteCons == null) {
+            return;
+        }
+        if (tobeDeleteCons.getType() == EMConversation.EMConversationType.GroupChat) {
+            EaseAtMessageHelper.get().removeAtMeGroup(tobeDeleteCons.conversationId());
+        }
+        try {
+            // delete conversation
+            EMClient.getInstance().chatManager().deleteConversation(tobeDeleteCons.conversationId(), true);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        refresh();
+
+        // update unread count
+        updateUnreadLabel();
+    }
+
+    //发Event 通知更新未读消息数
+    private void updateUnreadLabel() {
+        MsgEvent msgEvent = new MsgEvent();
+        msgEvent.setMsg(MsgEvent.EVENT_UPDATE_UNREAD_MSG_COUNT);
+        EventBus.getDefault().post(msgEvent);
+    }
+
+    //跳转聊天页面
+    private void goChat(String easemod_id) {
+        Bundle bundle = new Bundle();
+        bundle.putString("easemod_id", easemod_id);
+        UIHelper.jump(mContext, ChatActivity.class, bundle);
     }
 
     //跳转用户详情

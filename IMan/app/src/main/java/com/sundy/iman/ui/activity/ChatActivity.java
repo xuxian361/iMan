@@ -25,7 +25,6 @@ import com.sundy.iman.utils.permission_utils.PermissionsManager;
 
 public class ChatActivity extends BaseActivity implements EaseChatFragment.EaseChatFragmentHelper {
     private EaseChatFragment chatFragment;
-    private String userId;
     private String easemod_id;
 
     @Override
@@ -38,19 +37,23 @@ public class ChatActivity extends BaseActivity implements EaseChatFragment.EaseC
 
     }
 
-    private void init() {
-        chatFragment = new EaseChatFragment();
-        //pass parameters to chat fragment
-        chatFragment.setArguments(getIntent().getExtras());
-        getSupportFragmentManager().beginTransaction().add(R.id.container, chatFragment).commit();
-    }
-
     private void initData() {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            userId = getIntent().getExtras().getString("userId");
-            easemod_id = getIntent().getExtras().getString("easemod_id");
+            easemod_id = bundle.getString("easemod_id");
         }
+        Logger.e("------>easemod_id = " + easemod_id);
+    }
+
+    private void init() {
+        chatFragment = new EaseChatFragment();
+        //pass parameters to chat fragment
+        Bundle bundle = new Bundle();
+        bundle.putInt(EaseConstant.EXTRA_CHAT_TYPE, EaseConstant.CHATTYPE_SINGLE);
+        bundle.putString(EaseConstant.EXTRA_USER_ID, easemod_id);
+        chatFragment.setArguments(bundle);
+        chatFragment.setChatFragmentHelper(this);
+        getSupportFragmentManager().beginTransaction().add(R.id.container, chatFragment).commit();
     }
 
     @Override
@@ -81,7 +84,7 @@ public class ChatActivity extends BaseActivity implements EaseChatFragment.EaseC
 
     @Override
     public void onSetMessageAttributes(EMMessage message) {
-        Logger.e("------>hxID = " + easemod_id);
+        Logger.e("------>onSetMessageAttributes: easemod_id= " + easemod_id);
         //发送自己的信息
         MemberInfoEntity memberInfoEntity = PaperUtils.getUserInfo();
         if (memberInfoEntity == null)

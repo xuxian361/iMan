@@ -1,9 +1,12 @@
 package com.sundy.iman.ui.activity;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.PowerManager;
 import android.support.v4.app.Fragment;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -40,11 +43,29 @@ public class MainActivity extends BaseActivity implements OnBaseListener {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            String packageName = getPackageName();
+            PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
+            if (!pm.isIgnoringBatteryOptimizations(packageName)) {
+                try {
+                    //some device doesn't has activity to handle this intent
+                    //so add try catch
+                    Intent intent = new Intent();
+                    intent.setAction(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS);
+                    intent.setData(Uri.parse("package:" + packageName));
+                    startActivity(intent);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        }
         setContentView(R.layout.act_main);
 
         init();
+        showExceptionDialogFromIntent(getIntent());
         switchContent(new MainFragment());
         updateVersion();
+
     }
 
     private void init() {
@@ -149,8 +170,7 @@ public class MainActivity extends BaseActivity implements OnBaseListener {
             showExceptionDialog(EaseConstant.ACCOUNT_FORBIDDEN);
         } else if (intent.getBooleanExtra(EaseConstant.ACCOUNT_KICKED_BY_CHANGE_PASSWORD, false) ||
                 intent.getBooleanExtra(EaseConstant.ACCOUNT_KICKED_BY_OTHER_DEVICE, false)) {
-            this.finish();
-            startActivity(new Intent(this, LoginActivity.class));
+            showExceptionDialog(EaseConstant.ACCOUNT_KICKED_BY_OTHER_DEVICE);
         }
     }
 
@@ -187,6 +207,8 @@ public class MainActivity extends BaseActivity implements OnBaseListener {
             return R.string.em_user_remove_str;
         } else if (exceptionType.equals(EaseConstant.ACCOUNT_FORBIDDEN)) {
             return R.string.user_forbidden_str;
+        } else if (exceptionType.equals(EaseConstant.ACCOUNT_KICKED_BY_OTHER_DEVICE)) {
+            return R.string.user_kicked_by_other_device;
         }
         return R.string.Network_error;
     }
@@ -293,5 +315,6 @@ public class MainActivity extends BaseActivity implements OnBaseListener {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        isExceptionDialogShow = false;
     }
 }

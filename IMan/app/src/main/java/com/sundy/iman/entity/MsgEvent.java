@@ -69,5 +69,7 @@ public class MsgEvent {
     public static final String EVENT_LOGOUT_SUCCESS = "Event_Logout_Success";
     //更新用户信息成功
     public static final String EVENT_UPDATE_USER_INFO = "Event_Update_UserInfo";
+    //更新未读消息数
+    public static final String EVENT_UPDATE_UNREAD_MSG_COUNT = "Event_update_unread_msg_count";
 
 }

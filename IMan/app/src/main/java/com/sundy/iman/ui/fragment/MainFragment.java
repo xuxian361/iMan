@@ -11,11 +11,23 @@ import android.widget.FrameLayout;
 import com.flyco.tablayout.CommonTabLayout;
 import com.flyco.tablayout.listener.CustomTabEntity;
 import com.flyco.tablayout.listener.OnTabSelectListener;
+import com.hyphenate.EMMessageListener;
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMCmdMessageBody;
+import com.hyphenate.chat.EMMessage;
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
+import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.TabEntity;
+import com.sundy.iman.helper.ChatHelper;
+import com.sundy.iman.paperdb.PaperUtils;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -48,6 +60,8 @@ public class MainFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
         unbinder = ButterKnife.bind(this, view);
+
+        EventBus.getDefault().register(this);
         initFragment();
         initMenuTab();
         switchContent(msgFragment);
@@ -84,7 +98,6 @@ public class MainFragment extends BaseFragment {
 
             }
         });
-        viewMenu.showMsg(0, 1);
         viewMenu.setMsgMargin(0, -15, 5);
     }
 
@@ -92,9 +105,117 @@ public class MainFragment extends BaseFragment {
         mCallback.switchContent(fragment, R.id.frameMain);
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(MsgEvent event) {
+        if (event != null) {
+            String msg = event.getMsg();
+            switch (msg) {
+                case MsgEvent.EVENT_UPDATE_UNREAD_MSG_COUNT:
+                    updateUnreadMsgCount();
+                    break;
+            }
+        }
+    }
+
+    //更新未读消息数
+    private void updateUnreadMsgCount() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                int count = getUnreadMsgCountTotal();
+                Logger.e("------->更新未读消息数 ：" + count);
+                if (count > 0)
+                    viewMenu.showMsg(0, count);
+                else
+                    viewMenu.hideMsg(0);
+            }
+        });
+    }
+
+    /**
+     * get unread message count
+     *
+     * @return
+     */
+    public int getUnreadMsgCountTotal() {
+        return EMClient.getInstance().chatManager().getUnreadMsgsCount();
+    }
+
+    EMMessageListener messageListener = new EMMessageListener() {
+
+        @Override
+        public void onMessageReceived(List<EMMessage> messages) {
+            // notify new message
+            for (EMMessage message : messages) {
+                ChatHelper.getInstance().getNotifier().onNewMsg(message);
+            }
+            updateUnreadMsgCount();
+        }
+
+        @Override
+        public void onCmdMessageReceived(List<EMMessage> messages) {
+            //red packet code : 处理红包回执透传消息
+            for (EMMessage message : messages) {
+                EMCmdMessageBody cmdMsgBody = (EMCmdMessageBody) message.getBody();
+                final String action = cmdMsgBody.action();//获取自定义action
+            }
+            //end of red packet code
+            updateUnreadMsgCount();
+        }
+
+        @Override
+        public void onMessageRead(List<EMMessage> messages) {
+        }
+
+        @Override
+        public void onMessageDelivered(List<EMMessage> message) {
+        }
+
+        @Override
+        public void onMessageRecalled(List<EMMessage> messages) {
+            updateUnreadMsgCount();
+        }
+
+        @Override
+        public void onMessageChanged(EMMessage message, Object change) {}
+    };
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (PaperUtils.isLogin() && ChatHelper.getInstance().isLoggedIn()) {
+            updateUnreadMsgCount();
+
+            // unregister this event listener when this activity enters the
+            // background
+            ChatHelper sdkHelper = ChatHelper.getInstance();
+            sdkHelper.pushActivity(mContext);
+
+            EMClient.getInstance().chatManager().addMessageListener(messageListener);
+        }else {
+            viewMenu.hideMsg(0);
+        }
+    }
+
+    @Override
+    public void onStop() {
+        if (PaperUtils.isLogin() && ChatHelper.getInstance().isLoggedIn()) {
+            EMClient.getInstance().chatManager().removeMessageListener(messageListener);
+            ChatHelper sdkHelper = ChatHelper.getInstance();
+            sdkHelper.popActivity(mContext);
+        }
+        super.onStop();
+    }
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
         unbinder.unbind();
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        EventBus.getDefault().unregister(this);
     }
 }
