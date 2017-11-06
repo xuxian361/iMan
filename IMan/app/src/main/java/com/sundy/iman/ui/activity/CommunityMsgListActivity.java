@@ -212,8 +212,6 @@ public class CommunityMsgListActivity extends BaseActivity {
         rvMsg.setLayoutManager(linearLayoutManager);
 
         myPostAdapter = new PostAdapter(R.layout.item_post, listPost);
-        myPostAdapter.openLoadAnimation();
-        myPostAdapter.isFirstOnly(false);
         myPostAdapter.setLoadMoreView(new CustomLoadMoreView());
         myPostAdapter.setEnableLoadMore(true);
         myPostAdapter.setOnLoadMoreListener(onLoadMoreListener, rvMsg);

@@ -107,8 +107,6 @@ public class MyPromoteCommunityActivity extends BaseActivity {
         rvCommunity.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
         communityAdapter = new MyCommunityAdapter(R.layout.item_my_promote_community, listCommunity);
-        communityAdapter.openLoadAnimation();
-        communityAdapter.isFirstOnly(false);
         communityAdapter.setLoadMoreView(new CustomLoadMoreView());
         communityAdapter.setEnableLoadMore(true);
         communityAdapter.setOnLoadMoreListener(onLoadMoreListener, rvCommunity);
@@ -399,6 +397,10 @@ public class MyPromoteCommunityActivity extends BaseActivity {
                     break;
                 case R.id.ll_item:
                     Logger.e("----->点击Item");
+                    if (isOpen(itemData.getPosition())) {
+                        closeItem(itemData.getPosition());
+                        return;
+                    }
                     goCommunityDetail(itemData.getItem().getCommunity_id());
                     break;
             }

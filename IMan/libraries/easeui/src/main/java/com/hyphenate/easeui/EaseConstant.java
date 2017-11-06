@@ -43,5 +43,6 @@ public class EaseConstant {
     //环信用户: 环信扩展消息
     public static final String CONS_ATTR_AVATAR = "avatarURLPath";
     public static final String CONS_ATTR_NICK_NAME = "nickname";
+    public static final String CONS_ATTR_MEMBER_ID = "memberID";
 
 }

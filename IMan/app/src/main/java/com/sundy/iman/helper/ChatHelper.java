@@ -239,9 +239,11 @@ public class ChatHelper {
                                 Log.e(TAG, "----------------------------->");
                                 String avatar = message.getStringAttribute(EaseConstant.CONS_ATTR_AVATAR, "");
                                 String nickname = message.getStringAttribute(EaseConstant.CONS_ATTR_NICK_NAME, "");
+                                String memberId = message.getStringAttribute(EaseConstant.CONS_ATTR_MEMBER_ID, "");
                                 Log.e(TAG, "-------->message body =" + message.getBody().toString());
                                 Log.e(TAG, "-------->user_avatar =" + avatar);
                                 Log.e(TAG, "-------->name =" + nickname);
+                                Log.e(TAG, "-------->memberId =" + memberId);
                                 Log.e(TAG, "-----------------------------<");
                                 ImUserInfo imUserInfoEntity = DbHelper.getInstance().getUserInfoByHxId(message.getFrom());
                                 if (imUserInfoEntity == null) {
@@ -249,6 +251,7 @@ public class ChatHelper {
                                 }
                                 imUserInfoEntity.setEasemob_account(message.getFrom());
                                 imUserInfoEntity.setProfile_image(avatar);
+                                imUserInfoEntity.setUserId(memberId);
                                 imUserInfoEntity.setUsername(nickname);
                                 DbHelper.getInstance().addUserInfoEntity(imUserInfoEntity);
                             }

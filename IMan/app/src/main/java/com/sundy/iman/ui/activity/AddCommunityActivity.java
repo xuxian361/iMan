@@ -106,8 +106,6 @@ public class AddCommunityActivity extends BaseActivity {
         rvCommunity.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
         communityAdapter = new CommunityAdapter(R.layout.item_add_community, listCommunity);
-        communityAdapter.openLoadAnimation();
-        communityAdapter.isFirstOnly(false);
         communityAdapter.setLoadMoreView(new CustomLoadMoreView());
         communityAdapter.setEnableLoadMore(true);
         communityAdapter.setOnLoadMoreListener(onLoadMoreListener, rvCommunity);

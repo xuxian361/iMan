@@ -104,6 +104,12 @@ public class Apis {
     //添加联系人
     public static final String URL_ADD_CONTACT = "contact/addContact";
 
+    //联系人列表
+    public static final String URL_GET_CONTACT_LIST = "contact/getList";
+
+    //删除联系人
+    public static final String URL_DELETE_CONTACT = "contact/deleteContact";
+
     //图片上传
     public static final String URL_UPLOAD_IMAGE = "";
 

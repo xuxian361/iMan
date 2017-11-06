@@ -93,12 +93,15 @@ public class ChatActivity extends BaseActivity implements EaseChatFragment.EaseC
         if (user != null) {
             String photo = user.getProfile_image();
             String username = user.getUsername();
+            String memberId = user.getId();
             Logger.e("---------------------------------->user");
             Logger.e("-------->user_avatar =" + photo);
-            Logger.e("-------->name =" + username);
+            Logger.e("-------->username =" + username);
+            Logger.e("-------->memberId =" + memberId);
             Logger.e("---------------------------------->");
             message.setAttribute(EaseConstant.CONS_ATTR_AVATAR, photo);
             message.setAttribute(EaseConstant.CONS_ATTR_NICK_NAME, username);
+            message.setAttribute(EaseConstant.CONS_ATTR_MEMBER_ID, memberId);
         }
     }
 

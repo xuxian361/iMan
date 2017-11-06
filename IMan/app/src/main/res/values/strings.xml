@@ -184,6 +184,8 @@
     <string name="delete_conversation_messages_tips">删除后，将清空该聊天的消息记录</string>
     <string name="user_kicked_by_other_device">账号被其他设备踢出</string>
     <string name="add_contact_success">已成功添加为联系人</string>
+    <string name="my_contact_null_tips">你还没有联系人\n你可以...</string>
+    <string name="delete_contact_tips">删除该联系人后，同时删除与该联系人的有关聊天记录</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

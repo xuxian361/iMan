@@ -8,9 +8,11 @@ import com.sundy.iman.entity.ChangeLanguageEntity;
 import com.sundy.iman.entity.CollectAdvertisingEntity;
 import com.sundy.iman.entity.CommunityInfoEntity;
 import com.sundy.iman.entity.CommunityListEntity;
+import com.sundy.iman.entity.ContactListEntity;
 import com.sundy.iman.entity.CreateAdvertisingEntity;
 import com.sundy.iman.entity.CreateCommunityEntity;
 import com.sundy.iman.entity.CreatePostEntity;
+import com.sundy.iman.entity.DeleteContactEntity;
 import com.sundy.iman.entity.DeletePostEntity;
 import com.sundy.iman.entity.GetHomeListEntity;
 import com.sundy.iman.entity.GetPostInfoEntity;
@@ -308,6 +310,23 @@ public interface ApiService {
      */
     @GET(Apis.URL_ADD_CONTACT)
     Call<AddContactEntity> addContact(@QueryMap Map<String, String> map);
+
+    /**
+     * 联系人列表
+     *
+     * @return
+     */
+    @GET(Apis.URL_GET_CONTACT_LIST)
+    Call<ContactListEntity> getContactList(@QueryMap Map<String, String> map);
+
+    /**
+     * 删除联系人
+     *
+     * @return
+     */
+    @GET(Apis.URL_DELETE_CONTACT)
+    Call<DeleteContactEntity> deleteContact(@QueryMap Map<String, String> map);
+
 
 
     /**

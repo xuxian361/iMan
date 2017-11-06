@@ -143,8 +143,6 @@ public class MyCommunityActivity extends BaseActivity {
         rvCommunity.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
         communityAdapter = new MyCommunityAdapter(R.layout.item_my_community, listCommunity);
-        communityAdapter.openLoadAnimation();
-        communityAdapter.isFirstOnly(false);
         communityAdapter.setLoadMoreView(new CustomLoadMoreView());
         communityAdapter.setEnableLoadMore(true);
         communityAdapter.setOnLoadMoreListener(onLoadMoreListener, rvCommunity);
@@ -389,14 +387,18 @@ public class MyCommunityActivity extends BaseActivity {
             ItemData itemData = (ItemData) view.getTag(R.id.item_tag);
             switch (view.getId()) {
                 case R.id.tv_item_del:
-                    Logger.e("----->删除Item");
-                    //删除社区
+                    Logger.e("----->退出Item");
+                    //退出社区
                     if (itemData != null) {
                         showQuitDialog(itemData);
                     }
                     break;
                 case R.id.ll_item:
                     Logger.e("----->点击Item");
+                    if (isOpen(itemData.getPosition())) {
+                        closeItem(itemData.getPosition());
+                        return;
+                    }
                     goCommunityMsgList(itemData.getItem().getId());
                     break;
             }

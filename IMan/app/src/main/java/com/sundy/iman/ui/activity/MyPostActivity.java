@@ -111,8 +111,6 @@ public class MyPostActivity extends BaseActivity {
         rvPost.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
         myPostAdapter = new MyPostAdapter(R.layout.item_my_post, listPost);
-        myPostAdapter.openLoadAnimation();
-        myPostAdapter.isFirstOnly(false);
         myPostAdapter.setLoadMoreView(new CustomLoadMoreView());
         myPostAdapter.setEnableLoadMore(true);
         myPostAdapter.setOnLoadMoreListener(onLoadMoreListener, rvPost);
@@ -389,13 +387,17 @@ public class MyPostActivity extends BaseActivity {
                     break;
                 case R.id.tv_item_cancel:
                     Logger.e("----->取消Item : " + itemData.getPosition());
-                    //删除消息
+                    //取消发布
                     if (itemData != null) {
                         showCancelPostDialog(itemData);
                     }
                     break;
                 case R.id.ll_item:
                     Logger.e("----->点击Item");
+                    if (isOpen(itemData.getPosition())) {
+                        closeItem(itemData.getPosition());
+                        return;
+                    }
                     goMsgDetail(itemData);
                     break;
             }

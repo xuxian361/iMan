@@ -1,64 +1,70 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.daimajia.swipe.SwipeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/swipe"
     android:layout_width="match_parent"
-    android:layout_height="@dimen/item_contact_height"
-    android:background="@color/white"
-    android:orientation="vertical"
-    android:paddingTop="10dp">
-
-    <ImageView
-        android:id="@+id/iv_header"
-        android:layout_width="@dimen/header_size_small"
-        android:layout_height="@dimen/header_size_small"
-        android:layout_centerVertical="true"
-        android:layout_marginLeft="@dimen/layout_margin_size"
-        android:layout_marginRight="@dimen/layout_margin_size"
-        android:src="@mipmap/icon_default_portrait" />
-
+    android:layout_height="wrap_content">
+    <!-- Bottom View Start-->
     <LinearLayout
+        android:id="@+id/bottom_wrapper"
+        android:layout_width="80dp"
+        android:layout_height="match_parent"
+        android:background="@color/bg_red"
+        android:weightSum="1">
+
+        <TextView
+            android:id="@+id/tv_item_del"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_gravity="center"
+            android:background="@null"
+            android:gravity="center"
+            android:text="@string/delete"
+            android:textColor="@color/txt_white"
+            android:textSize="12sp" />
+
+        <!--What you want to show-->
+    </LinearLayout>
+    <!-- Bottom View End-->
+
+    <!-- Surface View Start -->
+    <LinearLayout
+        android:id="@+id/ll_item"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginRight="10dp"
-        android:layout_toLeftOf="@+id/tv_community_name"
-        android:layout_toRightOf="@+id/iv_header"
+        android:background="@color/white"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tv_username"
-            android:layout_width="wrap_content"
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:singleLine="true"
-            android:text="Username"
-            android:textColor="@color/txt_black"
-            android:textSize="12dp" />
+            android:background="@color/white"
+            android:orientation="vertical"
+            android:paddingBottom="6dp"
+            android:paddingTop="6dp">
 
-        <TextView
-            android:id="@+id/tv_introduction"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="2dp"
-            android:singleLine="true"
-            android:text="Introduction"
-            android:textColor="@color/txt_gray"
-            android:textSize="12dp" />
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/iv_header"
+                android:layout_width="@dimen/header_size_small"
+                android:layout_height="@dimen/header_size_small"
+                android:layout_centerVertical="true"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:src="@mipmap/icon_default_portrait" />
+
+            <TextView
+                android:id="@+id/tv_username"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="10dp"
+                android:layout_toRightOf="@+id/iv_header"
+                android:singleLine="true"
+                android:textColor="@color/txt_black"
+                android:textSize="16dp"
+                android:textStyle="bold" />
+
+        </RelativeLayout>
 
     </LinearLayout>
-
-    <TextView
-        android:id="@+id/tv_community_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentRight="true"
-        android:layout_marginRight="10dp"
-        android:text="Nearby"
-        android:textColor="@color/txt_gray"
-        android:textSize="10dp" />
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:layout_alignParentBottom="true"
-        android:background="@color/bg_light_gray" />
-
-</RelativeLayout>
+    <!-- Surface View End -->
+</com.daimajia.swipe.SwipeLayout>
