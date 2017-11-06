@@ -17,6 +17,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -58,7 +59,9 @@ import com.sundy.iman.paperdb.LocationPaper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.ui.activity.AddCommunityActivity;
 import com.sundy.iman.ui.activity.ChatActivity;
+import com.sundy.iman.ui.activity.CommunityMsgListActivity;
 import com.sundy.iman.ui.activity.ContactInfoActivity;
+import com.sundy.iman.ui.activity.LastPostActivity;
 import com.sundy.iman.view.dialog.CommonDialog;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
@@ -95,6 +98,7 @@ public class MsgFragment extends BaseFragment {
     private static final int REQUEST_CODE_PERMISSION_LOCATION = 100;
     private final static int MSG_REFRESH = 2;
     private final static int MSG_CLEAR = 3;
+    private final static int MSG_GET_HOME_LIST = 4;
 
     //声明AMapLocationClient类对象
     public AMapLocationClient locationClient = null;
@@ -113,6 +117,9 @@ public class MsgFragment extends BaseFragment {
     ImageView btnAdd;
     @BindView(R.id.rv_msg)
     RecyclerView rvMsg;
+
+    private LinearLayout ll_post;
+    private TextView tv_check_more;
     private LayoutInflater mInflate;
 
     protected boolean hidden;
@@ -128,6 +135,9 @@ public class MsgFragment extends BaseFragment {
                     break;
                 case 1:
                     onConnectionConnected();
+                    break;
+                case MSG_GET_HOME_LIST:
+                    getHomePostList();
                     break;
                 case MSG_CLEAR:
                     conversationList.clear();
@@ -200,9 +210,24 @@ public class MsgFragment extends BaseFragment {
     private void init() {
         rvMsg.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false));
         conversationAdapter = new ConversationAdapter(R.layout.item_conversation, conversationList);
-        View headerView = mInflate.inflate(R.layout.layout_msg_header_nearby, null);  //SUNDY
+
+        View headerView = mInflate.inflate(R.layout.layout_msg_header_nearby, null);
+        ll_post = (LinearLayout) headerView.findViewById(R.id.ll_post);
+        tv_check_more = (TextView) headerView.findViewById(R.id.tv_check_more);
+        tv_check_more.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                goMorePost();
+            }
+        });
+
         conversationAdapter.addHeaderView(headerView);
         rvMsg.setAdapter(conversationAdapter);
+    }
+
+    //跳转查看更多消息
+    private void goMorePost() {
+        UIHelper.jump(mContext, LastPostActivity.class);
     }
 
     private void setUpView() {
@@ -244,7 +269,7 @@ public class MsgFragment extends BaseFragment {
             if (!handler.hasMessages(MSG_REFRESH)) {
                 handler.sendEmptyMessage(MSG_REFRESH);
             }
-        }else {
+        } else {
             if (!handler.hasMessages(MSG_CLEAR)) {
                 handler.sendEmptyMessage(MSG_CLEAR);
             }
@@ -402,7 +427,9 @@ public class MsgFragment extends BaseFragment {
                         Logger.i("获取定位信息成功");
                         stopLocation();
                         saveLocation(location);
-                        getHomePostList(location.getLatitude(), location.getLongitude());
+                        if (!handler.hasMessages(MSG_GET_HOME_LIST)) {
+                            handler.sendEmptyMessage(MSG_GET_HOME_LIST);
+                        }
                     } else {
                         Logger.w("获取定位信息失败");
                     }
@@ -433,12 +460,15 @@ public class MsgFragment extends BaseFragment {
     }
 
     //首页列表
-    private void getHomePostList(double latitude, double longitude) {
+    private void getHomePostList() {
+        LocationEntity locationEntity = LocationPaper.getLocation();
+        if (locationEntity == null)
+            return;
         Map<String, String> param = new HashMap<>();
         param.put("mid", PaperUtils.getMId());
         param.put("session_key", PaperUtils.getSessionKey());
-        param.put("latitude", latitude + "");
-        param.put("longitude", longitude + "");
+        param.put("latitude", locationEntity.getLat() + "");
+        param.put("longitude", locationEntity.getLng() + "");
         Call<GetHomeListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .getHomeList(ParamHelper.formatData(param));
         call.enqueue(new RetrofitCallback<GetHomeListEntity>() {
@@ -449,7 +479,7 @@ public class MsgFragment extends BaseFragment {
                     int code = getHomeListEntity.getCode();
                     String msg = getHomeListEntity.getMsg();
                     if (code == Constants.CODE_SUCCESS) {
-
+                        showHeaderData(getHomeListEntity);
                     }
                 }
             }
@@ -464,6 +494,123 @@ public class MsgFragment extends BaseFragment {
 
             }
         });
+    }
+
+    //显示头部消息内容
+    private void showHeaderData(GetHomeListEntity getHomeListEntity) {
+        if (ll_post != null)
+            ll_post.removeAllViews();
+        GetHomeListEntity.DataEntity dataEntity = getHomeListEntity.getData();
+        if (dataEntity != null) {
+            GetHomeListEntity.NearByEntity nearByEntity = dataEntity.getNear_by();
+            GetHomeListEntity.CommunityEntity communityEntity = dataEntity.getCommunity_list();
+
+            String nearby_total = nearByEntity.getTotal();
+            String community_total = communityEntity.getTotal();
+
+            if (!nearby_total.equals("0")) {
+                List<GetHomeListEntity.NearByItemEntity> list_nearby = nearByEntity.getList();
+                if (list_nearby != null && list_nearby.size() > 0) {
+                    GetHomeListEntity.NearByItemEntity nearByItemEntity = list_nearby.get(0);
+                    if (nearByItemEntity != null) {
+                        String title = nearByItemEntity.getTitle();
+                        String create_time = nearByItemEntity.getCreate_time();
+                        String type = nearByItemEntity.getType(); //post 类型： 1 - 普通；2 - 广告
+                        View view_nearby = mInflate.inflate(R.layout.item_nearby_msg, null);
+                        TextView tv_title = (TextView) view_nearby.findViewById(R.id.tv_title);
+                        TextView tv_time = (TextView) view_nearby.findViewById(R.id.tv_time);
+                        ImageView iv_imcoin = (ImageView) view_nearby.findViewById(R.id.iv_imcoin);
+
+                        tv_title.setText(title);
+                        if (!TextUtils.isEmpty(create_time)) {
+                            try {
+                                long msgTime = Long.parseLong(create_time) * 1000;
+                                tv_time.setText(DateUtils.getTimestampString(new Date(msgTime)));
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        if (type.equals("1")) {
+                            iv_imcoin.setVisibility(View.GONE);
+                        } else {
+                            iv_imcoin.setVisibility(View.VISIBLE);
+                        }
+
+                        view_nearby.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                //SUNDY
+                            }
+                        });
+
+                        ll_post.addView(view_nearby);
+                    }
+                }
+            }
+
+            if (community_total.equals("0")) {
+                tv_check_more.setVisibility(View.GONE);
+            } else {
+                tv_check_more.setVisibility(View.VISIBLE);
+
+                List<GetHomeListEntity.CommunityItem> list_community = communityEntity.getList();
+                if (list_community != null && list_community.size() > 0) {
+                    for (int i = 0; i < list_community.size(); i++) {
+                        GetHomeListEntity.CommunityItem communityItem = list_community.get(i);
+                        if (communityItem != null) {
+                            final String community_id = communityItem.getId();
+                            String community_name = communityItem.getName();
+                            GetHomeListEntity.PostInfo postInfo = communityItem.getPost_info();
+                            if (postInfo != null) {
+                                String post_title = postInfo.getTitle();
+                                String create_time = postInfo.getCreate_time();
+                                String type = postInfo.getType(); //post 类型： 1 - 普通；2 - 广告
+
+                                View view_community = mInflate.inflate(R.layout.item_community_msg, null);
+                                TextView tv_community_name = (TextView) view_community.findViewById(R.id.tv_community_name);
+                                TextView tv_time = (TextView) view_community.findViewById(R.id.tv_time);
+                                TextView tv_title = (TextView) view_community.findViewById(R.id.tv_title);
+                                ImageView iv_imcoin = (ImageView) view_community.findViewById(R.id.iv_imcoin);
+
+                                tv_community_name.setText(community_name);
+                                if (!TextUtils.isEmpty(create_time)) {
+                                    try {
+                                        long msgTime = Long.parseLong(create_time) * 1000;
+                                        tv_time.setText(DateUtils.getTimestampString(new Date(msgTime)));
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                                tv_title.setText(post_title);
+                                if (type.equals("1")) {
+                                    iv_imcoin.setVisibility(View.GONE);
+                                } else {
+                                    iv_imcoin.setVisibility(View.VISIBLE);
+                                }
+
+                                view_community.setOnClickListener(new View.OnClickListener() {
+                                    @Override
+                                    public void onClick(View view) {
+                                        goCommunityDetail(community_id);
+                                    }
+                                });
+
+                                ll_post.addView(view_community);
+                            }
+                        }
+                    }
+                }
+            }
+        } else {
+            tv_check_more.setVisibility(View.GONE);
+        }
+    }
+
+    //跳转社区详情/社区消息列表
+    private void goCommunityDetail(String community_id) {
+        Bundle bundle = new Bundle();
+        bundle.putString("community_id", community_id);
+        UIHelper.jump(mContext, CommunityMsgListActivity.class, bundle);
     }
 
     @Override

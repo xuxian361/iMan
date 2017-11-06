@@ -26,28 +26,44 @@ public class GetHomeListEntity extends BaseResEntity {
     @Data
     public static class NearByEntity implements Serializable {
         private String total; //总记录数
-        private List<MessageItemEntity> list;
+        private List<NearByItemEntity> list;
+    }
+
+    @Data
+    public static class NearByItemEntity implements Serializable {
+        private String id; //post ID
+        private String title; //post 标题
+        private String type; //post 类型： 1 - 普通；2 - 广告
+        private String create_time;
+        private List<CommunityItemBean> community_list;
+    }
+
+    @Data
+    public static class CommunityItemBean implements Serializable {
+        private String id; //社区ID
+        private String name; //社区名字
     }
 
     @Data
     public static class CommunityEntity implements Serializable {
         private String total; //总记录数
-        private List<MessageItemEntity> list;
+        private List<CommunityItem> list;
     }
 
     @Data
-    public static class MessageItemEntity implements Serializable {
+    public static class CommunityItem implements Serializable {
         private String id; //社区ID
         private String name; //社区名字
-        private List<PostInfoEntity> post_info;
+        private PostInfo post_info;
+
     }
 
     @Data
-    public static class PostInfoEntity implements Serializable {
-        private String id; //post id
-        private String title; //post标题
-        private String type; //类型: 1-普通post，2-广告
-        private String create_time; //创建时间
+    public static class PostInfo implements Serializable {
+        private String id; //post ID
+        private String title; //post 标题
+        private String type; //post 类型： 1 - 普通；2 - 广告
+        private String create_time;
     }
 
 }

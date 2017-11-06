@@ -216,6 +216,10 @@
             android:launchMode="singleTop"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustResize|stateHidden" />
+        <activity
+            android:name=".ui.activity.LastPostActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
 
         <!--QQ分享回调-->
         <activity

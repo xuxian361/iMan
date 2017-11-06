@@ -18,6 +18,7 @@ import com.sundy.iman.entity.GetHomeListEntity;
 import com.sundy.iman.entity.GetPostInfoEntity;
 import com.sundy.iman.entity.JoinCommunityEntity;
 import com.sundy.iman.entity.JoinPromoteCommunityEntity;
+import com.sundy.iman.entity.LastPostListEntity;
 import com.sundy.iman.entity.LoginEntity;
 import com.sundy.iman.entity.LogoutEntity;
 import com.sundy.iman.entity.MemberInfoEntity;
@@ -326,6 +327,14 @@ public interface ApiService {
      */
     @GET(Apis.URL_DELETE_CONTACT)
     Call<DeleteContactEntity> deleteContact(@QueryMap Map<String, String> map);
+
+    /**
+     * 获取最新消息列表
+     *
+     * @return
+     */
+    @GET(Apis.URL_GET_LAST_POST)
+    Call<LastPostListEntity> getLastPostList(@QueryMap Map<String, String> map);
 
 
 
