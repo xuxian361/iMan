@@ -220,6 +220,10 @@
             android:name=".ui.activity.LastPostActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.NearbyPostActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
 
         <!--QQ分享回调-->
         <activity

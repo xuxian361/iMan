@@ -113,6 +113,9 @@ public class Apis {
     //获取最新消息列表
     public static final String URL_GET_LAST_POST = "community/getLastPostList";
 
+    //获取附近消息列表
+    public static final String URL_GET_NEARBY_POST = "post/nearbyPostList";
+
     //图片上传
     public static final String URL_UPLOAD_IMAGE = "";
 

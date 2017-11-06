@@ -23,6 +23,7 @@ import com.sundy.iman.entity.LoginEntity;
 import com.sundy.iman.entity.LogoutEntity;
 import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.entity.MyPromoteCommunityListEntity;
+import com.sundy.iman.entity.NearbyPostListEntity;
 import com.sundy.iman.entity.ParseUrlEntity;
 import com.sundy.iman.entity.PostListEntity;
 import com.sundy.iman.entity.QiNiuTokenListEntity;
@@ -336,6 +337,13 @@ public interface ApiService {
     @GET(Apis.URL_GET_LAST_POST)
     Call<LastPostListEntity> getLastPostList(@QueryMap Map<String, String> map);
 
+    /**
+     * 获取附近消息列表
+     *
+     * @return
+     */
+    @GET(Apis.URL_GET_NEARBY_POST)
+    Call<NearbyPostListEntity> getNearbyPost(@QueryMap Map<String, String> map);
 
 
     /**

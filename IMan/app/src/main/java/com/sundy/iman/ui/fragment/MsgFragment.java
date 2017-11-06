@@ -62,6 +62,7 @@ import com.sundy.iman.ui.activity.ChatActivity;
 import com.sundy.iman.ui.activity.CommunityMsgListActivity;
 import com.sundy.iman.ui.activity.ContactInfoActivity;
 import com.sundy.iman.ui.activity.LastPostActivity;
+import com.sundy.iman.ui.activity.NearbyPostActivity;
 import com.sundy.iman.view.dialog.CommonDialog;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
@@ -539,7 +540,7 @@ public class MsgFragment extends BaseFragment {
                         view_nearby.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                //SUNDY
+                                goNearbyPost();
                             }
                         });
 
@@ -604,6 +605,11 @@ public class MsgFragment extends BaseFragment {
         } else {
             tv_check_more.setVisibility(View.GONE);
         }
+    }
+
+    //跳转附近消息列表
+    private void goNearbyPost() {
+        UIHelper.jump(mContext, NearbyPostActivity.class);
     }
 
     //跳转社区详情/社区消息列表
