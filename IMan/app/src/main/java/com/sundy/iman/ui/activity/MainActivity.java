@@ -18,6 +18,7 @@ import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.AppVersionEntity;
+import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.helper.ChatHelper;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnBaseListener;
@@ -27,6 +28,8 @@ import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.ui.fragment.MainFragment;
 import com.sundy.iman.view.dialog.CommonDialog;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -154,7 +157,7 @@ public class MainActivity extends BaseActivity implements OnBaseListener {
             overridePendingTransition(R.anim.in_alpha, R.anim.out_alpha);
             finish();
         } else {
-            Logger.e("-------->not null");
+            Logger.e("-------->not null :" + intent.getAction());
             //其他逻辑
             showExceptionDialogFromIntent(intent);
         }
@@ -183,21 +186,34 @@ public class MainActivity extends BaseActivity implements OnBaseListener {
         if (!MainActivity.this.isFinishing()) {
             // clear up global variables
             final CommonDialog dialog = new CommonDialog(this);
+            dialog.setCancelable(false);
             dialog.setCanceledOnTouchOutside(false);
             dialog.getTitle().setText(getString(R.string.account_exception));
+            dialog.getBtnCancel().setVisibility(View.GONE);
             dialog.getContent().setText(getExceptionMessageId(exceptionType));
             dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     dialog.dismiss();
                     isExceptionDialogShow = false;
-                    finish();
-                    Intent intent = new Intent(MainActivity.this, LoginActivity.class);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(intent);
+
+                    //清除登录用户本地信息
+                    PaperUtils.clearUserInfo();
+                    PaperUtils.clearPostReadRecord();
+
+                    sendLogoutEvent();
+
+                    UIHelper.jump(MainActivity.this, LoginActivity.class);
                 }
             });
         }
+    }
+
+    //发送登出Event 事件，刷新页面
+    private void sendLogoutEvent() {
+        MsgEvent msgEvent = new MsgEvent();
+        msgEvent.setMsg(MsgEvent.EVENT_LOGOUT_SUCCESS);
+        EventBus.getDefault().post(msgEvent);
     }
 
     private int getExceptionMessageId(String exceptionType) {

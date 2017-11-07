@@ -72,7 +72,7 @@ public class ChatHelper {
         EMConnectionListener connectionListener = new EMConnectionListener() {
             @Override
             public void onDisconnected(int error) {
-                EMLog.d("global listener", "onDisconnect" + error);
+                Log.e("global listener", "onDisconnect" + error);
                 if (error == EMError.USER_REMOVED) {
                     onUserException(EaseConstant.ACCOUNT_REMOVED);
                 } else if (error == EMError.USER_LOGIN_ANOTHER_DEVICE) {
@@ -100,6 +100,7 @@ public class ChatHelper {
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         intent.addFlags(Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
         intent.putExtra(exception, true);
+        intent.setAction("hx_conflict");
         appContext.startActivity(intent);
     }
 
