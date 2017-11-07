@@ -188,6 +188,7 @@
     <string name="delete_contact_tips">删除该联系人后，同时删除与该联系人的有关聊天记录</string>
     <string name="nearby">Nearby</string>
     <string name="nearby_msg_list_null_tips">附近没有发现消息</string>
+    <string name="from">From</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

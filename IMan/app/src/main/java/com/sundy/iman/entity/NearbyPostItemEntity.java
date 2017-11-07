@@ -9,6 +9,7 @@ import lombok.Data;
  * Created by sundy on 17/11/6.
  */
 
+@Data
 public class NearbyPostItemEntity implements Serializable {
 
     private String id;
