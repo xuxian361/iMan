@@ -601,7 +601,7 @@ public class CommunityMsgListActivity extends BaseActivity {
 
                             ImageView imageView = new ImageView(CommunityMsgListActivity.this);
                             //增加封面
-                            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+                            imageView.setScaleType(ImageView.ScaleType.CENTER);
                             ImageHelper.displayImageNet(CommunityMsgListActivity.this, thumbnail, imageView);
 
                             gsyVideoOptionBuilder

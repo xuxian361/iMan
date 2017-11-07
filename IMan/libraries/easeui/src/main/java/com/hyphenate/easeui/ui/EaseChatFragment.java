@@ -126,7 +126,6 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
-
         fragmentArgs = getArguments();
         // check if single chat or group chat
         chatType = fragmentArgs.getInt(EaseConstant.EXTRA_CHAT_TYPE, EaseConstant.CHATTYPE_SINGLE);
@@ -244,6 +243,7 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
                 }
             }
         });
+        titleBar.getRightLayout().setVisibility(View.GONE);
 
         setRefreshLayoutListener();
 

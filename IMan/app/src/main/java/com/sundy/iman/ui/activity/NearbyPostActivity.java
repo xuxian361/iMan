@@ -401,7 +401,9 @@ public class NearbyPostActivity extends BaseActivity {
                         tv_from.setOnClickListener(new View.OnClickListener() {
                             @Override
                             public void onClick(View view) {
-                                joinCommunity(community_id);
+                                if (PaperUtils.isLogin()) {
+                                    joinCommunity(community_id);
+                                }
                                 goCommunityMsgList(community_id);
                             }
                         });
