@@ -66,7 +66,7 @@ public class MsgEvent {
     //登录成功
     public static final String EVENT_LOGIN_SUCCESS = "Event_Login_Success";
     //登出成功
-    public static final String EVENT_LOGOUT_SUCCESS = "Event_Logout_Success";
+//    public static final String EVENT_LOGOUT_SUCCESS = "Event_Logout_Success";
     //更新用户信息成功
     public static final String EVENT_UPDATE_USER_INFO = "Event_Update_UserInfo";
     //更新未读消息数

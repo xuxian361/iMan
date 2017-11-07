@@ -15,7 +15,6 @@ import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.AppVersionEntity;
 import com.sundy.iman.entity.LogoutEntity;
-import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.StaticContentEntity;
 import com.sundy.iman.helper.ChatHelper;
 import com.sundy.iman.helper.UIHelper;
@@ -26,8 +25,6 @@ import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -308,8 +305,6 @@ public class SettingsActivity extends BaseActivity {
                         MainApp.getInstance().showToast(msg);
                     }
                     btnLogout.setVisibility(View.GONE);
-                    //发送登出Event 事件，刷新页面
-                    sendLogoutEvent();
 
                     goLogin();
                 }
@@ -330,13 +325,6 @@ public class SettingsActivity extends BaseActivity {
     //跳转登录
     private void goLogin() {
         UIHelper.jump(this, LoginActivity.class);
-    }
-
-    //发送登出Event 事件，刷新页面
-    private void sendLogoutEvent() {
-        MsgEvent msgEvent = new MsgEvent();
-        msgEvent.setMsg(MsgEvent.EVENT_LOGOUT_SUCCESS);
-        EventBus.getDefault().post(msgEvent);
     }
 
 }
