@@ -18,7 +18,7 @@
     <com.sundy.iman.utils.video.CoolCoverVideo
         android:id="@+id/video_item_player"
         android:layout_width="match_parent"
-        android:layout_height="160dp" />
+        android:layout_height="180dp" />
 
 
 </RelativeLayout>

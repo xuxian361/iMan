@@ -251,7 +251,10 @@ public class ContactInfoActivity extends BaseActivity {
                     goLogin();
                 break;
             case R.id.btn_add_contact:
-                addContact();
+                if (PaperUtils.isLogin())
+                    addContact();
+                else
+                    goLogin();
                 break;
         }
     }

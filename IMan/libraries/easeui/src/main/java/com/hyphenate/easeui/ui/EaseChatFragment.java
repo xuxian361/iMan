@@ -103,12 +103,12 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
 
     static final int ITEM_TAKE_PICTURE = 1;
     static final int ITEM_PICTURE = 2;
-    static final int ITEM_LOCATION = 3;
+    static final int ITEM_SEND_IMCOIN = 3;
 
-    protected int[] itemStrings = {R.string.attach_take_pic, R.string.attach_picture, R.string.attach_location};
-    protected int[] itemdrawables = {R.drawable.ease_chat_takepic_selector, R.drawable.ease_chat_image_selector,
-            R.drawable.ease_chat_location_selector};
-    protected int[] itemIds = {ITEM_TAKE_PICTURE, ITEM_PICTURE, ITEM_LOCATION};
+    protected int[] itemStrings = {R.string.attach_picture, R.string.attach_take_pic, R.string.attach_send_imcoin};
+    protected int[] itemdrawables = {R.drawable.icon_ease_picture, R.drawable.icon_ease_camera,
+            R.drawable.icon_ease_imcoin};
+    protected int[] itemIds = {ITEM_PICTURE, ITEM_TAKE_PICTURE, ITEM_SEND_IMCOIN};
     private boolean isMessageListInited;
     protected MyItemClickListener extendMenuItemClickListener;
     protected boolean isRoaming = false;
@@ -218,7 +218,6 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
                 EMClient.getInstance().chatroomManager().addChatRoomChangeListener(chatRoomListener);
                 onChatRoomViewCreation();
             }
-
         }
         if (chatType != EaseConstant.CHATTYPE_CHATROOM) {
             onConversationInit();
@@ -655,10 +654,9 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
                 case ITEM_PICTURE:
                     selectPicFromLocal();
                     break;
-                case ITEM_LOCATION:
-                    startActivityForResult(new Intent(getActivity(), EaseBaiduMapActivity.class), REQUEST_CODE_MAP);
+                case ITEM_SEND_IMCOIN:
+                    //SUNDY
                     break;
-
                 default:
                     break;
             }

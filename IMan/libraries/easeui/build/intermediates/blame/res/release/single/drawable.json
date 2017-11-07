@@ -72,6 +72,10 @@
         "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable/recall_message_bg.xml"
     },
     {
+        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/corner_bg_edit_gray_stroke.xml",
+        "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable/corner_bg_edit_gray_stroke.xml"
+    },
+    {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/abc_dialog_material_background.xml",
         "source": "/Users/sundy/.android/build-cache/fd222f627f2c06f25759251e0957757ff5395771/output/res/drawable/abc_dialog_material_background.xml"
     },
@@ -178,6 +182,10 @@
     {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/common_google_signin_btn_text_light.xml",
         "source": "/Users/sundy/.android/build-cache/cf6fe9af2ecf2d053780190e1e606c9965e363ae/output/res/drawable/common_google_signin_btn_text_light.xml"
+    },
+    {
+        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/corner_bg_small_gray_stroke.xml",
+        "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable/corner_bg_small_gray_stroke.xml"
     },
     {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/ease_recording_hint_bg.xml",

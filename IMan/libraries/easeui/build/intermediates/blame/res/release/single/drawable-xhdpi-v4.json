@@ -32,6 +32,10 @@
         "source": "/Users/sundy/.android/build-cache/cf6fe9af2ecf2d053780190e1e606c9965e363ae/output/res/drawable-xhdpi-v4/common_plus_signin_btn_icon_light_pressed.9.png"
     },
     {
+        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable-xhdpi-v4/icon_ease_camera.png",
+        "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable-xhdpi/icon_ease_camera.png"
+    },
+    {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable-xhdpi-v4/ease_groups_icon.png",
         "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable-xhdpi/ease_groups_icon.png"
     },
@@ -280,6 +284,10 @@
         "source": "/Users/sundy/.android/build-cache/cf6fe9af2ecf2d053780190e1e606c9965e363ae/output/res/drawable-xhdpi-v4/common_google_signin_btn_text_light_focused.9.png"
     },
     {
+        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable-xhdpi-v4/icon_ease_imcoin.png",
+        "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable-xhdpi/icon_ease_imcoin.png"
+    },
+    {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable-xhdpi-v4/icon_default_portrait.png",
         "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable-xhdpi/icon_default_portrait.png"
     },
@@ -334,6 +342,10 @@
     {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable-xhdpi-v4/ease_dot_emojicon_unselected.png",
         "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable-xhdpi/ease_dot_emojicon_unselected.png"
+    },
+    {
+        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable-xhdpi-v4/icon_ease_picture.png",
+        "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable-xhdpi/icon_ease_picture.png"
     },
     {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable-xhdpi-v4/abc_scrubber_control_off_mtrl_alpha.png",
