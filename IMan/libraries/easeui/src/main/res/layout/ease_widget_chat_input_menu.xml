@@ -30,9 +30,9 @@
             android:id="@+id/extend_menu"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="7dp"
+            android:layout_marginBottom="9dp"
             android:layout_marginTop="9dp"
-            hyphenate:numColumns="4" />
+            hyphenate:numColumns="3" />
 
         <FrameLayout 
             android:layout_width="match_parent"
