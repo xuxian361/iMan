@@ -101,5 +101,11 @@
         <item name="android:textSize">16sp</item>
     </style>
 
+    <!-- 圆角矩形 -->
+    <declare-styleable name="RoundAngleImageView">
+        <attr name="roundWidth" format="dimension" />
+        <attr name="roundHeight" format="dimension" />
+    </declare-styleable>
+
 
 </resources>

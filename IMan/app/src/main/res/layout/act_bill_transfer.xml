@@ -2,6 +2,138 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/white"
     android:orientation="vertical">
+
+    <com.sundy.iman.view.TitleBarView
+        android:id="@+id/title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="130dp"
+                android:layout_margin="@dimen/layout_margin_size">
+
+                <com.sundy.iman.view.RoundAngleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/imgProduct"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@mipmap/bg_blue"
+                    android:scaleType="fitXY"
+                    app:roundHeight="5dp"
+                    app:roundWidth="5dp" />
+
+                <TextView
+                    android:id="@+id/tv_rel_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="20dp"
+                    android:text="@string/send_imcoin_to"
+                    android:textColor="@color/txt_white"
+                    android:textSize="12sp" />
+
+                <de.hdodenhof.circleimageview.CircleImageView xmlns:app="http://schemas.android.com/apk/res-auto"
+                    android:id="@+id/iv_header"
+                    android:layout_width="40dp"
+                    android:layout_height="40dp"
+                    android:layout_below="@+id/tv_rel_title"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="10dp"
+                    android:src="@mipmap/icon_default_portrait"
+                    app:civ_border_color="@color/bg_blue"
+                    app:civ_border_width="0dp" />
+
+                <TextView
+                    android:id="@+id/tv_send_name"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/iv_header"
+                    android:layout_centerHorizontal="true"
+                    android:layout_marginTop="10dp"
+                    android:textColor="@color/txt_black"
+                    android:textSize="16sp" />
+
+            </RelativeLayout>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginTop="15dp"
+                android:drawableLeft="@mipmap/icon_dot_blue"
+                android:drawablePadding="5dp"
+                android:text="@string/imcoin_amount"
+                android:textColor="@color/txt_black"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/et_amount"
+                style="@style/MyEditText"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="5dp"
+                android:digits="1234567890"
+                android:focusable="true"
+                android:gravity="center"
+                android:inputType="number"
+                android:maxLength="20"
+                android:maxLines="1"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginTop="10dp"
+                android:drawableLeft="@mipmap/icon_dot_blue"
+                android:drawablePadding="5dp"
+                android:text="@string/add_note_tips"
+                android:textColor="@color/txt_gray"
+                android:textSize="14sp" />
+
+            <EditText
+                android:id="@+id/et_note"
+                style="@style/MyEditText"
+                android:layout_width="match_parent"
+                android:layout_height="46dp"
+                android:layout_marginLeft="@dimen/layout_margin_size"
+                android:layout_marginRight="@dimen/layout_margin_size"
+                android:layout_marginTop="5dp"
+                android:focusable="true"
+                android:gravity="left"
+                android:maxLength="10"
+                android:maxLines="1"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/btn_send"
+                android:layout_width="wrap_content"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:layout_marginTop="40dp"
+                android:background="@drawable/selector_btn_corner_8"
+                android:gravity="center"
+                android:minWidth="@dimen/button_min_width"
+                android:text="@string/send"
+                android:textColor="@color/txt_white"
+                android:textSize="14sp" />
+
+        </LinearLayout>
+
+    </ScrollView>
 
 </LinearLayout>

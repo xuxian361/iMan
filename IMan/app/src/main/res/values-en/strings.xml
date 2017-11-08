@@ -204,6 +204,10 @@
     <string name="year">Year</string>
     <string name="month">Month</string>
     <string name="day">Day</string>
+    <string name="send_imcoin_to">Send imcoin to</string>
+    <string name="imcoin_amount">imcoin amount</string>
+    <string name="add_note_tips">Add note here (if needed)</string>
+    <string name="send">Send</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

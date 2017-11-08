@@ -253,8 +253,6 @@ public class MyImcoinActivity extends BaseActivity {
         DatePicker picker = new DatePicker(this, DatePicker.YEAR_MONTH);
         picker.setGravity(Gravity.BOTTOM | Gravity.CENTER_HORIZONTAL);
         picker.setLabel(getString(R.string.year), getString(R.string.month), getString(R.string.day));
-        picker.getCancelButton().setText(getString(R.string.cancel));
-        picker.getSubmitButton().setText(getString(R.string.confirm));
         picker.setWidth((int) (picker.getScreenWidthPixels()));
         picker.setRangeStart(2017, 6, 1);
         picker.setRangeEnd(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH) + 1, 1);
@@ -273,6 +271,8 @@ public class MyImcoinActivity extends BaseActivity {
             }
         });
         picker.show();
+        picker.getCancelButton().setText(getString(R.string.cancel));
+        picker.getSubmitButton().setText(getString(R.string.confirm));
     }
 
     private class RecordAdapter extends BaseQuickAdapter<BillRecordItemEntity, BaseViewHolder> {
