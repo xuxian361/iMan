@@ -13,6 +13,7 @@ import com.previewlibrary.ZoomMediaLoader;
 import com.sundy.iman.helper.ChatHelper;
 import com.sundy.iman.impl.GlideImageLoader;
 import com.sundy.iman.utils.ToastUtil;
+import com.umeng.socialize.Config;
 import com.umeng.socialize.PlatformConfig;
 import com.umeng.socialize.UMShareAPI;
 
@@ -31,10 +32,10 @@ public class MainApp extends MultiDexApplication {
     private ToastUtil toastUtil;    //用做Toast显示，注意这个虽然不是单例，但是最好做为单例使用
     private ExecutorService executorService;    //线程池
 
-    //SUNDY
+
     {
-        PlatformConfig.setWeixin("wx967daebe835fbeac", "5bb696d9ccd75a38c8a0bfe0675559b3");
-        PlatformConfig.setQQZone("100424468", "c7394704798a158208a74ab60104f0ba");
+        PlatformConfig.setWeixin("wx967daebe835fbeac", "5bb696d9ccd75a38c8a0bfe0675559b3"); //SUNDY
+        PlatformConfig.setQQZone("1106526566", "vnylHwGyIJwxcU48");
     }
 
     @Override
@@ -56,6 +57,7 @@ public class MainApp extends MultiDexApplication {
         ZoomMediaLoader.getInstance().init(new GlideImageLoader());
 
         //友盟分享
+        Config.DEBUG = true;
         UMShareAPI.get(this);
 
         //环信初始化

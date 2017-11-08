@@ -574,6 +574,7 @@ public class CommunityMsgListActivity extends BaseActivity {
 
                         final String att_type = attachmentEntity.getAtt_type();//附件类型: 1-图片，2-视频
                         final String thumbnail = attachmentEntity.getThumbnail();
+
                         Logger.e("------->url = " + url);
 
                         if (att_type.equals("1")) //图片
@@ -971,6 +972,7 @@ public class CommunityMsgListActivity extends BaseActivity {
         @Override
         public void onError(SHARE_MEDIA platform, Throwable t) {
             Logger.e("------>onError");
+            t.printStackTrace();
         }
 
         @Override

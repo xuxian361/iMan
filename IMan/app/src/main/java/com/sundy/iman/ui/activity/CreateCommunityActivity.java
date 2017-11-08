@@ -115,6 +115,7 @@ public class CreateCommunityActivity extends BaseActivity {
         EventBus.getDefault().register(this);
         initTitle();
         init();
+        getLocationPermission();
     }
 
     private void initTitle() {
@@ -160,7 +161,6 @@ public class CreateCommunityActivity extends BaseActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        getLocationPermission();
     }
 
     //获取定位全向
@@ -378,10 +378,10 @@ public class CreateCommunityActivity extends BaseActivity {
                 //errCode等于0代表定位成功，其他的为定位失败，具体的可以参照官网定位错误码说明
                 if (location.getErrorCode() == 0) {
                     Logger.i("定位成功");
+                    stopLocation();
                     String address = location.getAddress();
                     if (!TextUtils.isEmpty(address)) {
                         Logger.i("获取定位信息成功");
-                        stopLocation();
                         saveLocation(location.getLatitude(), location.getLongitude());
                     } else {
                         Logger.w("获取定位信息失败");

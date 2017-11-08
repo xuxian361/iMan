@@ -10,6 +10,9 @@ import android.widget.LinearLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.exceptions.HyphenateException;
+import com.orhanobut.logger.Logger;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
@@ -25,6 +28,7 @@ import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.view.TitleBarView;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -68,6 +72,7 @@ public class ContactInfoActivity extends BaseActivity {
     private String contact_id; //用户ID
     private String goal_id; //目标ID: 当类型为0时，则为社区ID
     private String type; //类型: 0-社区；1-单聊 ；2-群聊（目前没有） ；3-扫二维码 （目前没有）
+    private String easemod_id;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -128,9 +133,23 @@ public class ContactInfoActivity extends BaseActivity {
         @Override
         public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
             if (b) {
-                //SUNDY
+                if (TextUtils.isEmpty(easemod_id))
+                    return;
+                try {
+                    Logger.e("---->设置能接收消息");
+                    EMClient.getInstance().contactManager().removeUserFromBlackList(easemod_id);
+                } catch (HyphenateException e) {
+                    e.printStackTrace();
+                }
             } else {
-
+                if (TextUtils.isEmpty(easemod_id))
+                    return;
+                try {
+                    Logger.e("---->设置不能接收消息");
+                    EMClient.getInstance().contactManager().addUserToBlackList(easemod_id, true);
+                } catch (HyphenateException e) {
+                    e.printStackTrace();
+                }
             }
         }
     };
@@ -176,6 +195,7 @@ public class ContactInfoActivity extends BaseActivity {
 
     private void showData(MemberInfoEntity.DataEntity dataEntity) {
         if (dataEntity != null) {
+            easemod_id = dataEntity.getEasemob_account();
             String username = dataEntity.getUsername();
             if (TextUtils.isEmpty(username)) {
                 tvUsername.setText(getString(R.string.iman));
@@ -224,6 +244,37 @@ public class ContactInfoActivity extends BaseActivity {
             } else {
                 btnAddContact.setVisibility(View.VISIBLE);
             }
+
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        List<String> listBlack = EMClient.getInstance().contactManager().getBlackListFromServer();
+                        if (listBlack != null && listBlack.size() > 0) {
+                            Logger.e("---->listBlack size = " + listBlack.size());
+                            if (listBlack.contains(easemod_id)) {
+                                Logger.e("---->不接收消息");
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        switchNotification.setChecked(false);
+                                    }
+                                });
+                            } else {
+                                Logger.e("---->能接收消息");
+                                runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        switchNotification.setChecked(true);
+                                    }
+                                });
+                            }
+                        }
+                    } catch (HyphenateException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }).start();
         }
     }
 
