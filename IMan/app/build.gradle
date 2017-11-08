@@ -193,4 +193,9 @@ dependencies {
     //IJKPlayer播放器
     compile 'com.shuyu:GSYVideoPlayer:2.1.1'
     compile project(':libraries:easeui')
+    //时间选择器
+    compile('cn.qqtheme.framework:WheelPicker:1.5.5') {
+        exclude group: 'com.android.support'
+    }
+
 }

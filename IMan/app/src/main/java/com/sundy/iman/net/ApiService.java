@@ -3,6 +3,7 @@ package com.sundy.iman.net;
 import com.sundy.iman.config.Apis;
 import com.sundy.iman.entity.AddContactEntity;
 import com.sundy.iman.entity.AppVersionEntity;
+import com.sundy.iman.entity.BillRecordListEntity;
 import com.sundy.iman.entity.CancelPostEntity;
 import com.sundy.iman.entity.ChangeLanguageEntity;
 import com.sundy.iman.entity.CollectAdvertisingEntity;
@@ -344,6 +345,14 @@ public interface ApiService {
      */
     @GET(Apis.URL_GET_NEARBY_POST)
     Call<NearbyPostListEntity> getNearbyPost(@QueryMap Map<String, String> map);
+
+    /**
+     * 获取账单记录
+     *
+     * @return
+     */
+    @GET(Apis.URL_GET_BILL_RECORD)
+    Call<BillRecordListEntity> getBillRecord(@QueryMap Map<String, String> map);
 
 
     /**

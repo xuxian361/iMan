@@ -189,6 +189,20 @@
     <string name="nearby">Nearby</string>
     <string name="nearby_msg_list_null_tips">附近没有发现消息</string>
     <string name="from">From</string>
+    <string name="imcoin_record_null_tips">未有交易记录</string>
+    <string name="expenditure">支出:</string>
+    <string name="income">收入:</string>
+    <string name="record">记录</string>
+    <string name="record_title_type_1">创建广告支出</string>
+    <string name="record_title_type_2">转出 - 转给</string>
+    <string name="record_title_type_3">转入 - 来自</string>
+    <string name="record_title_type_4">官方充值</string>
+    <string name="record_title_type_5">阅览广告收入</string>
+    <string name="record_title_type_6">推广社区收入</string>
+    <string name="record_title_type_7">注册奖励</string>
+    <string name="year">年</string>
+    <string name="month">月</string>
+    <string name="day">日</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

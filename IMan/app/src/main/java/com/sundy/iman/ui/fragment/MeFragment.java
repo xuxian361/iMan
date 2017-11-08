@@ -44,6 +44,7 @@ import com.sundy.iman.ui.activity.CreateCommunityActivity;
 import com.sundy.iman.ui.activity.EditProfileActivity;
 import com.sundy.iman.ui.activity.LoginActivity;
 import com.sundy.iman.ui.activity.MyContactsActivity;
+import com.sundy.iman.ui.activity.MyImcoinActivity;
 import com.sundy.iman.ui.activity.MyPostActivity;
 import com.sundy.iman.ui.activity.MyPromoteCommunityActivity;
 import com.sundy.iman.ui.activity.QRScannerActivity;
@@ -626,7 +627,11 @@ public class MeFragment extends BaseFragment {
 
     //跳转My Imcoin
     private void goMyImcoin() {
-
+        if (PaperUtils.isLogin()) {
+            UIHelper.jump(mContext, MyImcoinActivity.class);
+        } else {
+            goLogin();
+        }
     }
 
     //跳转编辑用户信息

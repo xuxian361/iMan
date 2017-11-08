@@ -243,3 +243,7 @@ public static final int *;
 public static java.lang.String TABLENAME;
 }
 -keep class **$Properties
+#选择器Picker
+-keepattributes InnerClasses,Signature
+-keepattributes *Annotation*
+-keep class cn.qqtheme.framework.entity.** { *;}

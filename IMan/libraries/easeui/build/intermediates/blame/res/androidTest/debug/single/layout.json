@@ -1,11 +1,11 @@
 [
     {
-        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/androidTest/debug/layout/ease_widget_switch_button.xml",
-        "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/bundles/debug/res/layout/ease_widget_switch_button.xml"
-    },
-    {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/androidTest/debug/layout/ease_row_received_file.xml",
         "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/bundles/debug/res/layout/ease_row_received_file.xml"
+    },
+    {
+        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/androidTest/debug/layout/ease_widget_switch_button.xml",
+        "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/bundles/debug/res/layout/ease_widget_switch_button.xml"
     },
     {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/androidTest/debug/layout/abc_expanded_menu_layout.xml",
