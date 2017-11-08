@@ -37,7 +37,7 @@ import retrofit2.Response;
 public class MainActivity extends BaseActivity implements OnBaseListener {
 
     private static final String TAG = "MainActivity";
-    private Fragment mContent;
+    public static Fragment mContent;
     private boolean isExceptionDialogShow = false;
 
     @Override

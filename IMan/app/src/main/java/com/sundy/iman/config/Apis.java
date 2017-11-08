@@ -119,6 +119,9 @@ public class Apis {
     //获取账单记录
     public static final String URL_GET_BILL_RECORD = "memberBills/getList";
 
+    //个人转账接口
+    public static final String URL_BILL_TRANSFER = "memberBills/transfer";
+
     //图片上传
     public static final String URL_UPLOAD_IMAGE = "";
 

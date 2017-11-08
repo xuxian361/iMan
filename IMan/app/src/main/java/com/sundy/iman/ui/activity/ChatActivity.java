@@ -7,7 +7,6 @@ import android.view.View;
 
 import com.hyphenate.chat.EMMessage;
 import com.hyphenate.easeui.EaseConstant;
-import com.hyphenate.easeui.ui.EaseChatFragment;
 import com.hyphenate.easeui.widget.chatrow.EaseCustomChatRowProvider;
 import com.hyphenate.util.EasyUtils;
 import com.orhanobut.logger.Logger;
@@ -17,14 +16,15 @@ import com.sundy.iman.greendao.ImUserInfo;
 import com.sundy.iman.helper.DbHelper;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.ui.fragment.ChatFragment;
 import com.sundy.iman.utils.permission_utils.PermissionsManager;
 
 /**
  * Created by sundy on 17/10/4.
  */
 
-public class ChatActivity extends BaseActivity implements EaseChatFragment.EaseChatFragmentHelper {
-    private EaseChatFragment chatFragment;
+public class ChatActivity extends BaseActivity implements ChatFragment.EaseChatFragmentHelper {
+    private ChatFragment chatFragment;
     private String easemod_id;
 
     @Override
@@ -46,7 +46,7 @@ public class ChatActivity extends BaseActivity implements EaseChatFragment.EaseC
     }
 
     private void init() {
-        chatFragment = new EaseChatFragment();
+        chatFragment = new ChatFragment();
         //pass parameters to chat fragment
         Bundle bundle = new Bundle();
         bundle.putInt(EaseConstant.EXTRA_CHAT_TYPE, EaseConstant.CHATTYPE_SINGLE);

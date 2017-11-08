@@ -4,6 +4,7 @@ import com.sundy.iman.config.Apis;
 import com.sundy.iman.entity.AddContactEntity;
 import com.sundy.iman.entity.AppVersionEntity;
 import com.sundy.iman.entity.BillRecordListEntity;
+import com.sundy.iman.entity.BillTransferEntity;
 import com.sundy.iman.entity.CancelPostEntity;
 import com.sundy.iman.entity.ChangeLanguageEntity;
 import com.sundy.iman.entity.CollectAdvertisingEntity;
@@ -353,6 +354,14 @@ public interface ApiService {
      */
     @GET(Apis.URL_GET_BILL_RECORD)
     Call<BillRecordListEntity> getBillRecord(@QueryMap Map<String, String> map);
+
+    /**
+     * 个人转账
+     *
+     * @return
+     */
+    @GET(Apis.URL_BILL_TRANSFER)
+    Call<BillTransferEntity> billTransfer(@QueryMap Map<String, String> map);
 
 
     /**

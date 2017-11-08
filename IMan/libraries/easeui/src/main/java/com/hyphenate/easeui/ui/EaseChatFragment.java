@@ -655,7 +655,6 @@ public class EaseChatFragment extends EaseBaseFragment implements EMMessageListe
                     selectPicFromLocal();
                     break;
                 case ITEM_SEND_IMCOIN:
-                    //SUNDY
                     break;
                 default:
                     break;

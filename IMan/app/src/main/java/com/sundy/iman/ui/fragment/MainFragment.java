@@ -21,6 +21,7 @@ import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.TabEntity;
 import com.sundy.iman.helper.ChatHelper;
 import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.ui.activity.MainActivity;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -98,7 +99,6 @@ public class MainFragment extends BaseFragment {
 
             }
         });
-        viewMenu.setMsgMargin(0, -15, 5);
     }
 
     public void switchContent(Fragment fragment) {
@@ -124,13 +124,33 @@ public class MainFragment extends BaseFragment {
             public void run() {
                 int count = getUnreadMsgCountTotal();
                 Logger.e("------->更新未读消息数 ：" + count);
-                if (count > 0)
+                if (count > 0) {
                     viewMenu.showMsg(0, count);
-                else
+                    viewMenu.setMsgMargin(0, -15, 5);
+                } else {
                     viewMenu.hideMsg(0);
+
+                }
+
+                //更新MsgFragment 的消息列表
+                updateMsgList();
             }
         });
     }
+
+    //更新消息列表
+    private void updateMsgList() {
+        try {
+            if (MainActivity.mContent == null)
+                return;
+            if (MainActivity.mContent instanceof MsgFragment) {
+                ((MsgFragment) msgFragment).refresh();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     /**
      * get unread message count
@@ -177,7 +197,8 @@ public class MainFragment extends BaseFragment {
         }
 
         @Override
-        public void onMessageChanged(EMMessage message, Object change) {}
+        public void onMessageChanged(EMMessage message, Object change) {
+        }
     };
 
     @Override
@@ -192,7 +213,7 @@ public class MainFragment extends BaseFragment {
             sdkHelper.pushActivity(mContext);
 
             EMClient.getInstance().chatManager().addMessageListener(messageListener);
-        }else {
+        } else {
             viewMenu.hideMsg(0);
         }
     }
