@@ -363,7 +363,7 @@ public class CreateAdvertisementActivity extends BaseActivity {
         }
     };
 
-    //获取定位全向
+    //获取定位权限
     private void getLocationPermission() {
         AndPermission.with(this)
                 .requestCode(REQUEST_CODE_PERMISSION_LOCATION)
@@ -1051,6 +1051,7 @@ public class CreateAdvertisementActivity extends BaseActivity {
                     JsonObject jsonObject = new JsonObject();
 
                     String path = selectMediaEntity.getPath();
+
                     String localVideoPath = selectMediaEntity.getLocalVideoPath();
                     if (TextUtils.isEmpty(localVideoPath)) {
                         jsonObject.addProperty("att_type", "1");

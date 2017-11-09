@@ -575,7 +575,8 @@ public class CommunityMsgListActivity extends BaseActivity {
                         final String att_type = attachmentEntity.getAtt_type();//附件类型: 1-图片，2-视频
                         final String thumbnail = attachmentEntity.getThumbnail();
 
-                        Logger.e("------->url = " + url);
+//                        Logger.e("------->url = " + url);
+//                        Logger.e("------->thumbnail = " + thumbnail);
 
                         if (att_type.equals("1")) //图片
                         {
@@ -600,10 +601,14 @@ public class CommunityMsgListActivity extends BaseActivity {
                             gsyVideoPlayer.setVisibility(View.VISIBLE);
                             iv_img.setVisibility(View.GONE);
 
-                            ImageView imageView = new ImageView(CommunityMsgListActivity.this);
                             //增加封面
-                            imageView.setScaleType(ImageView.ScaleType.CENTER);
-                            ImageHelper.displayImageNet(CommunityMsgListActivity.this, thumbnail, imageView);
+                            ImageView imageView = (ImageView) getLayoutInflater().inflate(R.layout.item_cover,null);
+                            Glide.with(CommunityMsgListActivity.this)
+                                    .load(thumbnail)
+                                    .dontAnimate()
+                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                    .placeholder(R.drawable.default_image)
+                                    .into(imageView);
 
                             gsyVideoOptionBuilder
                                     .setIsTouchWiget(false)
@@ -1150,10 +1155,10 @@ public class CommunityMsgListActivity extends BaseActivity {
 
             if (att_type.equals("1")) { //图片
                 iv_video.setVisibility(View.GONE);
-                ImageHelper.displayImageLocal(mContext, url, iv_photo);
+                ImageHelper.displayImageNet(mContext, url, iv_photo);
             } else {
                 iv_video.setVisibility(View.VISIBLE);
-                ImageHelper.displayImageLocal(mContext, thumbnail, iv_photo);
+                ImageHelper.displayImageNet(mContext, thumbnail, iv_photo);
             }
 
             iv_photo.setOnClickListener(new View.OnClickListener() {

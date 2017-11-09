@@ -834,7 +834,7 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
         sendMessage(message);
     }
 
-    protected void sendImcoinMessage()
+//    protected void sendImcoinMessage() SUNDY
 
     protected void sendMessage(EMMessage message) {
         if (message == null) {

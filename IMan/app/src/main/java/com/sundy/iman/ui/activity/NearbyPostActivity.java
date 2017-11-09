@@ -450,10 +450,14 @@ public class NearbyPostActivity extends BaseActivity {
                             gsyVideoPlayer.setVisibility(View.VISIBLE);
                             iv_img.setVisibility(View.GONE);
 
-                            ImageView imageView = new ImageView(NearbyPostActivity.this);
                             //增加封面
-                            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-                            ImageHelper.displayImageNet(NearbyPostActivity.this, thumbnail, imageView);
+                            ImageView imageView = (ImageView) getLayoutInflater().inflate(R.layout.item_cover,null);
+                            Glide.with(NearbyPostActivity.this)
+                                    .load(thumbnail)
+                                    .dontAnimate()
+                                    .diskCacheStrategy(DiskCacheStrategy.ALL)
+                                    .placeholder(R.drawable.default_image)
+                                    .into(imageView);
 
                             gsyVideoOptionBuilder
                                     .setIsTouchWiget(false)
