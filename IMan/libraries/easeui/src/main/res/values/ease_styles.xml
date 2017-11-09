@@ -18,15 +18,14 @@
         <item name="android:textSize">15sp</item>
         <item name="android:gravity">center</item>
     </style>
-    
+
     <style name="chat_text_date_style">
-        <item name="android:padding">2dp</item>
         <item name="android:paddingTop">2dip</item>
         <item name="android:paddingBottom">2dip</item>
-        <item name="android:paddingLeft">12dip</item>
-        <item name="android:paddingRight">12dip</item>
-        <item name="android:textColor">@color/btn_gray_normal</item>
-        <item name="android:textSize">12sp</item>
+        <item name="android:paddingLeft">4dip</item>
+        <item name="android:paddingRight">4dip</item>
+        <item name="android:textColor">@color/white</item>
+        <item name="android:textSize">10sp</item>
         <item name="android:background">@drawable/ease_timestampe_bg</item>
     </style>
 
@@ -74,7 +73,7 @@
     <style name="horizontal_slide" parent="android:Theme.NoTitleBar">
         <item name="android:windowAnimationStyle">@style/AnimFade2</item>
     </style>
-    
+
     <style name="nornal_style" parent="android:Theme.NoTitleBar"></style>
 
     <!--
@@ -82,7 +81,6 @@
         <item name="android:windowAnimationStyle">@style/AnimFade2</item>
     </style>
     -->
-
 
 
     <style name="MyDialogStyle">
@@ -158,7 +156,7 @@
     </style>
 
 
- <style name="bottom_line_edit_text_style" parent="@android:style/Widget.EditText">
+    <style name="bottom_line_edit_text_style" parent="@android:style/Widget.EditText">
         <item name="android:gravity">center_vertical</item>
         <item name="android:paddingLeft">6.0dip</item>
         <item name="android:paddingTop">6.0dip</item>

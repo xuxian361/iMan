@@ -17,6 +17,7 @@ import com.hyphenate.chat.EMOptions;
 import com.hyphenate.chat.EMTextMessageBody;
 import com.hyphenate.easeui.EaseConstant;
 import com.hyphenate.easeui.EaseUI;
+import com.hyphenate.easeui.domain.EaseAvatarOptions;
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.model.EaseAtMessageHelper;
 import com.hyphenate.easeui.model.EaseNotifier;
@@ -64,8 +65,16 @@ public class ChatHelper {
         easeUI.init(context, getEmOptions());
         registerMessageListener();
         registerConnectionListener();
+        initUIProvider();
         initUserProvider();
         initNotify();
+    }
+
+    private void initUIProvider() {
+        //设置聊天用户头像为圆形
+        EaseAvatarOptions avatarOptions = new EaseAvatarOptions();
+        avatarOptions.setAvatarShape(1);
+        easeUI.setAvatarOptions(avatarOptions);
     }
 
     private void registerConnectionListener() {
