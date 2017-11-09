@@ -23,6 +23,7 @@ import com.hyphenate.easeui.model.EaseAtMessageHelper;
 import com.hyphenate.easeui.model.EaseNotifier;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.util.EMLog;
+import com.sundy.iman.BuildConfig;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.entity.MemberInfoEntity;
@@ -63,6 +64,7 @@ public class ChatHelper {
         this.appContext = context;
         easeUI = EaseUI.getInstance();
         easeUI.init(context, getEmOptions());
+        EMClient.getInstance().setDebugMode(BuildConfig.DEBUG);
         registerMessageListener();
         registerConnectionListener();
         initUIProvider();

@@ -51,9 +51,11 @@ import com.hyphenate.easeui.widget.chatrow.EaseCustomChatRowProvider;
 import com.hyphenate.exceptions.HyphenateException;
 import com.hyphenate.util.EMLog;
 import com.hyphenate.util.PathUtil;
+import com.orhanobut.logger.Logger;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.MemberInfoEntity;
+import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.greendao.ImUserInfo;
 import com.sundy.iman.helper.ChatHelper;
 import com.sundy.iman.helper.UIHelper;
@@ -62,6 +64,10 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.ui.activity.BillTransferActivity;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.util.HashMap;
@@ -125,6 +131,7 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        EventBus.getDefault().register(this);
         return inflater.inflate(com.hyphenate.easeui.R.layout.ease_fragment_chat, container, false);
     }
 
@@ -328,7 +335,6 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
             inputMenu.registerExtendMenuItem(itemStrings[i], itemdrawables[i], itemIds[i], extendMenuItemClickListener);
         }
     }
-
 
     protected void onConversationInit() {
         conversation = EMClient.getInstance().chatManager().getConversation(toChatUsername, EaseCommonUtils.getConversationType(chatType), true);
@@ -549,7 +555,6 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
         }
     }
 
-
     @Override
     public void onResume() {
         super.onResume();
@@ -578,7 +583,7 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
     @Override
     public void onDestroy() {
         super.onDestroy();
-
+        EventBus.getDefault().unregister(this);
         if (groupListener != null) {
             EMClient.getInstance().groupManager().removeGroupChangeListener(groupListener);
         }
@@ -643,6 +648,14 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
                 getActivity().finish();
             }
         });
+    }
+
+    //刷新列表
+    public void refreshList() {
+        if (isMessageListInited) {
+            if (messageList != null)
+                messageList.refresh();
+        }
     }
 
     // implement methods in EMMessageListener
@@ -834,7 +847,13 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
         sendMessage(message);
     }
 
-//    protected void sendImcoinMessage() SUNDY
+    protected void sendImcoinMessage(String content) {
+        Logger.e("---->发送imcoin 转账消息");
+        EMMessage message = EMMessage.createTxtSendMessage(content, toChatUsername);
+        message.setAttribute("attribute1", "value");
+        message.setAttribute("attribute2", true);
+//        sendMessage();
+    }
 
     protected void sendMessage(EMMessage message) {
         if (message == null) {
@@ -1221,5 +1240,19 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
          */
         EaseCustomChatRowProvider onSetCustomChatRowProvider();
     }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(MsgEvent event) {
+        if (event != null) {
+            String msg = event.getMsg();
+            switch (msg) {
+                case MsgEvent.EVENT_SEND_IMCOIN_SUCCESS:
+                    String content = event.getData();
+                    sendImcoinMessage(content);
+                    break;
+            }
+        }
+    }
+
 }
 

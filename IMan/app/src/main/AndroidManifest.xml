@@ -232,6 +232,11 @@
             android:name=".ui.activity.BillTransferActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="stateAlwaysHidden" />
+        <activity
+            android:name=".ui.activity.ContextMenuActivity"
+            android:screenOrientation="portrait"
+            android:theme="@style/MyDialogStyle" />
+
 
         <!--QQ分享回调-->
         <activity
@@ -283,6 +288,15 @@
         </provider>
 
         <!-- /////////////////环信 开始/////////////////// -->
+        <!-- 开机自启动服务 -->
+        <receiver android:name=".service.StartServiceReceiver">
+            <intent-filter android:priority="1000">
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </receiver>
         <!-- 设置环信应用的AppKey -->
         <meta-data
             android:name="EASEMOB_APPKEY"
@@ -290,12 +304,13 @@
         <!-- 声明SDK所需的service SDK核心功能-->
         <service
             android:name="com.hyphenate.chat.EMChatService"
-            android:exported="true" />
+            android:exported="true"
+            tools:ignore="ExportedService" />
         <service
             android:name="com.hyphenate.chat.EMJobService"
             android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE" />
-        <!-- 声明SDK所需的receiver -->
+        <!-- 声明sdk所需的receiver -->
         <receiver android:name="com.hyphenate.chat.EMMonitorReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_REMOVED" />

@@ -200,7 +200,6 @@ public class EaseMessageAdapter extends BaseAdapter {
         }
         if (message.getType() == EMMessage.Type.IMAGE) {
             return message.direct() == EMMessage.Direct.RECEIVE ? MESSAGE_TYPE_RECV_IMAGE : MESSAGE_TYPE_SENT_IMAGE;
-
         }
         if (message.getType() == EMMessage.Type.LOCATION) {
             return message.direct() == EMMessage.Direct.RECEIVE ? MESSAGE_TYPE_RECV_LOCATION : MESSAGE_TYPE_SENT_LOCATION;

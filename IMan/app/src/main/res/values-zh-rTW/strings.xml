@@ -211,6 +211,11 @@
     <string name="transfer_success">转账成功</string>
     <string name="send_imcoin_success">发送成功</string>
     <string name="send_imcoin">Send imcoin</string>
+    <string name="recall">撤回</string>
+    <string name="recall_str">撤回</string>
+    <string name="delete_str">删除</string>
+    <string name="copy_str">拷贝</string>
+    <string name="msg_recall_by_self">您撤回了一条消息</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

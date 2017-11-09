@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.BillTransferEntity;
+import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.greendao.ImUserInfo;
 import com.sundy.iman.helper.DbHelper;
 import com.sundy.iman.helper.ImageHelper;
@@ -23,6 +24,8 @@ import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -175,7 +178,7 @@ public class BillTransferActivity extends BaseActivity {
         ImUserInfo imUserInfoEntity = DbHelper.getInstance().getUserInfoByHxId(toChatUsername);
         if (imUserInfoEntity != null) {
 
-            String remark = etNote.getText().toString().trim();
+            final String remark = etNote.getText().toString().trim();
             String goal_id = imUserInfoEntity.getUserId();
             String income = etAmount.getText().toString().trim();
 
@@ -195,7 +198,7 @@ public class BillTransferActivity extends BaseActivity {
                         int code = billTransferEntity.getCode();
                         String msg = billTransferEntity.getMsg();
                         if (code == Constants.CODE_SUCCESS) {
-
+                            sendImcoinSuccessEvent(remark);
                             showSuccessDialog();
                         } else {
                             showFailDialog(msg);
@@ -214,6 +217,14 @@ public class BillTransferActivity extends BaseActivity {
                 }
             });
         }
+    }
+
+    //发送Event 通知刷新消息列表
+    private void sendImcoinSuccessEvent(String content) {
+        MsgEvent msgEvent = new MsgEvent();
+        msgEvent.setMsg(MsgEvent.EVENT_SEND_IMCOIN_SUCCESS);
+        msgEvent.setData(content);
+        EventBus.getDefault().post(msgEvent);
     }
 
     //显示成功弹框

@@ -1,13 +1,22 @@
 package com.sundy.iman.ui.activity;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.view.View;
+import android.widget.Toast;
 
+import com.hyphenate.chat.EMClient;
+import com.hyphenate.chat.EMConversation;
 import com.hyphenate.chat.EMMessage;
+import com.hyphenate.chat.EMTextMessageBody;
 import com.hyphenate.easeui.EaseConstant;
+import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.easeui.widget.chatrow.EaseCustomChatRowProvider;
+import com.hyphenate.exceptions.HyphenateException;
 import com.hyphenate.util.EasyUtils;
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
@@ -27,6 +36,12 @@ public class ChatActivity extends BaseActivity implements ChatFragment.EaseChatF
     private ChatFragment chatFragment;
     private String easemod_id;
     private String user_id;
+
+    protected ClipboardManager clipboard;
+    protected EMMessage contextMenuMessage;
+    protected EMConversation conversation;
+    private static final int REQUEST_CODE_CONTEXT_MENU = 1;
+
 
     @Override
     protected void onCreate(Bundle arg0) {
@@ -49,6 +64,11 @@ public class ChatActivity extends BaseActivity implements ChatFragment.EaseChatF
     }
 
     private void init() {
+        clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+        conversation = EMClient.getInstance().chatManager().getConversation(easemod_id,
+                EaseCommonUtils.getConversationType(EaseConstant.CHATTYPE_SINGLE), true);
+        conversation.markAllMessagesAsRead();
+
         chatFragment = new ChatFragment();
         //pass parameters to chat fragment
         Bundle bundle = new Bundle();
@@ -134,7 +154,9 @@ public class ChatActivity extends BaseActivity implements ChatFragment.EaseChatF
 
     @Override
     public void onMessageBubbleLongClick(EMMessage message) {
-
+        contextMenuMessage = message;
+        startActivityForResult((new Intent(this, ContextMenuActivity.class)).putExtra("message", message),
+                REQUEST_CODE_CONTEXT_MENU);
     }
 
     @Override
@@ -145,6 +167,50 @@ public class ChatActivity extends BaseActivity implements ChatFragment.EaseChatF
     @Override
     public EaseCustomChatRowProvider onSetCustomChatRowProvider() {
         return null;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE_CONTEXT_MENU) {
+            switch (resultCode) {
+                case ContextMenuActivity.RESULT_CODE_COPY: // copy
+                    clipboard.setPrimaryClip(ClipData.newPlainText(null,
+                            ((EMTextMessageBody) contextMenuMessage.getBody()).getMessage()));
+                    break;
+                case ContextMenuActivity.RESULT_CODE_DELETE: // delete
+                    conversation.removeMessage(contextMenuMessage.getMsgId());
+                    chatFragment.refreshList();
+                    break;
+                case ContextMenuActivity.RESULT_CODE_RECALL://recall
+                    new Thread(new Runnable() {
+                        @Override
+                        public void run() {
+                            try {
+                                EMMessage msgNotification = EMMessage.createTxtSendMessage(" ", contextMenuMessage.getTo());
+                                EMTextMessageBody txtBody = new EMTextMessageBody(getResources().getString(R.string.msg_recall_by_self));
+                                msgNotification.addBody(txtBody);
+                                msgNotification.setMsgTime(contextMenuMessage.getMsgTime());
+                                msgNotification.setLocalTime(contextMenuMessage.getMsgTime());
+                                msgNotification.setAttribute(EaseConstant.MESSAGE_TYPE_RECALL, true);
+                                EMClient.getInstance().chatManager().recallMessage(contextMenuMessage);
+                                EMClient.getInstance().chatManager().saveMessage(msgNotification);
+                                chatFragment.refreshList();
+                            } catch (final HyphenateException e) {
+                                e.printStackTrace();
+                                runOnUiThread(new Runnable() {
+                                    public void run() {
+                                        Toast.makeText(ChatActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        }
+                    }).start();
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 
     //跳转用户详情
