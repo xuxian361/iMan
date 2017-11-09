@@ -1109,6 +1109,7 @@ public class CommunityMsgListActivity extends BaseActivity {
     private void goChat(PostItemEntity.MemberEntity memberEntity) {
         Bundle bundle = new Bundle();
         bundle.putString("easemod_id", memberEntity.getEasemob_account());
+        bundle.putString("user_id", memberEntity.getId());
         UIHelper.jump(this, ChatActivity.class, bundle);
     }
 

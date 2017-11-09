@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.text.TextUtils;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -37,8 +38,6 @@ import com.hyphenate.easeui.domain.EaseEmojicon;
 import com.hyphenate.easeui.domain.EaseUser;
 import com.hyphenate.easeui.model.EaseAtMessageHelper;
 import com.hyphenate.easeui.ui.EaseBaseFragment;
-import com.sundy.iman.helper.UIHelper;
-import com.sundy.iman.ui.activity.BillTransferActivity;
 import com.hyphenate.easeui.ui.EaseChatRoomListener;
 import com.hyphenate.easeui.ui.EaseGroupListener;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
@@ -52,11 +51,27 @@ import com.hyphenate.easeui.widget.chatrow.EaseCustomChatRowProvider;
 import com.hyphenate.exceptions.HyphenateException;
 import com.hyphenate.util.EMLog;
 import com.hyphenate.util.PathUtil;
+import com.sundy.iman.MainApp;
+import com.sundy.iman.config.Constants;
+import com.sundy.iman.entity.MemberInfoEntity;
+import com.sundy.iman.greendao.ImUserInfo;
+import com.sundy.iman.helper.ChatHelper;
+import com.sundy.iman.helper.UIHelper;
+import com.sundy.iman.net.ParamHelper;
+import com.sundy.iman.net.RetrofitCallback;
+import com.sundy.iman.net.RetrofitHelper;
+import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.ui.activity.BillTransferActivity;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import retrofit2.Call;
+import retrofit2.Response;
 
 /**
  * Created by sundy on 17/11/8.
@@ -74,6 +89,7 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
     protected Bundle fragmentArgs;
     protected int chatType;
     protected String toChatUsername;
+    private String user_id;
     protected EaseChatMessageList messageList;
     protected EaseChatInputMenu inputMenu;
 
@@ -82,7 +98,6 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
     protected InputMethodManager inputManager;
     protected ClipboardManager clipboard;
 
-    protected Handler handler = new Handler();
     protected File cameraFile;
     protected EaseVoiceRecorderView voiceRecorderView;
     protected SwipeRefreshLayout swipeRefreshLayout;
@@ -125,6 +140,7 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
         chatType = fragmentArgs.getInt(EaseConstant.EXTRA_CHAT_TYPE, EaseConstant.CHATTYPE_SINGLE);
         // userId you are chat with or group id
         toChatUsername = fragmentArgs.getString(EaseConstant.EXTRA_USER_ID);
+        user_id = fragmentArgs.getString(EaseConstant.EXTRA_MEMBER_ID, "");
 
         super.onActivityCreated(savedInstanceState);
     }
@@ -187,13 +203,30 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
     }
 
     protected void setUpView() {
-        titleBar.setTitle(toChatUsername);
         if (chatType == EaseConstant.CHATTYPE_SINGLE) {
             // set title
             if (EaseUserUtils.getUserInfo(toChatUsername) != null) {
                 EaseUser user = EaseUserUtils.getUserInfo(toChatUsername);
                 if (user != null) {
-                    titleBar.setTitle(user.getNick());
+                    titleBar.setTitle(user.getNickname());
+                } else {
+                    if (TextUtils.isEmpty(user_id))
+                        return;
+                    ImUserInfo imUserInfo = ChatHelper.getInstance().getUserInfoByID(user_id);
+                    if (imUserInfo != null) {
+                        titleBar.setTitle(imUserInfo.getUsername());
+                    } else {
+                        getMemberInfo(user_id);
+                    }
+                }
+            } else {
+                if (TextUtils.isEmpty(user_id))
+                    return;
+                ImUserInfo imUserInfo = ChatHelper.getInstance().getUserInfoByID(user_id);
+                if (imUserInfo != null) {
+                    titleBar.setTitle(imUserInfo.getUsername());
+                } else {
+                    getMemberInfo(user_id);
                 }
             }
             titleBar.setRightImageResource(com.hyphenate.easeui.R.drawable.ease_mm_title_remove);
@@ -245,6 +278,46 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
         if (forward_msg_id != null) {
             forwardMessage(forward_msg_id);
         }
+    }
+
+    //获取用户信息
+    private void getMemberInfo(String profile_id) {
+        if (TextUtils.isEmpty(profile_id))
+            return;
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("profile_id", profile_id);
+        Call<MemberInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .getMemberInfo(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<MemberInfoEntity>() {
+            @Override
+            public void onSuccess(Call<MemberInfoEntity> call, Response<MemberInfoEntity> response) {
+                MemberInfoEntity memberInfoEntity = response.body();
+                if (memberInfoEntity != null) {
+                    int code = memberInfoEntity.getCode();
+                    String msg = memberInfoEntity.getMsg();
+                    if (code == Constants.CODE_SUCCESS) {
+                        MemberInfoEntity.DataEntity dataEntity = memberInfoEntity.getData();
+                        if (dataEntity != null) {
+                            titleBar.setTitle(dataEntity.getUsername());
+                            ChatHelper.getInstance().updateSelfUserInfo(memberInfoEntity); //保存到数据库
+                        }
+                    } else {
+                        MainApp.getInstance().showToast(msg);
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+            }
+
+            @Override
+            public void onFailure(Call<MemberInfoEntity> call, Throwable t) {
+
+            }
+        });
     }
 
     /**
@@ -660,7 +733,9 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
 
     //跳转发送Imcoin 页面
     private void goSendImcoin() {
-        UIHelper.jump(getActivity(), BillTransferActivity.class);
+        Bundle bundle = new Bundle();
+        bundle.putString("toChatUsername", toChatUsername);
+        UIHelper.jump(getActivity(), BillTransferActivity.class, bundle);
     }
 
     /**
@@ -759,6 +834,7 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
         sendMessage(message);
     }
 
+    protected void sendImcoinMessage()
 
     protected void sendMessage(EMMessage message) {
         if (message == null) {
@@ -780,7 +856,6 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
             messageList.refreshSelectLast();
         }
     }
-
 
     public void resendMessage(EMMessage message) {
         message.setStatus(EMMessage.Status.CREATE);

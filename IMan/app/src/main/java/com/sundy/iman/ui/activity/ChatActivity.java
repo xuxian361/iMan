@@ -26,6 +26,7 @@ import com.sundy.iman.utils.permission_utils.PermissionsManager;
 public class ChatActivity extends BaseActivity implements ChatFragment.EaseChatFragmentHelper {
     private ChatFragment chatFragment;
     private String easemod_id;
+    private String user_id;
 
     @Override
     protected void onCreate(Bundle arg0) {
@@ -41,8 +42,10 @@ public class ChatActivity extends BaseActivity implements ChatFragment.EaseChatF
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             easemod_id = bundle.getString("easemod_id");
+            user_id = bundle.containsKey("user_id") ? bundle.getString("user_id") : "";
         }
         Logger.e("------>easemod_id = " + easemod_id);
+        Logger.e("------>user_id = " + user_id);
     }
 
     private void init() {
@@ -51,6 +54,7 @@ public class ChatActivity extends BaseActivity implements ChatFragment.EaseChatF
         Bundle bundle = new Bundle();
         bundle.putInt(EaseConstant.EXTRA_CHAT_TYPE, EaseConstant.CHATTYPE_SINGLE);
         bundle.putString(EaseConstant.EXTRA_USER_ID, easemod_id);
+        bundle.putString(EaseConstant.EXTRA_MEMBER_ID, user_id);
         chatFragment.setArguments(bundle);
         chatFragment.setChatFragmentHelper(this);
         getSupportFragmentManager().beginTransaction().add(R.id.container, chatFragment).commit();

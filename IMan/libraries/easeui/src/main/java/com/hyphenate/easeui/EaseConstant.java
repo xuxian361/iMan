@@ -33,6 +33,7 @@ public class EaseConstant {
     
     public static final String EXTRA_CHAT_TYPE = "chatType";
     public static final String EXTRA_USER_ID = "easemod_id";
+    public static final String EXTRA_MEMBER_ID = "member_id";
 
     public static final String ACCOUNT_REMOVED = "account_removed";
     public static final String ACCOUNT_CONFLICT = "conflict";

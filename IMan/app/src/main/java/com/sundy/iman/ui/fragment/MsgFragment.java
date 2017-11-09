@@ -799,7 +799,7 @@ public class MsgFragment extends BaseFragment {
                     if (!TextUtils.isEmpty(hxId)) {
                         ImUserInfo user = DbHelper.getInstance().getUserInfoByHxId(hxId);
                         if (user != null) {
-                            goChat(user.getEasemob_account());
+                            goChat(user.getEasemob_account(), user.getUserId());
                         }
                     }
                     break;
@@ -872,9 +872,10 @@ public class MsgFragment extends BaseFragment {
     }
 
     //跳转聊天页面
-    private void goChat(String easemod_id) {
+    private void goChat(String easemod_id, String user_id) {
         Bundle bundle = new Bundle();
         bundle.putString("easemod_id", easemod_id);
+        bundle.putString("user_id", user_id);
         UIHelper.jump(mContext, ChatActivity.class, bundle);
     }
 

@@ -36,7 +36,17 @@ public class EaseUser extends EMContact {
 	}
 
 	protected String gender; //性别：1：男
-	
+	protected String memberID; //用户ID
+
+
+	public String getMemberID() {
+		return memberID;
+	}
+
+	public void setMemberID(String memberID) {
+		this.memberID = memberID;
+	}
+
 	public EaseUser(String username){
 	    this.username = username;
 	}

@@ -124,6 +124,11 @@ public class ChatHelper {
         DbHelper.getInstance().addUserInfoEntity(entity);
     }
 
+    //通过用户ID 查找本地数据库
+    public ImUserInfo getUserInfoByID(String user_id) {
+        return DbHelper.getInstance().getUserInfoByUserId(user_id);
+    }
+
     //初始化环信用户提供者
     private void initUserProvider() {
         easeUI.setUserProfileProvider(new EaseUI.EaseUserProfileProvider() {
@@ -136,6 +141,7 @@ public class ChatHelper {
                     easeUser.setNick(entity.getUsername());
                     easeUser.setNickname(entity.getUsername());
                     easeUser.setGender(entity.getGender());
+                    easeUser.setMemberID(entity.getUserId());
                     return easeUser;
                 } else {
                     MemberInfoEntity memberInfoEntity = PaperUtils.getUserInfo();
@@ -147,6 +153,7 @@ public class ChatHelper {
                             easeUser.setNick(dataEntity.getUsername());
                             easeUser.setNickname(dataEntity.getUsername());
                             easeUser.setGender(dataEntity.getGender());
+                            easeUser.setMemberID(dataEntity.getId());
                             return easeUser;
                         }
                     }

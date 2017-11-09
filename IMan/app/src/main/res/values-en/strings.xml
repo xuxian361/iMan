@@ -208,6 +208,9 @@
     <string name="imcoin_amount">imcoin amount</string>
     <string name="add_note_tips">Add note here (if needed)</string>
     <string name="send">Send</string>
+    <string name="transfer_success">转账成功</string>
+    <string name="send_imcoin_success">发送成功</string>
+    <string name="send_imcoin">Send imcoin</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

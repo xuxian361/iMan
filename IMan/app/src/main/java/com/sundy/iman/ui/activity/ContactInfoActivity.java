@@ -284,6 +284,7 @@ public class ContactInfoActivity extends BaseActivity {
             return;
         Bundle bundle = new Bundle();
         bundle.putString("easemod_id", dataEntity.getEasemob_account());
+        bundle.putString("user_id", dataEntity.getId());
         UIHelper.jump(this, ChatActivity.class, bundle);
     }
 

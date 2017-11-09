@@ -103,6 +103,26 @@ public class DbHelper {
         return null;
     }
 
+    /**
+     * 通过用户ID 查找用户
+     *
+     * @param userId
+     * @return
+     */
+    public ImUserInfo getUserInfoByUserId(String userId) {
+        try {
+            Query<ImUserInfo> userInfoQuery = userInfoDao.queryBuilder()
+                    .where(ImUserInfoDao.Properties.UserId.eq(userId)).orderDesc(ImUserInfoDao.Properties.Id).build();
+            List<ImUserInfo> result = userInfoQuery.list();
+            if (result != null && !result.isEmpty()) {
+                return result.get(0);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
     /**********************************************************************************************************/
 
