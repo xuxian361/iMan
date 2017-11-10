@@ -222,6 +222,10 @@
     <string name="transfer_info">转账详情</string>
     <string name="send_imcoin_msg_content_receive">您获得一个转账</string>
     <string name="send_imcoin_msg_content_send">您发送了一个转账</string>
+    <string name="maybe_you_like">您可能喜欢</string>
+    <string name="skip">跳过</string>
+    <string name="next">Next</string>
+    <string name="not_yet_select_tag">您还没有选择标签哦</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

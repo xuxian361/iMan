@@ -244,6 +244,14 @@
             android:name=".ui.activity.SendImcoinInfoActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.guide.GuideSelectTagsActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.guide.GuideSelectCommunityActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
 
 
         <!--QQ分享回调-->

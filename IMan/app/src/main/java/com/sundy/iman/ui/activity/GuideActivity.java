@@ -7,6 +7,7 @@ import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.ui.activity.guide.GuideSelectTagsActivity;
 import com.sundy.iman.utils.DeviceUtils;
 
 import butterknife.BindView;
@@ -46,7 +47,7 @@ public class GuideActivity extends BaseActivity {
         mForegroundBanner.setEnterSkipViewIdAndDelegate(R.id.btn_guide_enter, R.id.tv_guide_skip, new BGABanner.GuideDelegate() {
             @Override
             public void onClickEnterOrSkip() {
-                goMain();
+                goSelectTags();
             }
         });
     }
@@ -91,9 +92,9 @@ public class GuideActivity extends BaseActivity {
         mBackgroundBanner.setBackgroundResource(android.R.color.white);
     }
 
-    //跳转主页
-    private void goMain() {
-        UIHelper.jump(this, MainActivity.class);
+    //跳转引导选择兴趣标签页面
+    private void goSelectTags() {
+        UIHelper.jump(this, GuideSelectTagsActivity.class);
         finish();
     }
 }
