@@ -53,6 +53,7 @@ import com.hyphenate.util.EMLog;
 import com.hyphenate.util.PathUtil;
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.MainApp;
+import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.entity.MsgEvent;
@@ -847,12 +848,13 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
         sendMessage(message);
     }
 
-    protected void sendImcoinMessage(String content) {
-        Logger.e("---->发送imcoin 转账消息");
+    protected void sendImcoinMessage(String income) {
+        Logger.e("---->发送imcoin 转账消息 :" + income);
+        String content = getString(R.string.send_imcoin_msg_content_send);
         EMMessage message = EMMessage.createTxtSendMessage(content, toChatUsername);
-        message.setAttribute("attribute1", "value");
-        message.setAttribute("attribute2", true);
-//        sendMessage();
+        message.setAttribute(EaseConstant.CONS_ATTR_TYPE, "imcoin");
+        message.setAttribute(EaseConstant.CONS_ATTR_IMCOIN, income);
+        sendMessage(message);
     }
 
     protected void sendMessage(EMMessage message) {
@@ -1247,8 +1249,8 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
             String msg = event.getMsg();
             switch (msg) {
                 case MsgEvent.EVENT_SEND_IMCOIN_SUCCESS:
-                    String content = event.getData();
-                    sendImcoinMessage(content);
+                    String income = event.getData();
+                    sendImcoinMessage(income);
                     break;
             }
         }

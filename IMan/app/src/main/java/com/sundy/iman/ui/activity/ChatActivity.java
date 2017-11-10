@@ -6,7 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 import android.view.View;
+import android.widget.BaseAdapter;
 import android.widget.Toast;
 
 import com.hyphenate.chat.EMClient;
@@ -15,6 +17,7 @@ import com.hyphenate.chat.EMMessage;
 import com.hyphenate.chat.EMTextMessageBody;
 import com.hyphenate.easeui.EaseConstant;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
+import com.hyphenate.easeui.widget.chatrow.EaseChatRow;
 import com.hyphenate.easeui.widget.chatrow.EaseCustomChatRowProvider;
 import com.hyphenate.exceptions.HyphenateException;
 import com.hyphenate.util.EasyUtils;
@@ -27,6 +30,7 @@ import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.ui.fragment.ChatFragment;
 import com.sundy.iman.utils.permission_utils.PermissionsManager;
+import com.sundy.iman.view.chat_widget.ChatRowImcoin;
 
 /**
  * Created by sundy on 17/10/4.
@@ -42,6 +46,8 @@ public class ChatActivity extends BaseActivity implements ChatFragment.EaseChatF
     protected EMConversation conversation;
     private static final int REQUEST_CODE_CONTEXT_MENU = 1;
 
+    private static final int MESSAGE_TYPE_SENT_IMCOIN = 1;
+    private static final int MESSAGE_TYPE_RECV_IMCOIN = 2;
 
     @Override
     protected void onCreate(Bundle arg0) {
@@ -166,7 +172,35 @@ public class ChatActivity extends BaseActivity implements ChatFragment.EaseChatF
 
     @Override
     public EaseCustomChatRowProvider onSetCustomChatRowProvider() {
-        return null;
+        return new CustomChatRowProvider();
+    }
+
+    private final class CustomChatRowProvider implements EaseCustomChatRowProvider {
+
+        @Override
+        public int getCustomChatRowTypeCount() {
+            return 2;
+        }
+
+        @Override
+        public int getCustomChatRowType(EMMessage message) {
+            String type = message.getStringAttribute(EaseConstant.CONS_ATTR_TYPE, "");
+            if (!TextUtils.isEmpty(type) && type.equals("imcoin")) {
+                return message.direct() == EMMessage.Direct.RECEIVE ? MESSAGE_TYPE_RECV_IMCOIN : MESSAGE_TYPE_SENT_IMCOIN;
+            }
+            return 0;
+        }
+
+        @Override
+        public EaseChatRow getCustomChatRow(EMMessage message, int position, BaseAdapter adapter) {
+            if (message.getType() == EMMessage.Type.TXT) {
+                String type = message.getStringAttribute(EaseConstant.CONS_ATTR_TYPE, "");
+                if (!TextUtils.isEmpty(type) && type.equals("imcoin")) {
+                    return new ChatRowImcoin(ChatActivity.this, message, position, adapter);
+                }
+            }
+            return null;
+        }
     }
 
     @Override

@@ -17,6 +17,7 @@ import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.greendao.ImUserInfo;
 import com.sundy.iman.helper.DbHelper;
 import com.sundy.iman.helper.ImageHelper;
+import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
@@ -180,7 +181,8 @@ public class BillTransferActivity extends BaseActivity {
 
             final String remark = etNote.getText().toString().trim();
             String goal_id = imUserInfoEntity.getUserId();
-            String income = etAmount.getText().toString().trim();
+            final String income = etAmount.getText().toString().trim();
+            final String gold_name = imUserInfoEntity.getUsername();
 
             Map<String, String> param = new HashMap<>();
             param.put("mid", PaperUtils.getMId());
@@ -198,8 +200,8 @@ public class BillTransferActivity extends BaseActivity {
                         int code = billTransferEntity.getCode();
                         String msg = billTransferEntity.getMsg();
                         if (code == Constants.CODE_SUCCESS) {
-                            sendImcoinSuccessEvent(remark);
-                            showSuccessDialog();
+                            sendImcoinSuccessEvent(income);
+                            showSuccessView(gold_name, income);
                         } else {
                             showFailDialog(msg);
                         }
@@ -219,27 +221,21 @@ public class BillTransferActivity extends BaseActivity {
         }
     }
 
-    //发送Event 通知刷新消息列表
-    private void sendImcoinSuccessEvent(String content) {
-        MsgEvent msgEvent = new MsgEvent();
-        msgEvent.setMsg(MsgEvent.EVENT_SEND_IMCOIN_SUCCESS);
-        msgEvent.setData(content);
-        EventBus.getDefault().post(msgEvent);
+    //跳转显示成功转账页面
+    private void showSuccessView(String gold_name, String income) {
+        finish();
+        Bundle bundle = new Bundle();
+        bundle.putString("amount", income);
+        bundle.putString("username", gold_name);
+        UIHelper.jump(this, SendImcoinSuccessActivity.class, bundle);
     }
 
-    //显示成功弹框
-    private void showSuccessDialog() {
-        final CommonDialog dialog = new CommonDialog(this);
-        dialog.getTitle().setVisibility(View.GONE);
-        dialog.getContent().setText(getString(R.string.send_imcoin_success));
-        dialog.getBtnCancel().setVisibility(View.GONE);
-        dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dialog.dismiss();
-                finish();
-            }
-        });
+    //发送Event 通知刷新消息列表
+    private void sendImcoinSuccessEvent(String income) {
+        MsgEvent msgEvent = new MsgEvent();
+        msgEvent.setMsg(MsgEvent.EVENT_SEND_IMCOIN_SUCCESS);
+        msgEvent.setData(income);
+        EventBus.getDefault().post(msgEvent);
     }
 
     //显示失败弹框

@@ -37,6 +37,7 @@ import com.hyphenate.EMError;
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMConversation;
 import com.hyphenate.chat.EMMessage;
+import com.hyphenate.easeui.EaseConstant;
 import com.hyphenate.easeui.model.EaseAtMessageHelper;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.easeui.utils.EaseSmileUtils;
@@ -694,8 +695,20 @@ public class MsgFragment extends BaseFragment {
                 if (conversation.getAllMsgCount() != 0) {
                     // show the content of latest message
                     EMMessage lastMessage = conversation.getLastMessage();
-                    message.setText(EaseSmileUtils.getSmiledText(getContext(), EaseCommonUtils.getMessageDigest(lastMessage, mContext)),
-                            TextView.BufferType.SPANNABLE);
+                    String type = lastMessage.getStringAttribute(EaseConstant.CONS_ATTR_TYPE, "");
+                    if (type.equals("imcoin")) {
+                        boolean isSend = (lastMessage.direct() == EMMessage.Direct.SEND);
+                        if (isSend) {
+                            message.setText(getString(R.string.send_imcoin_msg_content_send));
+                        } else {
+                            message.setText(getString(R.string.send_imcoin_msg_content_receive));
+                        }
+                    } else {
+                        message.setText(EaseSmileUtils.getSmiledText(getContext(),
+                                EaseCommonUtils.getMessageDigest(lastMessage, mContext)),
+                                TextView.BufferType.SPANNABLE);
+                    }
+
                     time.setText(DateUtils.getTimestampString(new Date(lastMessage.getMsgTime())));
                     if (lastMessage.direct() == EMMessage.Direct.SEND && lastMessage.status() == EMMessage.Status.FAIL) {
                         msg_state.setVisibility(View.VISIBLE);

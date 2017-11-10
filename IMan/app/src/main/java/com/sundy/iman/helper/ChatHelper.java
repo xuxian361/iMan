@@ -29,7 +29,6 @@ import com.sundy.iman.R;
 import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.greendao.ImUserInfo;
 import com.sundy.iman.paperdb.PaperUtils;
-import com.sundy.iman.ui.activity.ChatActivity;
 import com.sundy.iman.ui.activity.MainActivity;
 
 import java.util.List;
@@ -200,9 +199,9 @@ public class ChatHelper {
                 }
                 EaseUser user = easeUI.getUserProfileProvider().getUser(message.getFrom());
                 if (user != null) {
-                    return user.getNick() + ": " + ticker;
+                    return user.getNickname() + ": " + ticker;
                 } else {
-                    return message.getFrom() + ": " + ticker;
+                    return ticker;
                 }
             }
 
@@ -216,11 +215,13 @@ public class ChatHelper {
             @Override
             public Intent getLaunchIntent(EMMessage message) {
                 // you can set what activity you want display when user click the notification
-                Intent intent = new Intent(appContext, ChatActivity.class);
+              /*  Intent intent = new Intent(appContext, ChatActivity.class);
                 EMMessage.ChatType chatType = message.getChatType();
                 if (chatType == EMMessage.ChatType.Chat) { // single chat message
                     intent.putExtra("easemod_id", message.getFrom());
                 }
+                return intent;*/
+                Intent intent = new Intent(appContext, MainActivity.class);
                 return intent;
             }
         });
@@ -336,19 +337,6 @@ public class ChatHelper {
      */
     public boolean isLoggedIn() {
         return EMClient.getInstance().isLoggedInBefore();
-    }
-
-    //保存接收消息者用户信息
-    public void saveReceiverEntity(String userId, String username, String hxId, String gender, String avatar) {
-        ImUserInfo imUserInfoEntity = DbHelper.getInstance().getUserInfoByHxId(hxId);
-        if (imUserInfoEntity == null)
-            imUserInfoEntity = new ImUserInfo();
-        imUserInfoEntity.setProfile_image(avatar);
-        imUserInfoEntity.setUsername(username);
-        imUserInfoEntity.setGender(gender);
-        imUserInfoEntity.setEasemob_account(hxId);
-        imUserInfoEntity.setUserId(userId);
-        DbHelper.getInstance().addUserInfoEntity(imUserInfoEntity);
     }
 
     /**

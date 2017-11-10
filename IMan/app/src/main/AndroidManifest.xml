@@ -236,6 +236,14 @@
             android:name=".ui.activity.ContextMenuActivity"
             android:screenOrientation="portrait"
             android:theme="@style/MyDialogStyle" />
+        <activity
+            android:name=".ui.activity.SendImcoinSuccessActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.activity.SendImcoinInfoActivity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait" />
 
 
         <!--QQ分享回调-->

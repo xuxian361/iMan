@@ -53,7 +53,7 @@
                 android:layout_toRightOf="@id/iv_call_icon"
                 android:adjustViewBounds="true"
                 android:gravity="center_vertical"
-                android:minHeight="40dp"
+                android:minHeight="36dp"
                 android:padding="6dp"
                 android:textColor="#ff000000"
                 android:textSize="15sp" />

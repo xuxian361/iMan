@@ -52,8 +52,9 @@
                 android:layout_centerVertical="true"
                 android:layout_toRightOf="@id/iv_call_icon"
                 android:background="@null"
-                android:minHeight="40dp"
-                android:padding="6dp" />
+                android:minHeight="36dp"
+                android:padding="6dp"
+                android:textColor="@color/white" />
         </RelativeLayout>
 
         <ImageView

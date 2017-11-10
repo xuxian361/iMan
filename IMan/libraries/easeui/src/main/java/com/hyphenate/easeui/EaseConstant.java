@@ -45,5 +45,9 @@ public class EaseConstant {
     public static final String CONS_ATTR_AVATAR = "avatarURLPath";
     public static final String CONS_ATTR_NICK_NAME = "nickname";
     public static final String CONS_ATTR_MEMBER_ID = "memberID";
+    //环信发送代币：环信扩展消息
+    public static final String CONS_ATTR_TYPE = "type"; //imcoin；
+    public static final String CONS_ATTR_IMCOIN = "imcoin"; //imcoin ：数量
+
 
 }

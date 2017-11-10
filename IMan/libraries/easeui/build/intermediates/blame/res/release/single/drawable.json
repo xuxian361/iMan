@@ -1,11 +1,11 @@
 [
     {
-        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/abc_vector_test.xml",
-        "source": "/Users/sundy/.android/build-cache/fd222f627f2c06f25759251e0957757ff5395771/output/res/drawable/abc_vector_test.xml"
-    },
-    {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/abc_ic_clear_material.xml",
         "source": "/Users/sundy/.android/build-cache/fd222f627f2c06f25759251e0957757ff5395771/output/res/drawable/abc_ic_clear_material.xml"
+    },
+    {
+        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/abc_vector_test.xml",
+        "source": "/Users/sundy/.android/build-cache/fd222f627f2c06f25759251e0957757ff5395771/output/res/drawable/abc_vector_test.xml"
     },
     {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/abc_seekbar_track_material.xml",
@@ -20,24 +20,24 @@
         "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable/ease_chat_location_selector.xml"
     },
     {
-        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/ease_chat_image_selector.xml",
-        "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable/ease_chat_image_selector.xml"
-    },
-    {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/abc_btn_default_mtrl_shape.xml",
         "source": "/Users/sundy/.android/build-cache/fd222f627f2c06f25759251e0957757ff5395771/output/res/drawable/abc_btn_default_mtrl_shape.xml"
+    },
+    {
+        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/ease_chat_image_selector.xml",
+        "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable/ease_chat_image_selector.xml"
     },
     {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/ease_chatting_setmode_voice_btn.xml",
         "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable/ease_chatting_setmode_voice_btn.xml"
     },
     {
-        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/ease_search_clear.xml",
-        "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable/ease_search_clear.xml"
-    },
-    {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/ease_chatto_bg.xml",
         "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable/ease_chatto_bg.xml"
+    },
+    {
+        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/ease_search_clear.xml",
+        "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable/ease_search_clear.xml"
     },
     {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable/ease_msg_state_failed_resend.xml",

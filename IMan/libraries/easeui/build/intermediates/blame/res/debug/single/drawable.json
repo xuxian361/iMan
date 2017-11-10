@@ -116,6 +116,10 @@
         "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable/recall_message_bg.xml"
     },
     {
+        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/debug/drawable/ease_corner_bg_black_full.xml",
+        "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable/ease_corner_bg_black_full.xml"
+    },
+    {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/debug/drawable/ease_btn_cancel_pressed_shape.xml",
         "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/drawable/ease_btn_cancel_pressed_shape.xml"
     },
