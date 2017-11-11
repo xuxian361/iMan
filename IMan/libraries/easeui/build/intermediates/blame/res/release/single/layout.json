@@ -56,12 +56,12 @@
         "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/layout/ease_widget_emojicon_tab_bar.xml"
     },
     {
-        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/layout/ease_showvideo_activity.xml",
-        "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/layout/ease_showvideo_activity.xml"
-    },
-    {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/layout/abc_alert_dialog_material.xml",
         "source": "/Users/sundy/.android/build-cache/fd222f627f2c06f25759251e0957757ff5395771/output/res/layout/abc_alert_dialog_material.xml"
+    },
+    {
+        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/layout/ease_showvideo_activity.xml",
+        "source": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/src/main/res/layout/ease_showvideo_activity.xml"
     },
     {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/layout/ease_row_received_file.xml",

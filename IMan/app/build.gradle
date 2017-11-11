@@ -70,7 +70,7 @@ android {
             signingConfig signingConfigs.debug
         }
         release {
-            buildConfigField "String", "SERVER_URL", "\"http://39.108.238.138/iman/api/\""
+            buildConfigField "String", "SERVER_URL", "\"http://39.108.238.138/api/\""
             minifyEnabled true
             zipAlignEnabled true
             shrinkResources true

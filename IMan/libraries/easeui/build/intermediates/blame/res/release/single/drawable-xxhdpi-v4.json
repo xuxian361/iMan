@@ -276,12 +276,12 @@
         "source": "/Users/sundy/.android/build-cache/fd222f627f2c06f25759251e0957757ff5395771/output/res/drawable-xxhdpi-v4/abc_ic_star_black_16dp.png"
     },
     {
-        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable-xxhdpi-v4/common_plus_signin_btn_icon_dark_disabled.9.png",
-        "source": "/Users/sundy/.android/build-cache/cf6fe9af2ecf2d053780190e1e606c9965e363ae/output/res/drawable-xxhdpi-v4/common_plus_signin_btn_icon_dark_disabled.9.png"
-    },
-    {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable-xxhdpi-v4/common_google_signin_btn_text_light_focused.9.png",
         "source": "/Users/sundy/.android/build-cache/cf6fe9af2ecf2d053780190e1e606c9965e363ae/output/res/drawable-xxhdpi-v4/common_google_signin_btn_text_light_focused.9.png"
+    },
+    {
+        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable-xxhdpi-v4/common_plus_signin_btn_icon_dark_disabled.9.png",
+        "source": "/Users/sundy/.android/build-cache/cf6fe9af2ecf2d053780190e1e606c9965e363ae/output/res/drawable-xxhdpi-v4/common_plus_signin_btn_icon_dark_disabled.9.png"
     },
     {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/release/drawable-xxhdpi-v4/common_plus_signin_btn_icon_light_pressed.9.png",
