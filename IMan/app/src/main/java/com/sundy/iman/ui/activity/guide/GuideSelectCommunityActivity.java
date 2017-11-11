@@ -43,6 +43,7 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -101,12 +102,26 @@ public class GuideSelectCommunityActivity extends BaseActivity {
 
     //获取社区列表
     private void getCommunityList() {
+        String tags = "";
+        if (selectedTags != null && selectedTags.size() > 0) {
+            for (int i = 0; i < selectedTags.size(); i++) {
+                String tag = selectedTags.get(i);
+                if (!TextUtils.isEmpty(tag)) {
+                    if (i == selectedTags.size() - 1) {
+                        tags = tags + tag;
+                    } else {
+                        tags = tags + tag + ",";
+                    }
+                }
+            }
+        }
+
         Map<String, String> param = new HashMap<>();
         param.put("type", "1"); //1-全部社区, 2-我的社区, 3-发布广告的社区搜索, 4-加入推广社区搜索，5-我的推广社区
         param.put("mid", PaperUtils.getMId());
         param.put("session_key", PaperUtils.getSessionKey());
         param.put("keyword", "");
-        param.put("tags", ""); //SUNDY
+        param.put("tags", tags);
         param.put("province", "");
         param.put("city", "");
         param.put("page", page + ""); //当前页码
@@ -162,6 +177,11 @@ public class GuideSelectCommunityActivity extends BaseActivity {
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @OnClick(R.id.tv_next)
+    public void onViewClicked() {
+        goMain();
     }
 
     private class CommunityAdapter extends BaseQuickAdapter<CommunityItemEntity, BaseViewHolder> {
