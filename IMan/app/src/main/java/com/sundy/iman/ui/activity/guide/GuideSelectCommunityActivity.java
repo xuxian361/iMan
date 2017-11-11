@@ -43,7 +43,6 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -265,11 +264,6 @@ public class GuideSelectCommunityActivity extends BaseActivity {
             }
         }
     };
-
-    @OnClick(R.id.tv_next)
-    public void onViewClicked() {
-        goMain();
-    }
 
     //跳转登录
     private void goLogin() {

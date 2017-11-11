@@ -45,7 +45,7 @@ public class MainFragment extends BaseFragment {
     @BindView(R.id.view_menu)
     CommonTabLayout viewMenu;
     Unbinder unbinder;
-    private String[] mTitles = {"Message", "Me"};
+    private String[] mTitles;
     private int[] mIconUnSelectIds = {
             R.mipmap.icons_msg_uncheck,
             R.mipmap.icons_me_uncheck};
@@ -75,6 +75,8 @@ public class MainFragment extends BaseFragment {
     }
 
     private void initMenuTab() {
+        mTitles = new String[]{getString(R.string.message), getString(R.string.me)};
+
         for (int i = 0; i < mTitles.length; i++) {
             mTabEntities.add(new TabEntity(mTitles[i], mIconSelectIds[i], mIconUnSelectIds[i]));
         }

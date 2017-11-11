@@ -96,7 +96,7 @@ public class ContactInfoActivity extends BaseActivity {
     }
 
     private void initTitle() {
-        titleBar.setBackMode();
+        titleBar.setBackMode(getString(R.string.contact_info));
         titleBar.setOnClickListener(new OnTitleBarClickListener() {
             @Override
             public void onLeftImgClick() {

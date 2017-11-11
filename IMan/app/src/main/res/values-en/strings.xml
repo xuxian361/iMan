@@ -226,6 +226,8 @@
     <string name="skip">跳过</string>
     <string name="next">Next</string>
     <string name="not_yet_select_tag">您还没有选择标签哦</string>
+    <string name="me">Me</string>
+    <string name="contact_info">联系人信息</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.
