@@ -77,8 +77,14 @@ public static final int *;
 -keep class com.sundy.iman.enums.**{*;}
 -keep class com.sundy.iman.paperdb.**{*;}
 -keep class com.sundy.iman.net.**{*;}
+-keep class com.sundy.iman.greendao.**{*;}
+-keep class com.sundy.iman.config.**{*;}
+
 
 #----- APP End------
+
+#图片选择器
+-keep class vn.tungdx.mediapicker.**{*;}
 
 #Paper
 -keep class io.paperdb.** {*;}
@@ -101,10 +107,18 @@ public static final int *;
     public <init>(android.content.Context, android.util.AttributeSet, int);
 }
 
-#定位
+#高德地图
+-keep   class com.amap.api.maps.**{*;}
+-keep   class com.autonavi.**{*;}
+-keep   class com.amap.api.trace.**{*;}
 -keep class com.amap.api.location.**{*;}
 -keep class com.amap.api.fence.**{*;}
 -keep class com.autonavi.aps.amapapi.model.**{*;}
+-keep   class com.amap.api.services.**{*;}
+-keep class com.amap.api.maps2d.**{*;}
+-keep class com.amap.api.mapcore2d.**{*;}
+-keep class com.amap.api.navi.**{*;}
+-keep class com.autonavi.**{*;}
 # Glide
 -keep public class * implements com.bumptech.glide.module.GlideModule
 -keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
