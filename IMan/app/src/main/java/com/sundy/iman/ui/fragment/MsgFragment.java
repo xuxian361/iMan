@@ -2,6 +2,7 @@ package com.sundy.iman.ui.fragment;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -44,6 +45,7 @@ import com.hyphenate.easeui.utils.EaseSmileUtils;
 import com.hyphenate.easeui.utils.EaseUserUtils;
 import com.hyphenate.easeui.widget.EaseImageView;
 import com.hyphenate.util.DateUtils;
+import com.hyphenate.util.NetUtils;
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
@@ -119,6 +121,10 @@ public class MsgFragment extends BaseFragment {
     RecyclerView rvMsg;
     @BindView(R.id.swipe_refresh)
     SwipeRefreshLayout swipeRefresh;
+    @BindView(R.id.tv_error_tips)
+    TextView tvErrorTips;
+    @BindView(R.id.ll_error)
+    LinearLayout llError;
 
     private LinearLayoutManager linearLayoutManager;
 
@@ -132,7 +138,7 @@ public class MsgFragment extends BaseFragment {
     private List<EMConversation> conversationList = new ArrayList();
 
     protected Handler handler = new Handler() {
-        public void handleMessage(android.os.Message msg) {
+        public void handleMessage(Message msg) {
             switch (msg.what) {
                 case 0:
                     onConnectionDisconnected();
@@ -165,14 +171,35 @@ public class MsgFragment extends BaseFragment {
      * connected to server
      */
     protected void onConnectionConnected() {
-
+        Logger.e("----->连接正常");
+        if (llError != null) {
+            llError.setVisibility(View.GONE);
+        }
+        //重新定位
+        initLocation();
+        startLocation();
+        //重新获取聊天数据
+        if (!hidden) {
+            refresh();
+        }
     }
 
     /**
      * disconnected with server
      */
     protected void onConnectionDisconnected() {
-
+        Logger.e("----->连接异常");
+        stopLocation();
+        if (llError != null) {
+            llError.setVisibility(View.VISIBLE);
+            if (NetUtils.hasNetwork(getActivity())) {
+                Logger.e("----->连接异常 > 连接不到聊天服务");
+                tvErrorTips.setText(R.string.net_error_can_not_connect_chat_server);
+            } else {
+                Logger.e("----->连接异常 > 网络不可用");
+                tvErrorTips.setText(R.string.net_error_tips);
+            }
+        }
     }
 
     @Override
@@ -238,6 +265,7 @@ public class MsgFragment extends BaseFragment {
                 goMorePost();
             }
         });
+        tv_check_more.setVisibility(View.GONE);
 
         conversationAdapter.addHeaderView(headerView);
         rvMsg.setAdapter(conversationAdapter);
@@ -386,13 +414,15 @@ public class MsgFragment extends BaseFragment {
 
     //初始化定位
     private void initLocation() {
-        //初始化client
-        locationClient = new AMapLocationClient(mContext);
-        locationOption = getDefaultOption();
-        //设置定位参数
-        locationClient.setLocationOption(locationOption);
-        // 设置定位监听
-        locationClient.setLocationListener(locationListener);
+        if (locationClient == null) {
+            //初始化client
+            locationClient = new AMapLocationClient(mContext);
+            locationOption = getDefaultOption();
+            //设置定位参数
+            locationClient.setLocationOption(locationOption);
+            // 设置定位监听
+            locationClient.setLocationListener(locationListener);
+        }
     }
 
     //默认的定位参数
@@ -510,7 +540,7 @@ public class MsgFragment extends BaseFragment {
 
             @Override
             public void onFailure(Call<GetHomeListEntity> call, Throwable t) {
-
+                swipeRefresh.setRefreshing(false);
             }
         });
     }

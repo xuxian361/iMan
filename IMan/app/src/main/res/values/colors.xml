@@ -34,6 +34,6 @@
     <color name="bg_desc">#f2f9fa</color>
     <color name="bg_orange">#caf5a644</color>
     <color name="black">#000000</color>
-
+    <color name="error_color">#F6EBE6</color>
 
 </resources>
