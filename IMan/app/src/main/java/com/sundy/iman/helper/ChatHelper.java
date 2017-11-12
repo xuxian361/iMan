@@ -23,13 +23,17 @@ import com.hyphenate.easeui.model.EaseAtMessageHelper;
 import com.hyphenate.easeui.model.EaseNotifier;
 import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.util.EMLog;
+import com.orhanobut.logger.Logger;
 import com.sundy.iman.BuildConfig;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.entity.MemberInfoEntity;
+import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.greendao.ImUserInfo;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.ui.activity.MainActivity;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 

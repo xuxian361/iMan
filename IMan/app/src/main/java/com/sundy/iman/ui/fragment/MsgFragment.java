@@ -175,9 +175,6 @@ public class MsgFragment extends BaseFragment {
         if (llError != null) {
             llError.setVisibility(View.GONE);
         }
-        //重新定位
-        initLocation();
-        startLocation();
         //重新获取聊天数据
         if (!hidden) {
             refresh();

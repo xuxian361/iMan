@@ -192,7 +192,6 @@ public class MeFragment extends BaseFragment {
                 getMemberInfo();
             }
         });
-
     }
 
     @Override
