@@ -128,10 +128,10 @@ public class MainFragment extends BaseFragment {
                 Logger.e("------->更新未读消息数 ：" + count);
                 if (count > 0) {
                     viewMenu.showMsg(0, count);
-                    viewMenu.setMsgMargin(0, -5, 5);
+                    viewMenu.setMsgMargin(0, -10, 5);
                 } else {
                     viewMenu.hideMsg(0);
-
+                    viewMenu.setMsgMargin(0, -10, 5);
                 }
 
                 //更新MsgFragment 的消息列表
@@ -217,6 +217,7 @@ public class MainFragment extends BaseFragment {
             EMClient.getInstance().chatManager().addMessageListener(messageListener);
         } else {
             viewMenu.hideMsg(0);
+            viewMenu.setMsgMargin(0, -10, 5);
         }
     }
 

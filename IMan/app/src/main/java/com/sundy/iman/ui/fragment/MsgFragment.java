@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
-import android.support.v4.widget.NestedScrollView;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -113,12 +113,14 @@ public class MsgFragment extends BaseFragment {
     CollapsingToolbarLayout collapsing;
     @BindView(R.id.appbar)
     AppBarLayout appbar;
-    @BindView(R.id.scrollView)
-    NestedScrollView scrollView;
     @BindView(R.id.btn_add)
     ImageView btnAdd;
     @BindView(R.id.rv_msg)
     RecyclerView rvMsg;
+    @BindView(R.id.swipe_refresh)
+    SwipeRefreshLayout swipeRefresh;
+
+    private LinearLayoutManager linearLayoutManager;
 
     private LinearLayout ll_post;
     private TextView tv_check_more;
@@ -210,7 +212,21 @@ public class MsgFragment extends BaseFragment {
     }
 
     private void init() {
-        rvMsg.setLayoutManager(new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false));
+        swipeRefresh.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light,
+                android.R.color.holo_orange_light, android.R.color.holo_green_light);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+            @Override
+            public void onRefresh() {
+
+                if (!handler.hasMessages(MSG_GET_HOME_LIST)) {
+                    handler.sendEmptyMessage(MSG_GET_HOME_LIST);
+                }
+            }
+        });
+
+        linearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
+        rvMsg.setLayoutManager(linearLayoutManager);
         conversationAdapter = new ConversationAdapter(R.layout.item_conversation, conversationList);
 
         View headerView = mInflate.inflate(R.layout.layout_msg_header_nearby, null);
@@ -225,6 +241,7 @@ public class MsgFragment extends BaseFragment {
 
         conversationAdapter.addHeaderView(headerView);
         rvMsg.setAdapter(conversationAdapter);
+        rvMsg.addOnScrollListener(onScrollListener);
     }
 
     //跳转查看更多消息
@@ -488,7 +505,7 @@ public class MsgFragment extends BaseFragment {
 
             @Override
             public void onAfter() {
-
+                swipeRefresh.setRefreshing(false);
             }
 
             @Override
@@ -901,5 +918,24 @@ public class MsgFragment extends BaseFragment {
         bundle.putString("goal_id", "");
         UIHelper.jump(mContext, ContactInfoActivity.class, bundle);
     }
+
+    //解决滑动冲突
+    private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+        private int lastVisibleItemPosition;
+
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            //第一个可视View 的位置
+            int FirstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+            rvMsg.setEnabled(FirstVisibleItemPosition == 0);
+            //最后一个可视View 的位置
+            lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition();
+        }
+
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
+        }
+    };
 
 }
