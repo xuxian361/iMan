@@ -2,7 +2,9 @@ package com.sundy.iman.ui.activity;
 
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.net.Uri;
 import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
@@ -121,6 +123,18 @@ public class WebActivity extends BaseActivity {
             }
 
             @Override
+            public boolean shouldOverrideUrlLoading(WebView view, String url) {
+                if (url != null && url.startsWith("mailto:") || url.startsWith("geo:") || url.startsWith("tel:")) {
+                    Intent intent = new Intent(Intent.ACTION_VIEW, Uri
+                            .parse(url));
+                    startActivity(intent);
+                    return true;
+                }
+                view.loadUrl(url);
+                return true;
+            }
+
+            @Override
             public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
                 super.onReceivedError(view, request, error);
             }
@@ -165,6 +179,18 @@ public class WebActivity extends BaseActivity {
         });
         webView.setWebChromeClient(new WebChromeClient());
         webView.loadUrl(url);
+    }
+
+    public void sendEmail(String email) {
+        Intent emailIntent = new Intent(android.content.Intent.ACTION_SEND);
+        emailIntent.setType("plain/text");
+        emailIntent.putExtra(android.content.Intent.EXTRA_EMAIL, new String[]{email});
+
+        String mySubject = "this is just if you want";
+        emailIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, mySubject);
+        String myBodyText = "this is just if you want";
+        emailIntent.putExtra(android.content.Intent.EXTRA_TEXT, myBodyText);
+        startActivity(Intent.createChooser(emailIntent, "Send mail..."));
     }
 
     @Override

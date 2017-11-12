@@ -128,7 +128,7 @@ public class MainFragment extends BaseFragment {
                 Logger.e("------->更新未读消息数 ：" + count);
                 if (count > 0) {
                     viewMenu.showMsg(0, count);
-                    viewMenu.setMsgMargin(0, -15, 5);
+                    viewMenu.setMsgMargin(0, -5, 5);
                 } else {
                     viewMenu.hideMsg(0);
 
