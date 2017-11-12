@@ -34,7 +34,7 @@ public class MainApp extends MultiDexApplication {
 
 
     {
-        PlatformConfig.setWeixin("wx967daebe835fbeac", "5bb696d9ccd75a38c8a0bfe0675559b3"); //SUNDY
+        PlatformConfig.setWeixin("wx015e7c4cca1ed5ee", "dc712f5df9864c9f2b7ca10831a4b26d");
         PlatformConfig.setQQZone("1106526566", "vnylHwGyIJwxcU48");
     }
 
