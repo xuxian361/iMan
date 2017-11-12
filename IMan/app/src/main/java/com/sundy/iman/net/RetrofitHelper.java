@@ -67,6 +67,7 @@ public class RetrofitHelper {
         long write = writeOutTime <= 0 ? 15000 : writeOutTime;
         HttpsUtils.SSLParams sslParams = HttpsUtils.getSslSocketFactory(null, null, null);
         OkHttpClient okHttpClient = new OkHttpClient.Builder()
+                .addInterceptor(new LoggingInterceptor())
                 .connectTimeout(conn, TimeUnit.SECONDS)
                 .writeTimeout(read, TimeUnit.SECONDS)
                 .readTimeout(write, TimeUnit.SECONDS)
@@ -82,6 +83,7 @@ public class RetrofitHelper {
         if (connectOutTime <= 0 && readOutTime <= 0 && writeOutTime <= 0) {
             if (okHttpClient == null) {
                 okHttpClient = new OkHttpClient.Builder()
+                        .addInterceptor(new LoggingInterceptor())
                         .connectTimeout(15, TimeUnit.SECONDS)
                         .writeTimeout(30, TimeUnit.SECONDS)
                         .readTimeout(30, TimeUnit.SECONDS)
@@ -90,6 +92,7 @@ public class RetrofitHelper {
             return okHttpClient;
         } else {
             return new OkHttpClient.Builder()
+                    .addInterceptor(new LoggingInterceptor())
                     .connectTimeout(conn, TimeUnit.MILLISECONDS)
                     .readTimeout(read, TimeUnit.MILLISECONDS)
                     .writeTimeout(write, TimeUnit.MILLISECONDS)

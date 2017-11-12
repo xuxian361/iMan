@@ -170,7 +170,7 @@ public static final int *;
 -keepattributes Exceptions
 -dontwarn okio.**
 -dontwarn javax.annotation.**
-
+-keepnames class okhttp3.internal.publicsuffix.PublicSuffixDatabase
 # OkHttp
 -dontwarn sun.misc.**
 -keep class sun.misc.Unsafe { *; }
