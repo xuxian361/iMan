@@ -152,7 +152,7 @@ public class FileUtils {
      */
     public static String getHttpCache() {
         String rootDir = getRootDir();
-        File file = new File(rootDir, "http");
+        File file = new File(rootDir, "http_cache");
         if (!file.exists()) {
             file.mkdirs();
         }
@@ -336,7 +336,6 @@ public class FileUtils {
         }
         return path;
     }
-
 
     // 保存图片到手机指定目录
     public static String saveBitmap(String imgName, byte[] bytes) {

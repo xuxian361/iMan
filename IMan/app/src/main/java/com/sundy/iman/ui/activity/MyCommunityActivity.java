@@ -36,6 +36,8 @@ import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.utils.NetWorkUtils;
+import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
@@ -173,44 +175,52 @@ public class MyCommunityActivity extends BaseActivity {
 
     //获取社区列表
     private void getCommunityList() {
-        Map<String, String> param = new HashMap<>();
-        param.put("type", "2"); //1-全部社区, 2-我的社区, 3-发布广告的社区搜索, 4-加入推广社区搜索，5-我的推广社区
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("keyword", keyword);
-        param.put("tags", "");
-        param.put("province", "");
-        param.put("city", "");
-        param.put("page", page + ""); //当前页码
-        param.put("perpage", perpage + ""); //每页显示条数
-        Call<CommunityListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getCommunityList(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<CommunityListEntity>() {
-            @Override
-            public void onSuccess(Call<CommunityListEntity> call, Response<CommunityListEntity> response) {
-                CommunityListEntity communityListEntity = response.body();
-                if (communityListEntity != null) {
-                    int code = communityListEntity.getCode();
-                    String msg = communityListEntity.getMsg();
-                    if (code == Constants.CODE_SUCCESS) {
-                        CommunityListEntity.DataEntity dataEntity = communityListEntity.getData();
-                        if (dataEntity != null) {
-                            showData(dataEntity.getList());
+        CommunityListEntity.DataEntity dataEntity = CacheData.getInstance().getMyCommunityList(page);
+        if (dataEntity != null) {
+            showData(dataEntity.getList());
+        }
+
+        if (NetWorkUtils.isNetAvailable(this)) {
+            final Map<String, String> param = new HashMap<>();
+            param.put("type", "2"); //1-全部社区, 2-我的社区, 3-发布广告的社区搜索, 4-加入推广社区搜索，5-我的推广社区
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("keyword", keyword);
+            param.put("tags", "");
+            param.put("province", "");
+            param.put("city", "");
+            param.put("page", page + ""); //当前页码
+            param.put("perpage", perpage + ""); //每页显示条数
+            Call<CommunityListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .getCommunityList(ParamHelper.formatData(param));
+            call.enqueue(new RetrofitCallback<CommunityListEntity>() {
+                @Override
+                public void onSuccess(Call<CommunityListEntity> call, Response<CommunityListEntity> response) {
+                    CommunityListEntity communityListEntity = response.body();
+                    if (communityListEntity != null) {
+                        int code = communityListEntity.getCode();
+                        String msg = communityListEntity.getMsg();
+                        if (code == Constants.CODE_SUCCESS) {
+                            CommunityListEntity.DataEntity dataEntity = communityListEntity.getData();
+                            if (dataEntity != null) {
+                                CacheData.getInstance().saveMyCommunityList(dataEntity, page);
+                                showData(dataEntity.getList());
+                            }
                         }
                     }
                 }
-            }
 
-            @Override
-            public void onAfter() {
+                @Override
+                public void onAfter() {
 
-            }
+                }
 
-            @Override
-            public void onFailure(Call<CommunityListEntity> call, Throwable t) {
+                @Override
+                public void onFailure(Call<CommunityListEntity> call, Throwable t) {
 
-            }
-        });
+                }
+            });
+        }
     }
 
     private void showData(List<CommunityItemEntity> listData) {
@@ -388,9 +398,13 @@ public class MyCommunityActivity extends BaseActivity {
             switch (view.getId()) {
                 case R.id.tv_item_del:
                     Logger.e("----->退出Item");
-                    //退出社区
-                    if (itemData != null) {
-                        showQuitDialog(itemData);
+                    if (NetWorkUtils.isNetAvailable(MyCommunityActivity.this)) {
+                        //退出社区
+                        if (itemData != null) {
+                            showQuitDialog(itemData);
+                        }
+                    } else {
+                        MainApp.getInstance().showToast(getString(R.string.net_error_tips));
                     }
                     break;
                 case R.id.ll_item:

@@ -66,6 +66,8 @@ import com.sundy.iman.ui.activity.CommunityMsgListActivity;
 import com.sundy.iman.ui.activity.ContactInfoActivity;
 import com.sundy.iman.ui.activity.LastPostActivity;
 import com.sundy.iman.ui.activity.NearbyPostActivity;
+import com.sundy.iman.utils.NetWorkUtils;
+import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.dialog.CommonDialog;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
@@ -467,26 +469,24 @@ public class MsgFragment extends BaseFragment {
             if (null != location) {
                 //errCode等于0代表定位成功，其他的为定位失败，具体的可以参照官网定位错误码说明
                 if (location.getErrorCode() == 0) {
-                    Logger.i("定位成功");
+                    Logger.i("--->定位成功");
                     String address = location.getAddress();
                     if (!TextUtils.isEmpty(address)) {
-                        Logger.i("获取定位信息成功");
+                        Logger.i("--->获取定位信息成功");
                         stopLocation();
                         saveLocation(location);
-                        if (!handler.hasMessages(MSG_GET_HOME_LIST)) {
-                            handler.sendEmptyMessage(MSG_GET_HOME_LIST);
-                        }
                     } else {
-                        Logger.w("获取定位信息失败");
+                        Logger.w("--->获取定位信息失败");
                     }
                 } else {
                     //定位失败
-                    Logger.e("定位失败");
+                    Logger.e("--->定位失败");
                 }
             } else {
-                Logger.e("定位失败，loc is null");
-                //获取默认定位
-                LocationEntity locationEntity = LocationPaper.getLocation();
+                Logger.e("--->定位失败，loc is null");
+            }
+            if (!handler.hasMessages(MSG_GET_HOME_LIST)) {
+                handler.sendEmptyMessage(MSG_GET_HOME_LIST);
             }
         }
     };
@@ -510,38 +510,50 @@ public class MsgFragment extends BaseFragment {
         LocationEntity locationEntity = LocationPaper.getLocation();
         if (locationEntity == null)
             return;
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("latitude", locationEntity.getLat() + "");
-        param.put("longitude", locationEntity.getLng() + "");
-        Call<GetHomeListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getHomeList(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<GetHomeListEntity>() {
-            @Override
-            public void onSuccess(Call<GetHomeListEntity> call, Response<GetHomeListEntity> response) {
-                GetHomeListEntity getHomeListEntity = response.body();
-                if (getHomeListEntity != null) {
-                    int code = getHomeListEntity.getCode();
-                    String msg = getHomeListEntity.getMsg();
-                    if (code == Constants.CODE_SUCCESS) {
-                        showHeaderData(getHomeListEntity);
+
+        GetHomeListEntity getHomeListEntity = CacheData.getInstance().getHomeList();
+        if (getHomeListEntity != null) {
+            showHeaderData(getHomeListEntity);
+        }
+
+        if (NetWorkUtils.isNetAvailable(mContext)) {
+            Map<String, String> param = new HashMap<>();
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("latitude", locationEntity.getLat() + "");
+            param.put("longitude", locationEntity.getLng() + "");
+            Call<GetHomeListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .getHomeList(ParamHelper.formatData(param));
+            call.enqueue(new RetrofitCallback<GetHomeListEntity>() {
+                @Override
+                public void onSuccess(Call<GetHomeListEntity> call, Response<GetHomeListEntity> response) {
+                    GetHomeListEntity getHomeListEntity = response.body();
+                    if (getHomeListEntity != null) {
+                        int code = getHomeListEntity.getCode();
+                        String msg = getHomeListEntity.getMsg();
+                        if (code == Constants.CODE_SUCCESS) {
+                            CacheData.getInstance().saveHomeList(getHomeListEntity);
+                            showHeaderData(getHomeListEntity);
+                        }
                     }
                 }
-            }
 
-            @Override
-            public void onAfter() {
-                if (swipeRefresh != null)
-                    swipeRefresh.setRefreshing(false);
-            }
+                @Override
+                public void onAfter() {
+                    if (swipeRefresh != null)
+                        swipeRefresh.setRefreshing(false);
+                }
 
-            @Override
-            public void onFailure(Call<GetHomeListEntity> call, Throwable t) {
-                if (swipeRefresh != null)
-                    swipeRefresh.setRefreshing(false);
-            }
-        });
+                @Override
+                public void onFailure(Call<GetHomeListEntity> call, Throwable t) {
+                    if (swipeRefresh != null)
+                        swipeRefresh.setRefreshing(false);
+                }
+            });
+        } else {
+            if (swipeRefresh != null)
+                swipeRefresh.setRefreshing(false);
+        }
     }
 
     //显示头部消息内容

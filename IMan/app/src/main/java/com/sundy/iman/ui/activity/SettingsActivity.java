@@ -10,6 +10,7 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.orhanobut.logger.Logger;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
@@ -23,6 +24,8 @@ import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.utils.FileUtils;
+import com.sundy.iman.utils.cache.CacheUtils;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
 
@@ -295,6 +298,10 @@ public class SettingsActivity extends BaseActivity {
                     //清除登录用户本地信息
                     PaperUtils.clearUserInfo();
                     PaperUtils.clearPostReadRecord();
+                    //清除缓存
+                    FileUtils.clearFileCache(FileUtils.getHttpCache());
+                    boolean clearFinish = CacheUtils.getInstance().clear();
+                    Logger.e("------清除缓存是否成功:" + clearFinish);
 
                     //登出环信
                     ChatHelper.getInstance().logout(false, null);

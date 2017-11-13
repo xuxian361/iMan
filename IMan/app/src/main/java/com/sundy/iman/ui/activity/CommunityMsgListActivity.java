@@ -55,6 +55,8 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
+import com.sundy.iman.utils.NetWorkUtils;
+import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
@@ -222,83 +224,103 @@ public class CommunityMsgListActivity extends BaseActivity {
 
     //社区详情
     private void getCommunityInfo() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("community_id", community_id); //社区ID
-        param.put("type", "1"); //类型: 1-普通社区，2-推广社区
-        Call<CommunityInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getCommunityInfo(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<CommunityInfoEntity>() {
-            @Override
-            public void onSuccess(Call<CommunityInfoEntity> call, Response<CommunityInfoEntity> response) {
-                CommunityInfoEntity communityInfoEntity = response.body();
-                if (communityInfoEntity != null) {
-                    int code = communityInfoEntity.getCode();
-                    String msg = communityInfoEntity.getMsg();
-                    if (code == Constants.CODE_SUCCESS) {
-                        CommunityInfoEntity.DataEntity dataEntity = communityInfoEntity.getData();
-                        if (dataEntity != null) {
-                            titleBar.setBackMode(dataEntity.getName());
-                            titleBar.setRightIvVisibility(View.VISIBLE);
+        CommunityInfoEntity.DataEntity dataEntity = CacheData.getInstance().getCommunityInfo(community_id);
+        if (dataEntity != null) {
+            titleBar.setBackMode(dataEntity.getName());
+            titleBar.setRightIvVisibility(View.VISIBLE);
+        }
+
+        if (NetWorkUtils.isNetAvailable(this)) {
+            Map<String, String> param = new HashMap<>();
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("community_id", community_id); //社区ID
+            param.put("type", "1"); //类型: 1-普通社区，2-推广社区
+            Call<CommunityInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .getCommunityInfo(ParamHelper.formatData(param));
+            call.enqueue(new RetrofitCallback<CommunityInfoEntity>() {
+                @Override
+                public void onSuccess(Call<CommunityInfoEntity> call, Response<CommunityInfoEntity> response) {
+                    CommunityInfoEntity communityInfoEntity = response.body();
+                    if (communityInfoEntity != null) {
+                        int code = communityInfoEntity.getCode();
+                        String msg = communityInfoEntity.getMsg();
+                        if (code == Constants.CODE_SUCCESS) {
+                            CommunityInfoEntity.DataEntity dataEntity = communityInfoEntity.getData();
+                            if (dataEntity != null) {
+                                titleBar.setBackMode(dataEntity.getName());
+                                titleBar.setRightIvVisibility(View.VISIBLE);
+                                CacheData.getInstance().saveCommunityInfo(community_id, dataEntity);
+                            }
+                        } else {
+                            MainApp.getInstance().showToast(msg);
                         }
-                    } else {
-                        MainApp.getInstance().showToast(msg);
                     }
                 }
-            }
 
-            @Override
-            public void onAfter() {
+                @Override
+                public void onAfter() {
 
-            }
+                }
 
-            @Override
-            public void onFailure(Call<CommunityInfoEntity> call, Throwable t) {
+                @Override
+                public void onFailure(Call<CommunityInfoEntity> call, Throwable t) {
 
-            }
-        });
+                }
+            });
+        }
     }
 
     //获取post列表
     private void getPostList() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("type", "1"); //类型 1-某个社区的 post,2-我的 post
-        param.put("community_id", community_id); //社区ID​(​类型为1时必填​)
-        param.put("page", page + "");
-        param.put("perpage", perpage + "");
-        Call<PostListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getPostList(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<PostListEntity>() {
-            @Override
-            public void onSuccess(Call<PostListEntity> call, Response<PostListEntity> response) {
-                PostListEntity postListEntity = response.body();
-                if (postListEntity != null) {
-                    int code = postListEntity.getCode();
-                    String msg = postListEntity.getMsg();
-                    if (code == Constants.CODE_SUCCESS) {
-                        PostListEntity.DataEntity dataEntity = postListEntity.getData();
-                        if (dataEntity != null) {
-                            showData(dataEntity.getList());
+        PostListEntity.DataEntity dataEntity = CacheData.getInstance().getCommunityPostList(community_id, page);
+        if (dataEntity != null) {
+            showData(dataEntity.getList());
+        }
+
+        if (NetWorkUtils.isNetAvailable(this)) {
+            final Map<String, String> param = new HashMap<>();
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("type", "1"); //类型 1-某个社区的 post,2-我的 post
+            param.put("community_id", community_id); //社区ID​(​类型为1时必填​)
+            param.put("page", page + "");
+            param.put("perpage", perpage + "");
+            Call<PostListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .getPostList(ParamHelper.formatData(param));
+            call.enqueue(new RetrofitCallback<PostListEntity>() {
+                @Override
+                public void onSuccess(Call<PostListEntity> call, Response<PostListEntity> response) {
+                    PostListEntity postListEntity = response.body();
+                    if (postListEntity != null) {
+                        int code = postListEntity.getCode();
+                        String msg = postListEntity.getMsg();
+                        if (code == Constants.CODE_SUCCESS) {
+                            PostListEntity.DataEntity dataEntity = postListEntity.getData();
+                            if (dataEntity != null) {
+                                CacheData.getInstance().saveCommunityPostList(community_id, dataEntity, page);
+                                showData(dataEntity.getList());
+                            }
                         }
                     }
                 }
-            }
 
-            @Override
-            public void onAfter() {
-                if (swipeRefresh != null)
-                    swipeRefresh.setRefreshing(false);
-            }
+                @Override
+                public void onAfter() {
+                    if (swipeRefresh != null)
+                        swipeRefresh.setRefreshing(false);
+                }
 
-            @Override
-            public void onFailure(Call<PostListEntity> call, Throwable t) {
-                if (swipeRefresh != null)
-                    swipeRefresh.setRefreshing(false);
-            }
-        });
+                @Override
+                public void onFailure(Call<PostListEntity> call, Throwable t) {
+                    if (swipeRefresh != null)
+                        swipeRefresh.setRefreshing(false);
+                }
+            });
+        } else {
+            if (swipeRefresh != null)
+                swipeRefresh.setRefreshing(false);
+        }
     }
 
     private void showData(List<PostItemEntity> listData) {

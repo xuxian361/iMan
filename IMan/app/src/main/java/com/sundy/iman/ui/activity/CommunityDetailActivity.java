@@ -29,7 +29,9 @@ import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
 import com.sundy.iman.utils.FileUtils;
+import com.sundy.iman.utils.NetWorkUtils;
 import com.sundy.iman.utils.QRCodeUtils;
+import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.TitleBarView;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
@@ -186,42 +188,50 @@ public class CommunityDetailActivity extends BaseActivity {
 
     //社区详情
     private void getCommunityInfo() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("community_id", community_id); //社区ID
-        param.put("type", type); //类型: 1-普通社区，2-推广社区
-        Call<CommunityInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getCommunityInfo(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<CommunityInfoEntity>() {
-            @Override
-            public void onSuccess(Call<CommunityInfoEntity> call, Response<CommunityInfoEntity> response) {
-                CommunityInfoEntity communityInfoEntity = response.body();
-                if (communityInfoEntity != null) {
-                    int code = communityInfoEntity.getCode();
-                    String msg = communityInfoEntity.getMsg();
-                    if (code == Constants.CODE_SUCCESS) {
-                        dataEntity = communityInfoEntity.getData();
-                        if (dataEntity != null) {
-                            titleBar.setRightIvVisibility(View.VISIBLE);
-                            showData(dataEntity);
+        dataEntity = CacheData.getInstance().getCommunityInfo(community_id);
+        if (dataEntity != null) {
+            showData(dataEntity);
+        }
+
+        if (NetWorkUtils.isNetAvailable(this)) {
+            Map<String, String> param = new HashMap<>();
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("community_id", community_id); //社区ID
+            param.put("type", type); //类型: 1-普通社区，2-推广社区
+            Call<CommunityInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .getCommunityInfo(ParamHelper.formatData(param));
+            call.enqueue(new RetrofitCallback<CommunityInfoEntity>() {
+                @Override
+                public void onSuccess(Call<CommunityInfoEntity> call, Response<CommunityInfoEntity> response) {
+                    CommunityInfoEntity communityInfoEntity = response.body();
+                    if (communityInfoEntity != null) {
+                        int code = communityInfoEntity.getCode();
+                        String msg = communityInfoEntity.getMsg();
+                        if (code == Constants.CODE_SUCCESS) {
+                            dataEntity = communityInfoEntity.getData();
+                            if (dataEntity != null) {
+                                titleBar.setRightIvVisibility(View.VISIBLE);
+                                CacheData.getInstance().saveCommunityInfo(community_id, dataEntity);
+                                showData(dataEntity);
+                            }
+                        } else {
+                            MainApp.getInstance().showToast(msg);
                         }
-                    } else {
-                        MainApp.getInstance().showToast(msg);
                     }
                 }
-            }
 
-            @Override
-            public void onAfter() {
+                @Override
+                public void onAfter() {
 
-            }
+                }
 
-            @Override
-            public void onFailure(Call<CommunityInfoEntity> call, Throwable t) {
+                @Override
+                public void onFailure(Call<CommunityInfoEntity> call, Throwable t) {
 
-            }
-        });
+                }
+            });
+        }
     }
 
     private void showData(CommunityInfoEntity.DataEntity dataEntity) {
