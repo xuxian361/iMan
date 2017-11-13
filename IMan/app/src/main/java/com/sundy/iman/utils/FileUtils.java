@@ -146,6 +146,20 @@ public class FileUtils {
     }
 
     /**
+     * 获取请求响应缓存文件地址
+     *
+     * @return
+     */
+    public static String getHttpCache() {
+        String rootDir = getRootDir();
+        File file = new File(rootDir, "http");
+        if (!file.exists()) {
+            file.mkdirs();
+        }
+        return file.getAbsoluteFile().toString();
+    }
+
+    /**
      * 得到头像缓存文件夹地址
      *
      * @return app在sd上的头像缓存文件夹地址

@@ -9,7 +9,6 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.BaseAdapter;
-import android.widget.Toast;
 
 import com.hyphenate.chat.EMClient;
 import com.hyphenate.chat.EMConversation;
@@ -22,6 +21,7 @@ import com.hyphenate.easeui.widget.chatrow.EaseCustomChatRowProvider;
 import com.hyphenate.exceptions.HyphenateException;
 import com.hyphenate.util.EasyUtils;
 import com.orhanobut.logger.Logger;
+import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.greendao.ImUserInfo;
@@ -234,7 +234,7 @@ public class ChatActivity extends BaseActivity implements ChatFragment.EaseChatF
                                 e.printStackTrace();
                                 runOnUiThread(new Runnable() {
                                     public void run() {
-                                        Toast.makeText(ChatActivity.this, e.getMessage(), Toast.LENGTH_SHORT).show();
+                                        MainApp.getInstance().showToast(e.getMessage());
                                     }
                                 });
                             }

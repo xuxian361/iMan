@@ -488,16 +488,14 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
 
             isloading = false;
         } else {
-            Toast.makeText(getActivity(), getResources().getString(com.hyphenate.easeui.R.string.no_more_messages),
-                    Toast.LENGTH_SHORT).show();
+            MainApp.getInstance().showToast(getResources().getString(com.hyphenate.easeui.R.string.no_more_messages));
         }
         swipeRefreshLayout.setRefreshing(false);
     }
 
     private void loadMoreRoamingMessages() {
         if (!haveMoreData) {
-            Toast.makeText(getActivity(), getResources().getString(com.hyphenate.easeui.R.string.no_more_messages),
-                    Toast.LENGTH_SHORT).show();
+            MainApp.getInstance().showToast(getResources().getString(com.hyphenate.easeui.R.string.no_more_messages));
             swipeRefreshLayout.setRefreshing(false);
             return;
         }
@@ -549,9 +547,8 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
                 if (locationAddress != null && !locationAddress.equals("")) {
                     sendLocationMessage(latitude, longitude, locationAddress);
                 } else {
-                    Toast.makeText(getActivity(), com.hyphenate.easeui.R.string.unable_to_get_loaction, Toast.LENGTH_SHORT).show();
+                    MainApp.getInstance().showToast(getString(com.hyphenate.easeui.R.string.unable_to_get_loaction));
                 }
-
             }
         }
     }
@@ -955,7 +952,7 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
         }
         File file = new File(filePath);
         if (!file.exists()) {
-            Toast.makeText(getActivity(), com.hyphenate.easeui.R.string.File_does_not_exist, Toast.LENGTH_SHORT).show();
+            MainApp.getInstance().showToast(getString(com.hyphenate.easeui.R.string.File_does_not_exist));
             return;
         }
         sendFileMessage(filePath);
@@ -966,7 +963,7 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
      */
     protected void selectPicFromCamera() {
         if (!EaseCommonUtils.isSdcardExist()) {
-            Toast.makeText(getActivity(), com.hyphenate.easeui.R.string.sd_card_does_not_exist, Toast.LENGTH_SHORT).show();
+            MainApp.getInstance().showToast(getString(com.hyphenate.easeui.R.string.sd_card_does_not_exist));
             return;
         }
 
@@ -1097,7 +1094,7 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
 
                 public void run() {
                     if (toChatUsername.equals(groupId)) {
-                        Toast.makeText(getActivity(), com.hyphenate.easeui.R.string.you_are_group, Toast.LENGTH_LONG).show();
+                        MainApp.getInstance().showToast(getString(com.hyphenate.easeui.R.string.you_are_group));
                         Activity activity = getActivity();
                         if (activity != null && !activity.isFinishing()) {
                             activity.finish();
@@ -1113,7 +1110,7 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
             getActivity().runOnUiThread(new Runnable() {
                 public void run() {
                     if (toChatUsername.equals(groupId)) {
-                        Toast.makeText(getActivity(), com.hyphenate.easeui.R.string.the_current_group_destroyed, Toast.LENGTH_LONG).show();
+                        MainApp.getInstance().showToast(getString(com.hyphenate.easeui.R.string.the_current_group_destroyed));
                         Activity activity = getActivity();
                         if (activity != null && !activity.isFinishing()) {
                             activity.finish();
@@ -1134,7 +1131,7 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
             getActivity().runOnUiThread(new Runnable() {
                 public void run() {
                     if (roomId.equals(toChatUsername)) {
-                        Toast.makeText(getActivity(), com.hyphenate.easeui.R.string.the_current_chat_room_destroyed, Toast.LENGTH_LONG).show();
+                        MainApp.getInstance().showToast(getString(com.hyphenate.easeui.R.string.the_current_chat_room_destroyed));
                         Activity activity = getActivity();
                         if (activity != null && !activity.isFinishing()) {
                             activity.finish();
@@ -1149,7 +1146,7 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
             getActivity().runOnUiThread(new Runnable() {
                 public void run() {
                     if (roomId.equals(toChatUsername)) {
-                        Toast.makeText(getActivity(), com.hyphenate.easeui.R.string.quiting_the_chat_room, Toast.LENGTH_LONG).show();
+                        MainApp.getInstance().showToast(getString(com.hyphenate.easeui.R.string.quiting_the_chat_room));
                         Activity activity = getActivity();
                         if (activity != null && !activity.isFinishing()) {
                             activity.finish();
@@ -1165,7 +1162,7 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
             if (roomId.equals(toChatUsername)) {
                 getActivity().runOnUiThread(new Runnable() {
                     public void run() {
-                        Toast.makeText(getActivity(), "member join:" + participant, Toast.LENGTH_LONG).show();
+                        MainApp.getInstance().showToast("member join:" + participant);
                     }
                 });
             }
@@ -1176,7 +1173,7 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
             if (roomId.equals(toChatUsername)) {
                 getActivity().runOnUiThread(new Runnable() {
                     public void run() {
-                        Toast.makeText(getActivity(), "member exit:" + participant, Toast.LENGTH_LONG).show();
+                        MainApp.getInstance().showToast("member exit:" + participant);
                     }
                 });
             }

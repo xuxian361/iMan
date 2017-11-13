@@ -164,12 +164,14 @@ public class LastPostActivity extends BaseActivity {
 
             @Override
             public void onAfter() {
-                swipeRefresh.setRefreshing(false);
+                if (swipeRefresh != null)
+                    swipeRefresh.setRefreshing(false);
             }
 
             @Override
             public void onFailure(Call<LastPostListEntity> call, Throwable t) {
-
+                if (swipeRefresh != null)
+                    swipeRefresh.setRefreshing(false);
             }
         });
     }

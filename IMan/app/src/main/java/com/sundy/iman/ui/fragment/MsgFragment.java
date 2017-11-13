@@ -532,12 +532,14 @@ public class MsgFragment extends BaseFragment {
 
             @Override
             public void onAfter() {
-                swipeRefresh.setRefreshing(false);
+                if (swipeRefresh != null)
+                    swipeRefresh.setRefreshing(false);
             }
 
             @Override
             public void onFailure(Call<GetHomeListEntity> call, Throwable t) {
-                swipeRefresh.setRefreshing(false);
+                if (swipeRefresh != null)
+                    swipeRefresh.setRefreshing(false);
             }
         });
     }

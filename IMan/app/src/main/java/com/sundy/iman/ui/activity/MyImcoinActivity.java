@@ -190,12 +190,15 @@ public class MyImcoinActivity extends BaseActivity {
 
             @Override
             public void onAfter() {
-                swipeRefresh.setRefreshing(false);
+                if (swipeRefresh != null)
+                    swipeRefresh.setRefreshing(false);
             }
 
             @Override
             public void onFailure(Call<BillRecordListEntity> call, Throwable t) {
-
+                Logger.e("------>t = " + t.getMessage());
+                if (swipeRefresh != null)
+                    swipeRefresh.setRefreshing(false);
             }
         });
     }

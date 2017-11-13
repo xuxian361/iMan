@@ -177,12 +177,14 @@ public class MyPostActivity extends BaseActivity {
 
             @Override
             public void onAfter() {
-                swipeRefresh.setRefreshing(false);
+                if (swipeRefresh != null)
+                    swipeRefresh.setRefreshing(false);
             }
 
             @Override
             public void onFailure(Call<PostListEntity> call, Throwable t) {
-
+                if (swipeRefresh != null)
+                    swipeRefresh.setRefreshing(false);
             }
         });
     }

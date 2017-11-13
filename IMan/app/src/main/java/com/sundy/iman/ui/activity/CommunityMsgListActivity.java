@@ -289,12 +289,14 @@ public class CommunityMsgListActivity extends BaseActivity {
 
             @Override
             public void onAfter() {
-                swipeRefresh.setRefreshing(false);
+                if (swipeRefresh != null)
+                    swipeRefresh.setRefreshing(false);
             }
 
             @Override
             public void onFailure(Call<PostListEntity> call, Throwable t) {
-
+                if (swipeRefresh != null)
+                    swipeRefresh.setRefreshing(false);
             }
         });
     }
@@ -602,7 +604,7 @@ public class CommunityMsgListActivity extends BaseActivity {
                             iv_img.setVisibility(View.GONE);
 
                             //增加封面
-                            ImageView imageView = (ImageView) getLayoutInflater().inflate(R.layout.item_cover,null);
+                            ImageView imageView = (ImageView) getLayoutInflater().inflate(R.layout.item_cover, null);
                             Glide.with(CommunityMsgListActivity.this)
                                     .load(thumbnail)
                                     .dontAnimate()

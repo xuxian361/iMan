@@ -470,7 +470,7 @@ public class LoginActivity extends BaseActivity {
     //通过邮箱登陆
     private void loginByEmail() {
         if (!EaseCommonUtils.isNetWorkConnected(this)) {
-            Toast.makeText(this, R.string.network_not_available, Toast.LENGTH_SHORT).show();
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
             return;
         }
 
@@ -520,7 +520,7 @@ public class LoginActivity extends BaseActivity {
     //通过手机号码登陆
     private void loginByMobile() {
         if (!EaseCommonUtils.isNetWorkConnected(this)) {
-            Toast.makeText(this, R.string.network_not_available, Toast.LENGTH_SHORT).show();
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
             return;
         }
 
