@@ -24,6 +24,16 @@
             app:zxing_preview_scaling_strategy="fitXY"
             app:zxing_use_texture_view="true" />
 
+        <TextView
+            android:id="@+id/tv_net_tips"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/network_not_available"
+            android:textColor="@color/txt_white"
+            android:textSize="13sp"
+            android:visibility="gone"/>
+
         <Button
             android:id="@+id/btn_switch"
             android:layout_width="wrap_content"

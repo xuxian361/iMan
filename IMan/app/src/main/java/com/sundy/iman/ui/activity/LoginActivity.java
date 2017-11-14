@@ -14,7 +14,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.hyphenate.EMCallBack;
 import com.hyphenate.chat.EMClient;
@@ -33,6 +32,7 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.CommonUtils;
+import com.sundy.iman.utils.NetWorkUtils;
 import com.sundy.iman.utils.PhoneFormatCheckUtils;
 import com.sundy.iman.utils.ViewAnimUtils;
 
@@ -381,6 +381,11 @@ public class LoginActivity extends BaseActivity {
 
     //获取手机验证码
     private void getMobileCode() {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
         String phone = etMobile.getText().toString().trim();
         Map<String, String> param = new HashMap<>();
         param.put("area_code", "86");
@@ -425,6 +430,11 @@ public class LoginActivity extends BaseActivity {
 
     //获取邮箱验证码
     private void getEmailCode() {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
         String phone = etEmail.getText().toString().trim();
         Map<String, String> param = new HashMap<>();
         param.put("area_code", "");

@@ -7,9 +7,13 @@ import android.support.annotation.Nullable;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 
+import com.hyphenate.EMConnectionListener;
+import com.hyphenate.chat.EMClient;
 import com.journeyapps.barcodescanner.CaptureManager;
 import com.journeyapps.barcodescanner.DecoratedBarcodeView;
+import com.orhanobut.logger.Logger;
 import com.sundy.iman.R;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.view.TitleBarView;
@@ -30,6 +34,8 @@ public class QRScannerActivity extends BaseActivity implements DecoratedBarcodeV
     Button switchLight;
     @BindView(R.id.dbv_custom)
     DecoratedBarcodeView mDBV;
+    @BindView(R.id.tv_net_tips)
+    TextView tvNetTips;
 
     private CaptureManager captureManager;
     private boolean isLightOn = false;
@@ -98,6 +104,13 @@ public class QRScannerActivity extends BaseActivity implements DecoratedBarcodeV
     protected void onResume() {
         super.onResume();
         captureManager.onResume();
+        EMClient.getInstance().addConnectionListener(connectionListener);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        EMClient.getInstance().removeConnectionListener(connectionListener);
     }
 
     @Override
@@ -145,5 +158,30 @@ public class QRScannerActivity extends BaseActivity implements DecoratedBarcodeV
             mDBV.setTorchOn();
         }
     }
+
+    private EMConnectionListener connectionListener = new EMConnectionListener() {
+        @Override
+        public void onDisconnected(int error) {
+            Logger.e("------>onDisconnected");
+
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tvNetTips.setVisibility(View.VISIBLE);
+                }
+            });
+        }
+
+        @Override
+        public void onConnected() {
+            Logger.e("------>onConnected");
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    tvNetTips.setVisibility(View.GONE);
+                }
+            });
+        }
+    };
 
 }

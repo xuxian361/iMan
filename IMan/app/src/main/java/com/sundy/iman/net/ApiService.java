@@ -369,8 +369,9 @@ public interface ApiService {
      *
      * @return
      */
-    @GET(Apis.URL_CHECK_TRANSFER_PWD)
-    Call<CheckTransferPwdEntity> checkTransferPwd(@QueryMap Map<String, String> map);
+    @FormUrlEncoded
+    @POST(Apis.URL_CHECK_TRANSFER_PWD)
+    Call<CheckTransferPwdEntity> checkTransferPwd(@FieldMap Map<String, String> map);
 
 
 

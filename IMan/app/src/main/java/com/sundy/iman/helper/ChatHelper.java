@@ -104,6 +104,7 @@ public class ChatHelper {
         EMClient.getInstance().addConnectionListener(connectionListener);
     }
 
+
     protected void onUserException(String exception) {
         EMLog.e(TAG, "onUserException: " + exception);
         Intent intent = new Intent(appContext, MainActivity.class);
