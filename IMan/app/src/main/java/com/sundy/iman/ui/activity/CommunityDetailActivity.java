@@ -144,6 +144,10 @@ public class CommunityDetailActivity extends BaseActivity {
 
     //获取操作文件权限
     private void getFilePermission() {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
         AndPermission.with(this)
                 .requestCode(REQUEST_CODE_PERMISSION_STORAGE)
                 .permission(Permission.STORAGE)
@@ -190,6 +194,7 @@ public class CommunityDetailActivity extends BaseActivity {
     private void getCommunityInfo() {
         dataEntity = CacheData.getInstance().getCommunityInfo(community_id);
         if (dataEntity != null) {
+            titleBar.setRightIvVisibility(View.VISIBLE);
             showData(dataEntity);
         }
 

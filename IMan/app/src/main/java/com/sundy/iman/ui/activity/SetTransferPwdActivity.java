@@ -17,6 +17,7 @@ import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.utils.NetWorkUtils;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
 
@@ -121,6 +122,11 @@ public class SetTransferPwdActivity extends BaseActivity {
 
     //更新支付密码接口
     private void updateTransferPwd() {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
         String password = etPwd.getText().toString().trim();
         String confirm_password = etConfirmPwd.getText().toString().trim();
         Map<String, String> param = new HashMap<>();

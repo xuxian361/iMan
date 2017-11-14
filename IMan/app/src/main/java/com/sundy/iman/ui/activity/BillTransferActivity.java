@@ -181,6 +181,10 @@ public class BillTransferActivity extends BaseActivity {
 
     @OnClick(R.id.btn_send)
     public void onViewClicked() {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
         showEnterPwdDialog();
     }
 
@@ -203,6 +207,7 @@ public class BillTransferActivity extends BaseActivity {
                 }
             });
             passwordDialog.show();
+            passwordDialog.getViewPwd().setText("");
             final String amount = etAmount.getText().toString().trim();
             passwordDialog.setAmount(amount);
         }
@@ -236,6 +241,7 @@ public class BillTransferActivity extends BaseActivity {
                             closeKeyboard();
                             sendTransfer();
                         } else {
+                            passwordDialog.getViewPwd().setText("");
                             MainApp.getInstance().showToast(msg);
                         }
                     }

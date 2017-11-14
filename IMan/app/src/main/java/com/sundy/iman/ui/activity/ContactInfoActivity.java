@@ -323,6 +323,11 @@ public class ContactInfoActivity extends BaseActivity {
 
     //添加联系人
     private void addContact() {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
         contact_id = profile_id;
 
         Map<String, String> param = new HashMap<>();

@@ -196,6 +196,9 @@ public class MyPostActivity extends BaseActivity {
                         swipeRefresh.setRefreshing(false);
                 }
             });
+        } else {
+            if (swipeRefresh != null)
+                swipeRefresh.setRefreshing(false);
         }
     }
 

@@ -61,6 +61,7 @@ import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.FileUtils;
 import com.sundy.iman.utils.MediaFileUtils;
+import com.sundy.iman.utils.NetWorkUtils;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
 import com.sundy.iman.view.popupwindow.SelectExpiryTimePopup;
@@ -374,6 +375,11 @@ public class CreatePostActivity extends BaseActivity {
 
     //获取文件权限
     private void getFilePermission() {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
         AndPermission.with(this)
                 .requestCode(REQUEST_CODE_PERMISSION_PHOTO)
                 .permission(Permission.STORAGE, Permission.CAMERA)
@@ -581,6 +587,11 @@ public class CreatePostActivity extends BaseActivity {
 
     //创建post
     private void createPost() {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
         String title = etSubject.getText().toString().trim();
         String detail = etDetail.getText().toString().trim();
 

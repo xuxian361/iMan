@@ -416,6 +416,11 @@ public class CommunityMsgListActivity extends BaseActivity {
 
     //退出社区
     private void quitCommunity(String community_id) {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
         Map<String, String> param = new HashMap<>();
         param.put("mid", PaperUtils.getMId());
         param.put("session_key", PaperUtils.getSessionKey());
@@ -920,6 +925,11 @@ public class CommunityMsgListActivity extends BaseActivity {
 
     //获取分享信息
     private void getShareInfo(int type, String post_id, String creator_id, final int shareType) {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
         Map<String, String> param = new HashMap<>();
         param.put("mid", PaperUtils.getMId());
         param.put("session_key", PaperUtils.getSessionKey());
@@ -1038,6 +1048,11 @@ public class CommunityMsgListActivity extends BaseActivity {
 
     //删除Post
     private void deletePost(final PostAdapter.ItemData itemData) {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
         Map<String, String> param = new HashMap<>();
         param.put("mid", PaperUtils.getMId());
         param.put("session_key", PaperUtils.getSessionKey());
@@ -1090,6 +1105,11 @@ public class CommunityMsgListActivity extends BaseActivity {
 
     //领取广告奖励
     private void collectAdvertising(final PostAdapter.ItemData itemData) {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
         final PostItemEntity postItemEntity = itemData.getItem();
         if (postItemEntity != null) {
             Map<String, String> param = new HashMap<>();

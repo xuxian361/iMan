@@ -197,8 +197,9 @@
                     android:layout_width="match_parent"
                     android:layout_height="40dp"
                     android:layout_toLeftOf="@+id/iv_location"
-                    android:gravity="center_vertical"
+                    android:gravity="center"
                     android:maxLines="1"
+                    android:hint="@string/please_choose"
                     android:textColor="@color/txt_black"
                     android:textSize="13sp" />
 

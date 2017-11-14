@@ -245,6 +245,9 @@ public class NearbyPostActivity extends BaseActivity {
                         swipeRefresh.setRefreshing(false);
                 }
             });
+        } else {
+            if (swipeRefresh != null)
+                swipeRefresh.setRefreshing(false);
         }
     }
 

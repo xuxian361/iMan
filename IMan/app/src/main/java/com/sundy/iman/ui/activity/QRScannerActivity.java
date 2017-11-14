@@ -103,7 +103,6 @@ public class QRScannerActivity extends BaseActivity implements DecoratedBarcodeV
     @Override
     protected void onResume() {
         super.onResume();
-        captureManager.onResume();
         EMClient.getInstance().addConnectionListener(connectionListener);
     }
 
@@ -163,10 +162,10 @@ public class QRScannerActivity extends BaseActivity implements DecoratedBarcodeV
         @Override
         public void onDisconnected(int error) {
             Logger.e("------>onDisconnected");
-
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    captureManager.onPause();
                     tvNetTips.setVisibility(View.VISIBLE);
                 }
             });
@@ -179,6 +178,7 @@ public class QRScannerActivity extends BaseActivity implements DecoratedBarcodeV
                 @Override
                 public void run() {
                     tvNetTips.setVisibility(View.GONE);
+                    captureManager.onResume();
                 }
             });
         }
