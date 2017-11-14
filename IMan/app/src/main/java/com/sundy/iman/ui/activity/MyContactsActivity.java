@@ -341,7 +341,7 @@ public class MyContactsActivity extends BaseActivity {
                             showDeleteContactDialog(itemData);
                         }
                     } else {
-                        MainApp.getInstance().showToast(getString(R.string.net_error_tips));
+                        MainApp.getInstance().showToast(getString(R.string.network_not_available));
                     }
                     break;
                 case R.id.ll_item:

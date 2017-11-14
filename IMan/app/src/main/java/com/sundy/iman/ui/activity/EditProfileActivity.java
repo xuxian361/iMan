@@ -46,6 +46,7 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.FileUtils;
+import com.sundy.iman.utils.NetWorkUtils;
 import com.sundy.iman.view.GlideCircleTransform;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
@@ -349,6 +350,10 @@ public class EditProfileActivity extends BaseActivity {
 
     //点击定位
     private void locationClick() {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
         AndPermission.with(this)
                 .requestCode(REQUEST_CODE_PERMISSION_LOCATION)
                 .permission(Permission.LOCATION)
@@ -358,6 +363,10 @@ public class EditProfileActivity extends BaseActivity {
 
     //点击头像
     private void headerClick() {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
         AndPermission.with(this)
                 .requestCode(REQUEST_CODE_PERMISSION_PHOTO)
                 .permission(Permission.STORAGE, Permission.CAMERA)
@@ -543,6 +552,11 @@ public class EditProfileActivity extends BaseActivity {
 
     //保存个人信息
     private void saveMemberInfo() {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
         final String username = etUsername.getText().toString().trim();
         final String introduction = etAbout.getText().toString().trim();
 
