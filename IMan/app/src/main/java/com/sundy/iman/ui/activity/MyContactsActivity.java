@@ -34,6 +34,8 @@ import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.utils.NetWorkUtils;
+import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
@@ -172,40 +174,48 @@ public class MyContactsActivity extends BaseActivity {
 
     //获取联系人列表
     private void getContactList() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("page", page + "");
-        param.put("perpage", perpage + "");
-        param.put("keyword", keyword);
-        Call<ContactListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getContactList(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<ContactListEntity>() {
-            @Override
-            public void onSuccess(Call<ContactListEntity> call, Response<ContactListEntity> response) {
-                ContactListEntity contactListEntity = response.body();
-                if (contactListEntity != null) {
-                    int code = contactListEntity.getCode();
-                    String msg = contactListEntity.getMsg();
-                    if (code == Constants.CODE_SUCCESS) {
-                        ContactListEntity.DataEntity dataEntity = contactListEntity.getData();
-                        if (dataEntity != null) {
-                            showData(dataEntity.getList());
+        ContactListEntity.DataEntity dataEntity = CacheData.getInstance().getMyContactList(page);
+        if (dataEntity != null) {
+            showData(dataEntity.getList());
+        }
+
+        if (NetWorkUtils.isNetAvailable(this)) {
+            Map<String, String> param = new HashMap<>();
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("page", page + "");
+            param.put("perpage", perpage + "");
+            param.put("keyword", keyword);
+            Call<ContactListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .getContactList(ParamHelper.formatData(param));
+            call.enqueue(new RetrofitCallback<ContactListEntity>() {
+                @Override
+                public void onSuccess(Call<ContactListEntity> call, Response<ContactListEntity> response) {
+                    ContactListEntity contactListEntity = response.body();
+                    if (contactListEntity != null) {
+                        int code = contactListEntity.getCode();
+                        String msg = contactListEntity.getMsg();
+                        if (code == Constants.CODE_SUCCESS) {
+                            ContactListEntity.DataEntity dataEntity = contactListEntity.getData();
+                            if (dataEntity != null) {
+                                CacheData.getInstance().saveMyContactsList(dataEntity, page);
+                                showData(dataEntity.getList());
+                            }
                         }
                     }
                 }
-            }
 
-            @Override
-            public void onAfter() {
+                @Override
+                public void onAfter() {
 
-            }
+                }
 
-            @Override
-            public void onFailure(Call<ContactListEntity> call, Throwable t) {
+                @Override
+                public void onFailure(Call<ContactListEntity> call, Throwable t) {
 
-            }
-        });
+                }
+            });
+        }
     }
 
     private void showData(List<ContactItemEntity> listData) {
@@ -326,8 +336,12 @@ public class MyContactsActivity extends BaseActivity {
                 case R.id.tv_item_del:
                     Logger.e("----->删除Item");
                     //删除联系人
-                    if (itemData != null) {
-                        showDeleteContactDialog(itemData);
+                    if (NetWorkUtils.isNetAvailable(MyContactsActivity.this)) {
+                        if (itemData != null) {
+                            showDeleteContactDialog(itemData);
+                        }
+                    } else {
+                        MainApp.getInstance().showToast(getString(R.string.net_error_tips));
                     }
                     break;
                 case R.id.ll_item:

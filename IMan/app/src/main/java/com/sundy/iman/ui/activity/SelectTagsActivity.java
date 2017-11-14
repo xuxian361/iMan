@@ -26,6 +26,8 @@ import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
+import com.sundy.iman.utils.NetWorkUtils;
+import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.TitleBarView;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersAdapter;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
@@ -146,45 +148,59 @@ public class SelectTagsActivity extends BaseActivity {
 
     //获取标签列表
     private void getTagList() {
-        Call<TagListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getTagList(ParamHelper.formatData(new HashMap<String, String>()));
-        call.enqueue(new RetrofitCallback<TagListEntity>() {
-            @Override
-            public void onSuccess(Call<TagListEntity> call, Response<TagListEntity> response) {
-                try {
-                    if (response != null) {
-                        TagListEntity entity = response.body();
-                        if (entity != null) {
-                            int code = entity.getCode();
-                            if (code == Constants.CODE_SUCCESS) {
-                                TagListEntity.DataEntity dataEntity = entity.getData();
-                                if (dataEntity != null) {
-                                    List<TagListEntity.ListEntity> list = dataEntity.getList();
-                                    if (list != null && list.size() > 0) {
-                                        if (listTags != null)
-                                            listTags.clear();
-                                        listTags.addAll(list);
-                                        setData();
+        TagListEntity.DataEntity dataEntity = CacheData.getInstance().getTagsList();
+        if (dataEntity != null) {
+            List<TagListEntity.ListEntity> list = dataEntity.getList();
+            if (list != null && list.size() > 0) {
+                if (listTags != null)
+                    listTags.clear();
+                listTags.addAll(list);
+                setData();
+            }
+        }
+
+        if (NetWorkUtils.isNetAvailable(this)) {
+            Call<TagListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .getTagList(ParamHelper.formatData(new HashMap<String, String>()));
+            call.enqueue(new RetrofitCallback<TagListEntity>() {
+                @Override
+                public void onSuccess(Call<TagListEntity> call, Response<TagListEntity> response) {
+                    try {
+                        if (response != null) {
+                            TagListEntity entity = response.body();
+                            if (entity != null) {
+                                int code = entity.getCode();
+                                if (code == Constants.CODE_SUCCESS) {
+                                    TagListEntity.DataEntity dataEntity = entity.getData();
+                                    if (dataEntity != null) {
+                                        CacheData.getInstance().saveTagsList(dataEntity);
+                                        List<TagListEntity.ListEntity> list = dataEntity.getList();
+                                        if (list != null && list.size() > 0) {
+                                            if (listTags != null)
+                                                listTags.clear();
+                                            listTags.addAll(list);
+                                            setData();
+                                        }
                                     }
                                 }
                             }
                         }
+                    } catch (Exception e) {
+                        e.printStackTrace();
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
-            }
 
-            @Override
-            public void onAfter() {
+                @Override
+                public void onAfter() {
 
-            }
+                }
 
-            @Override
-            public void onFailure(Call<TagListEntity> call, Throwable t) {
+                @Override
+                public void onFailure(Call<TagListEntity> call, Throwable t) {
 
-            }
-        });
+                }
+            });
+        }
     }
 
     //设置数据

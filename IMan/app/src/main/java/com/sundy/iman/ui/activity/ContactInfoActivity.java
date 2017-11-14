@@ -25,6 +25,8 @@ import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.utils.NetWorkUtils;
+import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.TitleBarView;
 
 import java.util.HashMap;
@@ -156,41 +158,49 @@ public class ContactInfoActivity extends BaseActivity {
 
     //获取个人用户信息
     private void getMemberInfo() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("profile_id", profile_id);
-        showProgress();
-        Call<MemberInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getMemberInfo(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<MemberInfoEntity>() {
-            @Override
-            public void onSuccess(Call<MemberInfoEntity> call, Response<MemberInfoEntity> response) {
-                MemberInfoEntity memberInfoEntity = response.body();
-                if (memberInfoEntity != null) {
-                    int code = memberInfoEntity.getCode();
-                    String msg = memberInfoEntity.getMsg();
-                    if (code == Constants.CODE_SUCCESS) {
-                        dataEntity = memberInfoEntity.getData();
-                        if (dataEntity != null) {
-                            showData(dataEntity);
+        dataEntity = CacheData.getInstance().getContactInfo(profile_id);
+        if (dataEntity != null) {
+            showData(dataEntity);
+        }
+
+        if (NetWorkUtils.isNetAvailable(this)) {
+            Map<String, String> param = new HashMap<>();
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("profile_id", profile_id);
+            showProgress();
+            Call<MemberInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .getMemberInfo(ParamHelper.formatData(param));
+            call.enqueue(new RetrofitCallback<MemberInfoEntity>() {
+                @Override
+                public void onSuccess(Call<MemberInfoEntity> call, Response<MemberInfoEntity> response) {
+                    MemberInfoEntity memberInfoEntity = response.body();
+                    if (memberInfoEntity != null) {
+                        int code = memberInfoEntity.getCode();
+                        String msg = memberInfoEntity.getMsg();
+                        if (code == Constants.CODE_SUCCESS) {
+                            dataEntity = memberInfoEntity.getData();
+                            if (dataEntity != null) {
+                                CacheData.getInstance().saveContactInfo(profile_id, dataEntity);
+                                showData(dataEntity);
+                            }
+                        } else {
+                            MainApp.getInstance().showToast(msg);
                         }
-                    } else {
-                        MainApp.getInstance().showToast(msg);
                     }
                 }
-            }
 
-            @Override
-            public void onAfter() {
-                hideProgress();
-            }
+                @Override
+                public void onAfter() {
+                    hideProgress();
+                }
 
-            @Override
-            public void onFailure(Call<MemberInfoEntity> call, Throwable t) {
+                @Override
+                public void onFailure(Call<MemberInfoEntity> call, Throwable t) {
 
-            }
-        });
+                }
+            });
+        }
     }
 
     private void showData(MemberInfoEntity.DataEntity dataEntity) {

@@ -412,7 +412,7 @@ public class CreatePostActivity extends BaseActivity {
                                             long fileSize = FileUtils.getFileSize(file); //单位：B
                                             float fileSizeMb = fileSize / 1024.0f / 1024.0f;
                                             if (fileSizeMb > VIDEO_MAX_SIZE) {
-                                                MainApp.getInstance().showToast(getString(R.string.video_size_more_than_100));
+                                                MainApp.getInstance().showToast(getString(R.string.video_size_more_than_50));
                                                 return;
                                             }
                                             getQiNiuToken(file);

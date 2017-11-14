@@ -34,6 +34,8 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
+import com.sundy.iman.utils.NetWorkUtils;
+import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
@@ -194,39 +196,47 @@ public class MyPromoteCommunityActivity extends BaseActivity {
 
     //我的推广社区列表
     private void getMyPromoteCommunity() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("page", page + "");
-        param.put("perpage", perpage + "");
-        Call<MyPromoteCommunityListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getMyPromoteCommunityList(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<MyPromoteCommunityListEntity>() {
-            @Override
-            public void onSuccess(Call<MyPromoteCommunityListEntity> call, Response<MyPromoteCommunityListEntity> response) {
-                MyPromoteCommunityListEntity communityListEntity = response.body();
-                if (communityListEntity != null) {
-                    int code = communityListEntity.getCode();
-                    String msg = communityListEntity.getMsg();
-                    if (code == Constants.CODE_SUCCESS) {
-                        MyPromoteCommunityListEntity.DataEntity dataEntity = communityListEntity.getData();
-                        if (dataEntity != null) {
-                            showData(dataEntity.getList());
+        MyPromoteCommunityListEntity.DataEntity dataEntity = CacheData.getInstance().getPromoteCommunityList(page);
+        if (dataEntity != null) {
+            showData(dataEntity.getList());
+        }
+
+        if (NetWorkUtils.isNetAvailable(this)) {
+            Map<String, String> param = new HashMap<>();
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("page", page + "");
+            param.put("perpage", perpage + "");
+            Call<MyPromoteCommunityListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .getMyPromoteCommunityList(ParamHelper.formatData(param));
+            call.enqueue(new RetrofitCallback<MyPromoteCommunityListEntity>() {
+                @Override
+                public void onSuccess(Call<MyPromoteCommunityListEntity> call, Response<MyPromoteCommunityListEntity> response) {
+                    MyPromoteCommunityListEntity communityListEntity = response.body();
+                    if (communityListEntity != null) {
+                        int code = communityListEntity.getCode();
+                        String msg = communityListEntity.getMsg();
+                        if (code == Constants.CODE_SUCCESS) {
+                            MyPromoteCommunityListEntity.DataEntity dataEntity = communityListEntity.getData();
+                            if (dataEntity != null) {
+                                CacheData.getInstance().savePromoteCommunityList(dataEntity, page);
+                                showData(dataEntity.getList());
+                            }
                         }
                     }
                 }
-            }
 
-            @Override
-            public void onAfter() {
+                @Override
+                public void onAfter() {
 
-            }
+                }
 
-            @Override
-            public void onFailure(Call<MyPromoteCommunityListEntity> call, Throwable t) {
+                @Override
+                public void onFailure(Call<MyPromoteCommunityListEntity> call, Throwable t) {
 
-            }
-        });
+                }
+            });
+        }
     }
 
     private void showData(List<MyPromoteCommunityItemEntity> listData) {
@@ -269,7 +279,7 @@ public class MyPromoteCommunityActivity extends BaseActivity {
         UIHelper.jump(this, JoinPromoteCommunityActivity.class);
     }
 
-    @OnClick({R.id.rel_search,R.id.tv_add_community})
+    @OnClick({R.id.rel_search, R.id.tv_add_community})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.rel_search:
@@ -391,8 +401,12 @@ public class MyPromoteCommunityActivity extends BaseActivity {
                 case R.id.tv_item_del:
                     Logger.e("----->删除Item");
                     //删除推广社区
-                    if (itemData != null) {
-                        showQuitDialog(itemData);
+                    if (NetWorkUtils.isNetAvailable(MyPromoteCommunityActivity.this)) {
+                        if (itemData != null) {
+                            showQuitDialog(itemData);
+                        }
+                    } else {
+                        MainApp.getInstance().showToast(getString(R.string.net_error_tips));
                     }
                     break;
                 case R.id.ll_item:

@@ -54,6 +54,8 @@ import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.LocationPaper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
+import com.sundy.iman.utils.NetWorkUtils;
+import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
@@ -198,45 +200,52 @@ public class NearbyPostActivity extends BaseActivity {
 
     //获取post列表
     private void getPostList() {
-        LocationEntity locationEntity = LocationPaper.getLocation();
+        NearbyPostListEntity.DataEntity dataEntity = CacheData.getInstance().getNearbyPostList(page);
+        if (dataEntity != null) {
+            showData(dataEntity.getList());
+        }
 
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("page", page + "");
-        param.put("perpage", perpage + "");
-        param.put("latitude", locationEntity.getLat() + "");
-        param.put("longitude", locationEntity.getLng() + "");
-        Call<NearbyPostListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getNearbyPost(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<NearbyPostListEntity>() {
-            @Override
-            public void onSuccess(Call<NearbyPostListEntity> call, Response<NearbyPostListEntity> response) {
-                NearbyPostListEntity postListEntity = response.body();
-                if (postListEntity != null) {
-                    int code = postListEntity.getCode();
-                    String msg = postListEntity.getMsg();
-                    if (code == Constants.CODE_SUCCESS) {
-                        NearbyPostListEntity.DataEntity dataEntity = postListEntity.getData();
-                        if (dataEntity != null) {
-                            showData(dataEntity.getList());
+        if (NetWorkUtils.isNetAvailable(this)) {
+            LocationEntity locationEntity = LocationPaper.getLocation();
+            Map<String, String> param = new HashMap<>();
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("page", page + "");
+            param.put("perpage", perpage + "");
+            param.put("latitude", locationEntity.getLat() + "");
+            param.put("longitude", locationEntity.getLng() + "");
+            Call<NearbyPostListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .getNearbyPost(ParamHelper.formatData(param));
+            call.enqueue(new RetrofitCallback<NearbyPostListEntity>() {
+                @Override
+                public void onSuccess(Call<NearbyPostListEntity> call, Response<NearbyPostListEntity> response) {
+                    NearbyPostListEntity postListEntity = response.body();
+                    if (postListEntity != null) {
+                        int code = postListEntity.getCode();
+                        String msg = postListEntity.getMsg();
+                        if (code == Constants.CODE_SUCCESS) {
+                            NearbyPostListEntity.DataEntity dataEntity = postListEntity.getData();
+                            if (dataEntity != null) {
+                                CacheData.getInstance().saveNearbyPostList(dataEntity, page);
+                                showData(dataEntity.getList());
+                            }
                         }
                     }
                 }
-            }
 
-            @Override
-            public void onAfter() {
-                if (swipeRefresh != null)
-                    swipeRefresh.setRefreshing(false);
-            }
+                @Override
+                public void onAfter() {
+                    if (swipeRefresh != null)
+                        swipeRefresh.setRefreshing(false);
+                }
 
-            @Override
-            public void onFailure(Call<NearbyPostListEntity> call, Throwable t) {
-                if (swipeRefresh != null)
-                    swipeRefresh.setRefreshing(false);
-            }
-        });
+                @Override
+                public void onFailure(Call<NearbyPostListEntity> call, Throwable t) {
+                    if (swipeRefresh != null)
+                        swipeRefresh.setRefreshing(false);
+                }
+            });
+        }
     }
 
     private void showData(List<NearbyPostItemEntity> listData) {
@@ -453,7 +462,7 @@ public class NearbyPostActivity extends BaseActivity {
                             iv_img.setVisibility(View.GONE);
 
                             //增加封面
-                            ImageView imageView = (ImageView) getLayoutInflater().inflate(R.layout.item_cover,null);
+                            ImageView imageView = (ImageView) getLayoutInflater().inflate(R.layout.item_cover, null);
                             Glide.with(NearbyPostActivity.this)
                                     .load(thumbnail)
                                     .dontAnimate()

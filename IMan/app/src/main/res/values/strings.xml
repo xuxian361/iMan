@@ -229,6 +229,9 @@
     <string name="contact_info">联系人信息</string>
     <string name="net_error_tips">当前网络不可用，请检查您的网络设置</string>
     <string name="net_error_can_not_connect_chat_server">连接不到聊天服务器</string>
+    <string name="video_size_more_than_50">所选的视频文件不能大于100MB!</string>
+    <string name="input_pay_pwd">请输入支付密码</string>
+    <string name="imcoin">荧光币</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% 荧光币将会送给用户.

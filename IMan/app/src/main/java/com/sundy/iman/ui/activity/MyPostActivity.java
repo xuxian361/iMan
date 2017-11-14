@@ -34,6 +34,8 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
+import com.sundy.iman.utils.NetWorkUtils;
+import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
@@ -150,43 +152,51 @@ public class MyPostActivity extends BaseActivity {
 
     //获取post列表
     private void getPostList() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("type", "2"); //类型 1-某个社区的 post,2-我的 post
-        param.put("community_id", ""); //社区ID​(​类型为1时必填​)
-        param.put("page", page + "");
-        param.put("perpage", perpage + "");
-        Call<PostListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getPostList(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<PostListEntity>() {
-            @Override
-            public void onSuccess(Call<PostListEntity> call, Response<PostListEntity> response) {
-                PostListEntity postListEntity = response.body();
-                if (postListEntity != null) {
-                    int code = postListEntity.getCode();
-                    String msg = postListEntity.getMsg();
-                    if (code == Constants.CODE_SUCCESS) {
-                        PostListEntity.DataEntity dataEntity = postListEntity.getData();
-                        if (dataEntity != null) {
-                            showData(dataEntity.getList());
+        PostListEntity.DataEntity dataEntity = CacheData.getInstance().getMyPostList(page);
+        if (dataEntity != null) {
+            showData(dataEntity.getList());
+        }
+
+        if (NetWorkUtils.isNetAvailable(this)) {
+            Map<String, String> param = new HashMap<>();
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("type", "2"); //类型 1-某个社区的 post,2-我的 post
+            param.put("community_id", ""); //社区ID​(​类型为1时必填​)
+            param.put("page", page + "");
+            param.put("perpage", perpage + "");
+            Call<PostListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .getPostList(ParamHelper.formatData(param));
+            call.enqueue(new RetrofitCallback<PostListEntity>() {
+                @Override
+                public void onSuccess(Call<PostListEntity> call, Response<PostListEntity> response) {
+                    PostListEntity postListEntity = response.body();
+                    if (postListEntity != null) {
+                        int code = postListEntity.getCode();
+                        String msg = postListEntity.getMsg();
+                        if (code == Constants.CODE_SUCCESS) {
+                            PostListEntity.DataEntity dataEntity = postListEntity.getData();
+                            if (dataEntity != null) {
+                                CacheData.getInstance().saveMyPostList(dataEntity, page);
+                                showData(dataEntity.getList());
+                            }
                         }
                     }
                 }
-            }
 
-            @Override
-            public void onAfter() {
-                if (swipeRefresh != null)
-                    swipeRefresh.setRefreshing(false);
-            }
+                @Override
+                public void onAfter() {
+                    if (swipeRefresh != null)
+                        swipeRefresh.setRefreshing(false);
+                }
 
-            @Override
-            public void onFailure(Call<PostListEntity> call, Throwable t) {
-                if (swipeRefresh != null)
-                    swipeRefresh.setRefreshing(false);
-            }
-        });
+                @Override
+                public void onFailure(Call<PostListEntity> call, Throwable t) {
+                    if (swipeRefresh != null)
+                        swipeRefresh.setRefreshing(false);
+                }
+            });
+        }
     }
 
     private void showData(List<PostItemEntity> listData) {
@@ -383,15 +393,23 @@ public class MyPostActivity extends BaseActivity {
                 case R.id.tv_item_del:
                     Logger.e("----->删除Item : " + itemData.getPosition());
                     //删除消息
-                    if (itemData != null) {
-                        showDeleteDialog(itemData);
+                    if (NetWorkUtils.isNetAvailable(MyPostActivity.this)) {
+                        if (itemData != null) {
+                            showDeleteDialog(itemData);
+                        }
+                    } else {
+                        MainApp.getInstance().showToast(getString(R.string.net_error_tips));
                     }
                     break;
                 case R.id.tv_item_cancel:
                     Logger.e("----->取消Item : " + itemData.getPosition());
                     //取消发布
-                    if (itemData != null) {
-                        showCancelPostDialog(itemData);
+                    if (NetWorkUtils.isNetAvailable(MyPostActivity.this)) {
+                        if (itemData != null) {
+                            showCancelPostDialog(itemData);
+                        }
+                    } else {
+                        MainApp.getInstance().showToast(getString(R.string.net_error_tips));
                     }
                     break;
                 case R.id.ll_item:

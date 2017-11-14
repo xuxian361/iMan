@@ -63,6 +63,8 @@ import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.FileUtils;
 import com.sundy.iman.utils.MediaFileUtils;
+import com.sundy.iman.utils.NetWorkUtils;
+import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
 import com.sundy.iman.view.popupwindow.SelectExpiryTimePopup;
@@ -248,46 +250,58 @@ public class EditPostActivity extends BaseActivity {
 
     //获取Post 信息
     private void getPostInfo() {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("post_id", post_id); //post id
-        param.put("creator_id", creator_id); //post的作者ID
-        showProgress();
-        Call<GetPostInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getPostInfo(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<GetPostInfoEntity>() {
-            @Override
-            public void onSuccess(Call<GetPostInfoEntity> call, Response<GetPostInfoEntity> response) {
-                GetPostInfoEntity getPostInfoEntity = response.body();
-                if (getPostInfoEntity != null) {
-                    int code = getPostInfoEntity.getCode();
-                    String msg = getPostInfoEntity.getMsg();
-                    if (code == Constants.CODE_SUCCESS) {
-                        GetPostInfoEntity.DataEntity dataEntity = getPostInfoEntity.getData();
-                        if (dataEntity != null) {
-                            try {
-                                showData(dataEntity);
-                            } catch (Exception e) {
-                                e.printStackTrace();
+        GetPostInfoEntity.DataEntity dataEntity = CacheData.getInstance().getPostInfo(post_id, creator_id);
+        if (dataEntity != null) {
+            try {
+                showData(dataEntity);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        if (NetWorkUtils.isNetAvailable(this)) {
+            Map<String, String> param = new HashMap<>();
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("post_id", post_id); //post id
+            param.put("creator_id", creator_id); //post的作者ID
+            showProgress();
+            Call<GetPostInfoEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .getPostInfo(ParamHelper.formatData(param));
+            call.enqueue(new RetrofitCallback<GetPostInfoEntity>() {
+                @Override
+                public void onSuccess(Call<GetPostInfoEntity> call, Response<GetPostInfoEntity> response) {
+                    GetPostInfoEntity getPostInfoEntity = response.body();
+                    if (getPostInfoEntity != null) {
+                        int code = getPostInfoEntity.getCode();
+                        String msg = getPostInfoEntity.getMsg();
+                        if (code == Constants.CODE_SUCCESS) {
+                            GetPostInfoEntity.DataEntity dataEntity = getPostInfoEntity.getData();
+                            if (dataEntity != null) {
+                                try {
+                                    CacheData.getInstance().savePostInfo(dataEntity, post_id, creator_id);
+                                    showData(dataEntity);
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
                             }
+                        } else {
+                            MainApp.getInstance().showToast(msg);
                         }
-                    } else {
-                        MainApp.getInstance().showToast(msg);
                     }
                 }
-            }
 
-            @Override
-            public void onAfter() {
-                hideProgress();
-            }
+                @Override
+                public void onAfter() {
+                    hideProgress();
+                }
 
-            @Override
-            public void onFailure(Call<GetPostInfoEntity> call, Throwable t) {
+                @Override
+                public void onFailure(Call<GetPostInfoEntity> call, Throwable t) {
 
-            }
-        });
+                }
+            });
+        }
     }
 
     //显示Post 信息

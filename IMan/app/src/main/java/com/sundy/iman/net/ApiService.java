@@ -7,6 +7,7 @@ import com.sundy.iman.entity.BillRecordListEntity;
 import com.sundy.iman.entity.BillTransferEntity;
 import com.sundy.iman.entity.CancelPostEntity;
 import com.sundy.iman.entity.ChangeLanguageEntity;
+import com.sundy.iman.entity.CheckTransferPwdEntity;
 import com.sundy.iman.entity.CollectAdvertisingEntity;
 import com.sundy.iman.entity.CommunityInfoEntity;
 import com.sundy.iman.entity.CommunityListEntity;
@@ -362,6 +363,15 @@ public interface ApiService {
      */
     @GET(Apis.URL_BILL_TRANSFER)
     Call<BillTransferEntity> billTransfer(@QueryMap Map<String, String> map);
+
+    /**
+     * 校验支付密码
+     *
+     * @return
+     */
+    @GET(Apis.URL_CHECK_TRANSFER_PWD)
+    Call<CheckTransferPwdEntity> checkTransferPwd(@QueryMap Map<String, String> map);
+
 
 
     /**

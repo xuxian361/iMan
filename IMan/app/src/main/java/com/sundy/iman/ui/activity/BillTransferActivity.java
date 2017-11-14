@@ -1,5 +1,6 @@
 package com.sundy.iman.ui.activity;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.text.Editable;
@@ -10,9 +11,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
+import com.orhanobut.logger.Logger;
+import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.BillTransferEntity;
+import com.sundy.iman.entity.CheckTransferPwdEntity;
 import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.greendao.ImUserInfo;
 import com.sundy.iman.helper.DbHelper;
@@ -23,8 +27,10 @@ import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.utils.NetWorkUtils;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
+import com.sundy.iman.view.dialog.PayBillPasswordDialog;
 
 import org.greenrobot.eventbus.EventBus;
 
@@ -64,6 +70,8 @@ public class BillTransferActivity extends BaseActivity {
     private static final int DEFAULT_DECIMAL_NUMBER = 2;
 
     private static final InputFilter[] INPUT_FILTER_ARRAY = new InputFilter[1];
+
+    private PayBillPasswordDialog passwordDialog;
 
     /**
      * 保留小数点后多少位
@@ -124,6 +132,8 @@ public class BillTransferActivity extends BaseActivity {
     }
 
     private void init() {
+        passwordDialog = new PayBillPasswordDialog(this);
+
         ImUserInfo imUserInfoEntity = DbHelper.getInstance().getUserInfoByHxId(toChatUsername);
         if (imUserInfoEntity != null) {
             String name = imUserInfoEntity.getUsername();
@@ -171,7 +181,77 @@ public class BillTransferActivity extends BaseActivity {
 
     @OnClick(R.id.btn_send)
     public void onViewClicked() {
-        sendTransfer();
+        showEnterPwdDialog();
+    }
+
+    //显示输入支付密码弹框
+    private void showEnterPwdDialog() {
+        if (passwordDialog != null) {
+            passwordDialog.setCancelable(false);
+            passwordDialog.setCanceledOnTouchOutside(false);
+            passwordDialog.setOnPwdListener(new PayBillPasswordDialog.OnPwdListener() {
+                @Override
+                public void onPwdVerify(String pwd) {
+                    Logger.e("------>输入的支付密码是: " + pwd);
+                    verifyPwd(pwd);
+                }
+            });
+            passwordDialog.setOnShowListener(new DialogInterface.OnShowListener() {
+                @Override
+                public void onShow(DialogInterface dialogInterface) {
+                    autoPopupSoftInput(passwordDialog.getViewPwd());
+                }
+            });
+            passwordDialog.show();
+            final String amount = etAmount.getText().toString().trim();
+            passwordDialog.setAmount(amount);
+        }
+    }
+
+    //隐藏支付密码弹框
+    private void hidePwdDialog() {
+        if (passwordDialog != null) {
+            passwordDialog.dismiss();
+        }
+    }
+
+    //校验支付密码
+    private void verifyPwd(String pwd) {
+        if (NetWorkUtils.isNetAvailable(this)) {
+            Map<String, String> param = new HashMap<>();
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("password", pwd);
+            showProgress();
+            Call<CheckTransferPwdEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .checkTransferPwd(ParamHelper.formatData(param));
+            call.enqueue(new RetrofitCallback<CheckTransferPwdEntity>() {
+                @Override
+                public void onSuccess(Call<CheckTransferPwdEntity> call, Response<CheckTransferPwdEntity> response) {
+                    CheckTransferPwdEntity checkTransferPwdEntity = response.body();
+                    if (checkTransferPwdEntity != null) {
+                        int code = checkTransferPwdEntity.getCode();
+                        String msg = checkTransferPwdEntity.getMsg();
+                        if (code == Constants.CODE_SUCCESS) {
+                            closeKeyboard();
+                            sendTransfer();
+                        } else {
+                            MainApp.getInstance().showToast(msg);
+                        }
+                    }
+                }
+
+                @Override
+                public void onAfter() {
+                    hideProgress();
+                }
+
+                @Override
+                public void onFailure(Call<CheckTransferPwdEntity> call, Throwable t) {
+                    hideProgress();
+                }
+            });
+        }
     }
 
     //转账
@@ -200,6 +280,7 @@ public class BillTransferActivity extends BaseActivity {
                         int code = billTransferEntity.getCode();
                         String msg = billTransferEntity.getMsg();
                         if (code == Constants.CODE_SUCCESS) {
+                            hidePwdDialog();
                             sendImcoinSuccessEvent(income);
                             showSuccessView(gold_name, income);
                         } else {
@@ -210,12 +291,10 @@ public class BillTransferActivity extends BaseActivity {
 
                 @Override
                 public void onAfter() {
-
                 }
 
                 @Override
                 public void onFailure(Call<BillTransferEntity> call, Throwable t) {
-
                 }
             });
         }
@@ -252,4 +331,12 @@ public class BillTransferActivity extends BaseActivity {
         });
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        if (passwordDialog != null) {
+            passwordDialog.dismiss();
+            passwordDialog = null;
+        }
+    }
 }

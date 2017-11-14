@@ -230,6 +230,9 @@
     <string name="contact_info">聯繫人信息</string>
     <string name="net_error_tips">當前網絡不可用，請檢查您的網絡設置</string>
     <string name="net_error_can_not_connect_chat_server">連接不到聊天服務器</string>
+    <string name="video_size_more_than_50">所選的視頻文件不能大於100MB!</string>
+    <string name="input_pay_pwd">請輸入支付密碼</string>
+    <string name="imcoin">熒光幣</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% 熒光幣將會送給用戶.

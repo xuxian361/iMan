@@ -26,6 +26,8 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
+import com.sundy.iman.utils.NetWorkUtils;
+import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
@@ -154,6 +156,7 @@ public class MyImcoinActivity extends BaseActivity {
     private void getRecord() {
         if (TextUtils.isEmpty(year_month))
             return;
+
         String yearMonth = "";
         if (year_month.contains("-")) {
             String[] dateArr = year_month.split("-");
@@ -164,43 +167,51 @@ public class MyImcoinActivity extends BaseActivity {
             }
         }
 
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("year_month", yearMonth); //年月: 四位年份+两位月份
-        param.put("page", page + "");
-        param.put("perpage", perpage + "");
-        Call<BillRecordListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getBillRecord(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<BillRecordListEntity>() {
-            @Override
-            public void onSuccess(Call<BillRecordListEntity> call, Response<BillRecordListEntity> response) {
-                BillRecordListEntity billRecordListEntity = response.body();
-                if (billRecordListEntity != null) {
-                    int code = billRecordListEntity.getCode();
-                    String msg = billRecordListEntity.getMsg();
-                    if (code == Constants.CODE_SUCCESS) {
-                        BillRecordListEntity.DataEntity dataEntity = billRecordListEntity.getData();
-                        if (dataEntity != null) {
-                            showData(dataEntity);
+        BillRecordListEntity.DataEntity dataEntity = CacheData.getInstance().getBillRecordList(yearMonth, page);
+        if (dataEntity != null) {
+            showData(dataEntity);
+        }
+
+        if (NetWorkUtils.isNetAvailable(this)) {
+            final Map<String, String> param = new HashMap<>();
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("year_month", yearMonth); //年月: 四位年份+两位月份
+            param.put("page", page + "");
+            param.put("perpage", perpage + "");
+            Call<BillRecordListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .getBillRecord(ParamHelper.formatData(param));
+            final String finalYearMonth = yearMonth;
+            call.enqueue(new RetrofitCallback<BillRecordListEntity>() {
+                @Override
+                public void onSuccess(Call<BillRecordListEntity> call, Response<BillRecordListEntity> response) {
+                    BillRecordListEntity billRecordListEntity = response.body();
+                    if (billRecordListEntity != null) {
+                        int code = billRecordListEntity.getCode();
+                        String msg = billRecordListEntity.getMsg();
+                        if (code == Constants.CODE_SUCCESS) {
+                            BillRecordListEntity.DataEntity dataEntity = billRecordListEntity.getData();
+                            if (dataEntity != null) {
+                                CacheData.getInstance().saveBillRecordList(dataEntity, finalYearMonth, page);
+                                showData(dataEntity);
+                            }
                         }
                     }
                 }
-            }
 
-            @Override
-            public void onAfter() {
-                if (swipeRefresh != null)
-                    swipeRefresh.setRefreshing(false);
-            }
+                @Override
+                public void onAfter() {
+                    if (swipeRefresh != null)
+                        swipeRefresh.setRefreshing(false);
+                }
 
-            @Override
-            public void onFailure(Call<BillRecordListEntity> call, Throwable t) {
-                Logger.e("------>t = " + t.getMessage());
-                if (swipeRefresh != null)
-                    swipeRefresh.setRefreshing(false);
-            }
-        });
+                @Override
+                public void onFailure(Call<BillRecordListEntity> call, Throwable t) {
+                    if (swipeRefresh != null)
+                        swipeRefresh.setRefreshing(false);
+                }
+            });
+        }
     }
 
     private void showData(BillRecordListEntity.DataEntity dataEntity) {

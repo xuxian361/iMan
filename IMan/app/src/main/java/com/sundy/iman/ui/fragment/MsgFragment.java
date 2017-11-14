@@ -47,6 +47,7 @@ import com.hyphenate.easeui.widget.EaseImageView;
 import com.hyphenate.util.DateUtils;
 import com.hyphenate.util.NetUtils;
 import com.orhanobut.logger.Logger;
+import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.GetHomeListEntity;
@@ -64,7 +65,7 @@ import com.sundy.iman.ui.activity.AddCommunityActivity;
 import com.sundy.iman.ui.activity.ChatActivity;
 import com.sundy.iman.ui.activity.CommunityMsgListActivity;
 import com.sundy.iman.ui.activity.ContactInfoActivity;
-import com.sundy.iman.ui.activity.LastPostActivity;
+import com.sundy.iman.ui.activity.LatestPostActivity;
 import com.sundy.iman.ui.activity.NearbyPostActivity;
 import com.sundy.iman.utils.NetWorkUtils;
 import com.sundy.iman.utils.cache.CacheData;
@@ -273,7 +274,7 @@ public class MsgFragment extends BaseFragment {
 
     //跳转查看更多消息
     private void goMorePost() {
-        UIHelper.jump(mContext, LastPostActivity.class);
+        UIHelper.jump(mContext, LatestPostActivity.class);
     }
 
     private void setUpView() {
@@ -856,8 +857,12 @@ public class MsgFragment extends BaseFragment {
                 case R.id.tv_item_del:
                     Logger.e("----->删除Item");
                     //删除社区
-                    if (itemData != null) {
-                        showDeleteMsgDialog(itemData);
+                    if (NetWorkUtils.isNetAvailable(mContext)) {
+                        if (itemData != null) {
+                            showDeleteMsgDialog(itemData);
+                        }
+                    } else {
+                        MainApp.getInstance().showToast(getString(R.string.net_error_tips));
                     }
                     break;
                 case R.id.ll_item:
