@@ -16,7 +16,6 @@ import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
 import com.sundy.iman.entity.AppVersionEntity;
 import com.sundy.iman.entity.LogoutEntity;
-import com.sundy.iman.entity.StaticContentEntity;
 import com.sundy.iman.helper.ChatHelper;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
@@ -159,13 +158,13 @@ public class SettingsActivity extends BaseActivity {
                 goChangeLanguage();
                 break;
             case R.id.rel_term_of_use:
-                getStaticContent(Constants.TYPE_TERMS_OF_CONDITION);
+                goWebView(Constants.TYPE_TERMS_OF_CONDITION);
                 break;
             case R.id.rel_privacy:
-                getStaticContent(Constants.TYPE_PRIVACY);
+                goWebView(Constants.TYPE_PRIVACY);
                 break;
             case R.id.rel_contact_us:
-                getStaticContent(Constants.TYPE_CONTACT_US);
+                goWebView(Constants.TYPE_CONTACT_US);
                 break;
             case R.id.rel_version:
                 showUpdateDialog();
@@ -181,58 +180,10 @@ public class SettingsActivity extends BaseActivity {
         UIHelper.jump(this, ChangeLanguageActivity.class);
     }
 
-    //获取静态内容
-    private void getStaticContent(int type) { //类型:1-使用条款，2-隐私条例，3-联系我们
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("type", type + "");
-        Call<StaticContentEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getStaticContent(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<StaticContentEntity>() {
-            @Override
-            public void onSuccess(Call<StaticContentEntity> call, Response<StaticContentEntity> response) {
-                StaticContentEntity staticContentEntity = response.body();
-                if (staticContentEntity != null) {
-                    int code = staticContentEntity.getCode();
-                    if (code == Constants.CODE_SUCCESS) {
-                        StaticContentEntity.DataEntity dataEntity = staticContentEntity.getData();
-                        if (dataEntity != null) {
-                            goWebView(dataEntity);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<StaticContentEntity> call, Throwable t) {
-
-            }
-        });
-    }
-
     //跳转Web View显示H5
-    private void goWebView(StaticContentEntity.DataEntity dataEntity) {
-        String url = dataEntity.getUrl();
-        String title = "";
-        String type = dataEntity.getType(); //类型 1-​使用条款 ,2-隐私条 例,3-联系 我们
-        if (type.equals("1")) {
-            title = getString(R.string.terms_of_use);
-        } else if (type.equals("2")) {
-            title = getString(R.string.privacy);
-        } else if (type.equals("3")) {
-            title = getString(R.string.contact_us);
-        }
-        if (TextUtils.isEmpty(url))
-            return;
+    private void goWebView(int type) {
         Bundle bundle = new Bundle();
-        bundle.putString("url", url);
-        bundle.putString("title", title);
+        bundle.putInt("static_content_type", type);
         UIHelper.jump(this, WebActivity.class, bundle);
     }
 

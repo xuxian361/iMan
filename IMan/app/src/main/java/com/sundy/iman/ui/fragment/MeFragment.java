@@ -31,7 +31,6 @@ import com.sundy.iman.entity.JoinPromoteCommunityEntity;
 import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.ParseUrlEntity;
-import com.sundy.iman.entity.StaticContentEntity;
 import com.sundy.iman.helper.ImageHelper;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.net.ParamHelper;
@@ -574,54 +573,14 @@ public class MeFragment extends BaseFragment {
 
     //跳转Use of Imcoin
     private void goUseOfImcoin() {
-        getStaticContent(Constants.TYPE_USE_OF_IMCOIN);
-    }
-
-    //获取静态内容
-    private void getStaticContent(int type) {
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("type", type + "");
-        Call<StaticContentEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getStaticContent(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<StaticContentEntity>() {
-            @Override
-            public void onSuccess(Call<StaticContentEntity> call, Response<StaticContentEntity> response) {
-                StaticContentEntity staticContentEntity = response.body();
-                if (staticContentEntity != null) {
-                    int code = staticContentEntity.getCode();
-                    if (code == Constants.CODE_SUCCESS) {
-                        StaticContentEntity.DataEntity dataEntity = staticContentEntity.getData();
-                        if (dataEntity != null) {
-                            goWebView(dataEntity);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<StaticContentEntity> call, Throwable t) {
-
-            }
-        });
+        goWebView(Constants.TYPE_USE_OF_IMCOIN);
     }
 
     //跳转Web View显示H5
-    private void goWebView(StaticContentEntity.DataEntity dataEntity) {
-        String url = dataEntity.getUrl();
-        String title = getString(R.string.use_of_imcoin);
-        if (TextUtils.isEmpty(url))
-            return;
+    private void goWebView(int type) {
         Bundle bundle = new Bundle();
-        bundle.putString("url", url);
-        bundle.putString("title", title);
-        UIHelper.jump(getActivity(), WebActivity.class, bundle);
+        bundle.putInt("static_content_type", type);
+        UIHelper.jump(mContext, WebActivity.class, bundle);
     }
 
     //跳转My Imcoin

@@ -58,7 +58,6 @@ import com.sundy.iman.entity.MsgEvent;
 import com.sundy.iman.entity.QiNiuTokenItemEntity;
 import com.sundy.iman.entity.QiNiuTokenListEntity;
 import com.sundy.iman.entity.SelectMediaEntity;
-import com.sundy.iman.entity.StaticContentEntity;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
 import com.sundy.iman.net.ParamHelper;
@@ -693,7 +692,7 @@ public class CreateAdvertisementActivity extends BaseActivity {
                 goSelectTags();
                 break;
             case R.id.ll_how_get_imcoin:
-                getStaticContent(Constants.TYPE_HOW_GET_IMCOIN);
+                goWebView(Constants.TYPE_HOW_GET_IMCOIN);
                 break;
             case R.id.btn_confirm:
                 createAd();
@@ -764,50 +763,10 @@ public class CreateAdvertisementActivity extends BaseActivity {
         UIHelper.jump(this, SelectTagsActivity.class, bundle);
     }
 
-    //获取静态内容
-    private void getStaticContent(int type) { //类型:1-使用条款，2-隐私条例，3-联系我们, 4-How to get imcoin?
-        Map<String, String> param = new HashMap<>();
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("type", type + "");
-        Call<StaticContentEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getStaticContent(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<StaticContentEntity>() {
-            @Override
-            public void onSuccess(Call<StaticContentEntity> call, Response<StaticContentEntity> response) {
-                StaticContentEntity staticContentEntity = response.body();
-                if (staticContentEntity != null) {
-                    int code = staticContentEntity.getCode();
-                    if (code == Constants.CODE_SUCCESS) {
-                        StaticContentEntity.DataEntity dataEntity = staticContentEntity.getData();
-                        if (dataEntity != null) {
-                            goWebView(dataEntity);
-                        }
-                    }
-                }
-            }
-
-            @Override
-            public void onAfter() {
-
-            }
-
-            @Override
-            public void onFailure(Call<StaticContentEntity> call, Throwable t) {
-
-            }
-        });
-    }
-
     //跳转Web View显示H5
-    private void goWebView(StaticContentEntity.DataEntity dataEntity) {
-        String url = dataEntity.getUrl();
-        String title = getString(R.string.how_get_imcoin);
-        if (TextUtils.isEmpty(url))
-            return;
+    private void goWebView(int type) {
         Bundle bundle = new Bundle();
-        bundle.putString("url", url);
-        bundle.putString("title", title);
+        bundle.putInt("static_content_type", type);
         UIHelper.jump(this, WebActivity.class, bundle);
     }
 

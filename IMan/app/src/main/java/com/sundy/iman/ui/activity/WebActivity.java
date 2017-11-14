@@ -9,6 +9,7 @@ import android.net.http.SslError;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.ViewGroup;
 import android.webkit.SslErrorHandler;
@@ -20,12 +21,25 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
 import com.orhanobut.logger.Logger;
+import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
+import com.sundy.iman.config.Constants;
+import com.sundy.iman.entity.StaticContentEntity;
 import com.sundy.iman.interfaces.OnTitleBarClickListener;
+import com.sundy.iman.net.ParamHelper;
+import com.sundy.iman.net.RetrofitCallback;
+import com.sundy.iman.net.RetrofitHelper;
+import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.utils.NetWorkUtils;
 import com.sundy.iman.view.TitleBarView;
+
+import java.util.HashMap;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import retrofit2.Call;
+import retrofit2.Response;
 
 /**
  * 显示H5 网页
@@ -38,8 +52,7 @@ public class WebActivity extends BaseActivity {
     TitleBarView titleBar;
     @BindView(R.id.webView)
     WebView webView;
-    private String url;
-    private String title = "";
+    private int static_content_type;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,19 +63,33 @@ public class WebActivity extends BaseActivity {
         initData();
         initTitle();
         init();
+        getStaticContent(static_content_type);
     }
 
     private void initData() {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
-            url = bundle.containsKey("url") ? bundle.getString("url") : "";
-            title = bundle.containsKey("title") ? bundle.getString("title") : "";
+            static_content_type = bundle.getInt("static_content_type");
         }
-        Logger.i("-------->title = " + title);
-        Logger.i("-------->url = " + url);
+        Logger.i("-------->static_content_type = " + static_content_type);
     }
 
     private void initTitle() {
+        String title = "";
+        if (static_content_type == Constants.TYPE_HOW_GET_IMCOIN) {
+            title = getString(R.string.how_get_imcoin);
+        } else if (static_content_type == Constants.TYPE_PROMOTE_COMMUNITY_QUESTION) {
+            title = getString(R.string.specification);
+        } else if (static_content_type == Constants.TYPE_TERMS_OF_CONDITION) {
+            title = getString(R.string.terms_of_use);
+        } else if (static_content_type == Constants.TYPE_PRIVACY) {
+            title = getString(R.string.privacy);
+        } else if (static_content_type == Constants.TYPE_CONTACT_US) {
+            title = getString(R.string.contact_us);
+        } else if (static_content_type == Constants.TYPE_USE_OF_IMCOIN) {
+            title = getString(R.string.use_of_imcoin);
+        }
+
         titleBar.setBackMode(title);
         titleBar.setOnClickListener(new OnTitleBarClickListener() {
             @Override
@@ -178,7 +205,50 @@ public class WebActivity extends BaseActivity {
             }
         });
         webView.setWebChromeClient(new WebChromeClient());
-        webView.loadUrl(url);
+    }
+
+    //获取静态内容
+    private void getStaticContent(int type) { //类型:1-使用条款，2-隐私条例，3-联系我们, 4-How to get imcoin?
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
+        Map<String, String> param = new HashMap<>();
+        param.put("mid", PaperUtils.getMId());
+        param.put("session_key", PaperUtils.getSessionKey());
+        param.put("type", type + "");
+        Call<StaticContentEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                .getStaticContent(ParamHelper.formatData(param));
+        call.enqueue(new RetrofitCallback<StaticContentEntity>() {
+            @Override
+            public void onSuccess(Call<StaticContentEntity> call, Response<StaticContentEntity> response) {
+                StaticContentEntity staticContentEntity = response.body();
+                if (staticContentEntity != null) {
+                    int code = staticContentEntity.getCode();
+                    if (code == Constants.CODE_SUCCESS) {
+                        StaticContentEntity.DataEntity dataEntity = staticContentEntity.getData();
+                        if (dataEntity != null) {
+                            String url = dataEntity.getUrl();
+                            String title = getString(R.string.how_get_imcoin);
+                            if (TextUtils.isEmpty(url))
+                                return;
+                            webView.loadUrl(url);
+                        }
+                    }
+                }
+            }
+
+            @Override
+            public void onAfter() {
+
+            }
+
+            @Override
+            public void onFailure(Call<StaticContentEntity> call, Throwable t) {
+
+            }
+        });
     }
 
     public void sendEmail(String email) {
