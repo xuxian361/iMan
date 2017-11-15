@@ -365,6 +365,10 @@ public class CommunityMsgListActivity extends BaseActivity {
 
     //显示菜单Popup
     private void showMenuPopup() {
+        if (PaperUtils.isLogin())
+            communityMenuPopup.getQuitLayout().setVisibility(View.VISIBLE);
+        else
+            communityMenuPopup.getQuitLayout().setVisibility(View.GONE);
         communityMenuPopup.showAtLocation(llContent, Gravity.TOP | Gravity.CENTER_HORIZONTAL, 0, 0);
     }
 
@@ -378,7 +382,10 @@ public class CommunityMsgListActivity extends BaseActivity {
         @Override
         public void postClick() {
             communityMenuPopup.dismiss();
-            goAddPost();
+            if (PaperUtils.isLogin())
+                goAddPost();
+            else
+                goLogin();
         }
 
         @Override
@@ -920,7 +927,7 @@ public class CommunityMsgListActivity extends BaseActivity {
 
     //跳转登录
     private void goLogin() {
-        UIHelper.jump(this, LoginActivity.class);
+        UIHelper.login(this);
     }
 
     //获取分享信息

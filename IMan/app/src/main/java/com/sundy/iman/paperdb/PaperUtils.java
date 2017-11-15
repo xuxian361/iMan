@@ -8,7 +8,10 @@ import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.helper.LocaleHelper;
 import com.sundy.iman.utils.DeviceUtils;
 
+import java.util.ArrayList;
 import java.util.List;
+
+import io.paperdb.Paper;
 
 /**
  * Paper DB 工具类
@@ -131,5 +134,16 @@ public class PaperUtils {
     public static void clearPostReadRecord() {
         PostListInReadPaper.deleteAllPostReadIds();
     }
+
+    //保存用户第一次选择的标签（喜欢的标签）
+    public static void saveFavourTags(ArrayList<String> selectedTags) {
+        Paper.book().write("favour_tags", selectedTags);
+    }
+
+    //获取用户喜欢的标签
+    public static ArrayList<String> getFavourTags() {
+        return Paper.book().read("favour_tags");
+    }
+
 
 }

@@ -17,7 +17,8 @@
     <color name="bg_semi_light_gray">#efd2d2d2</color>
     <color name="txt_light_gray">#a6a6a7</color>
     <color name="txt_gray">#898a8b</color>
-    <color name="txt_normal">#555656</color>
+    <color name="txt_normal">#586382</color>
+    <!--<color name="txt_normal">#555656</color>-->
     <color name="txt_msg_content">#586382</color>
     <color name="txt_black">#000000</color>
     <color name="txt_dark">#202020</color>

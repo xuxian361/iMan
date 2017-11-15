@@ -235,6 +235,8 @@
     <string name="imcoin">熒光幣</string>
     <string name="resend_str">重發</string>
     <string name="confirm_resend_str">確認重發消息?</string>
+    <string name="login_account_2_hint">手機號碼 / 電子郵箱</string>
+    <string name="login_tips">*只支持中國大陸手機號碼，其他國家或地區請使用電子郵箱</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% 熒光幣將會送給用戶.

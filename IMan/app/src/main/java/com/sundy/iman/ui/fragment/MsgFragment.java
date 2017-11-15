@@ -69,6 +69,7 @@ import com.sundy.iman.ui.activity.LatestPostActivity;
 import com.sundy.iman.ui.activity.NearbyPostActivity;
 import com.sundy.iman.utils.NetWorkUtils;
 import com.sundy.iman.utils.cache.CacheData;
+import com.sundy.iman.view.WrapContentLinearLayoutManager;
 import com.sundy.iman.view.dialog.CommonDialog;
 import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
@@ -252,7 +253,7 @@ public class MsgFragment extends BaseFragment {
             }
         });
 
-        linearLayoutManager = new LinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
+        linearLayoutManager = new WrapContentLinearLayoutManager(mContext, LinearLayoutManager.VERTICAL, false);
         rvMsg.setLayoutManager(linearLayoutManager);
         conversationAdapter = new ConversationAdapter(R.layout.item_conversation, conversationList);
 

@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:orientation="vertical">
+
+    <RelativeLayout
+        android:id="@+id/rel_title_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/title_bar_height">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/login"
+            android:textColor="@color/txt_black"
+            android:textSize="16sp" />
+
+        <ImageView
+            android:id="@+id/btn_close"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="10dp"
+            android:scaleType="center"
+            android:src="@mipmap/icon_close" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:id="@+id/ll_front"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/rel_title_bar"
+        android:orientation="vertical">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="50dp">
+
+            <EditText
+                android:id="@+id/et_account"
+                style="@style/MyEditText"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/edt_height"
+                android:hint="@string/login_account_2_hint"
+                android:inputType="textEmailAddress"
+                android:textColor="@color/txt_black"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/tv_tips"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/et_account"
+                android:layout_marginLeft="12dp"
+                android:layout_marginRight="10dp"
+                android:text="@string/login_tips"
+                android:textColor="#94586382"
+                android:textSize="11sp" />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="20dp">
+
+            <EditText
+                android:id="@+id/et_code"
+                style="@style/MyEditText"
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/edt_height"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/btn_get_code"
+                android:hint="@string/verification_code"
+                android:inputType="number"
+                android:textColor="@color/txt_black"
+                android:textSize="16sp" />
+
+            <TextView
+                android:id="@+id/btn_get_code"
+                android:layout_width="wrap_content"
+                android:layout_height="25dp"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:background="@drawable/selector_btn_blue_gray"
+                android:gravity="center"
+                android:minWidth="70dp"
+                android:paddingLeft="10dp"
+                android:paddingRight="10dp"
+                android:text="@string/get_code"
+                android:textColor="@color/txt_white"
+                android:textSize="12sp" />
+
+        </RelativeLayout>
+
+        <TextView
+            android:id="@+id/btn_login"
+            android:layout_width="wrap_content"
+            android:layout_height="@dimen/button_height"
+            android:layout_gravity="center"
+            android:layout_marginTop="50dp"
+            android:background="@drawable/selector_btn_blue_gray"
+            android:gravity="center"
+            android:minWidth="@dimen/button_min_width"
+            android:text="@string/login"
+            android:textColor="@color/txt_white"
+            android:textSize="13sp" />
+
+    </LinearLayout>
+
+</RelativeLayout>

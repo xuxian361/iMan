@@ -28,7 +28,6 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.ui.activity.BaseActivity;
-import com.sundy.iman.ui.activity.LoginActivity;
 import com.sundy.iman.ui.activity.MainActivity;
 import com.sundy.iman.utils.DateUtils;
 import com.sundy.iman.view.CustomLoadMoreView;
@@ -287,7 +286,7 @@ public class GuideSelectCommunityActivity extends BaseActivity {
 
     //跳转登录
     private void goLogin() {
-        UIHelper.jump(this, LoginActivity.class);
+        UIHelper.login(this);
     }
 
     //跳转首页

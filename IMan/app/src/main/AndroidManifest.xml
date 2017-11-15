@@ -99,6 +99,11 @@
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustPan" />
         <activity
+            android:name=".ui.activity.LoginType2Activity"
+            android:launchMode="singleTop"
+            android:screenOrientation="portrait"
+            android:windowSoftInputMode="adjustPan" />
+        <activity
             android:name=".ui.activity.QRScannerActivity"
             android:launchMode="singleTop"
             android:screenOrientation="portrait" />

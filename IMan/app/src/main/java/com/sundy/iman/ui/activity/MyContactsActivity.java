@@ -39,6 +39,7 @@ import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
+import com.sundy.iman.view.WrapContentLinearLayoutManager;
 import com.sundy.iman.view.dialog.CommonDialog;
 
 import java.io.Serializable;
@@ -96,7 +97,7 @@ public class MyContactsActivity extends BaseActivity {
     private void init() {
         etSearch.addTextChangedListener(textWatcher);
 
-        rvContact.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        rvContact.setLayoutManager(new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
         rvContact.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
         contactAdapter = new ContactAdapter(R.layout.item_contact, listContact);

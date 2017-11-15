@@ -791,7 +791,7 @@ public class NearbyPostActivity extends BaseActivity {
 
     //跳转登录
     private void goLogin() {
-        UIHelper.jump(this, LoginActivity.class);
+        UIHelper.login(this);
     }
 
     //获取分享信息

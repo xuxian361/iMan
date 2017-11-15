@@ -234,9 +234,15 @@ public class GuideSelectTagsActivity extends BaseActivity {
                 goMain();
                 break;
             case R.id.tv_next:
+                saveTags();
                 goSelectCommunity();
                 break;
         }
+    }
+
+    //保存选择的标签
+    private void saveTags() {
+        PaperUtils.saveFavourTags(selectedTags);
     }
 
     //跳转选择社区列表

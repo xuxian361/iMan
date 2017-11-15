@@ -234,6 +234,8 @@
     <string name="imcoin">荧光币</string>
     <string name="resend_str">重发</string>
     <string name="confirm_resend_str">确认重发消息?</string>
+    <string name="login_account_2_hint">手机号码 / 邮箱</string>
+    <string name="login_tips">*只支持中国大陆手机号码，其他国家或地区请使用电子邮箱</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% 荧光币将会送给用户.

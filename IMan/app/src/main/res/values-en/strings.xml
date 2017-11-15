@@ -235,6 +235,8 @@
     <string name="imcoin">imcoin</string>
     <string name="resend_str">Resend</string>
     <string name="confirm_resend_str">Confirm to resend?</string>
+    <string name="login_account_2_hint">Mobile number / Email</string>
+    <string name="login_tips">*Only support mobile phone numbers in mainland China, other countries or regions, please use the e-mail.</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

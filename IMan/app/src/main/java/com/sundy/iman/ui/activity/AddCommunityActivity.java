@@ -178,15 +178,43 @@ public class AddCommunityActivity extends BaseActivity {
     //获取社区列表
     private void getCommunityList() {
         Map<String, String> param = new HashMap<>();
-        param.put("type", "1"); //1-全部社区, 2-我的社区, 3-发布广告的社区搜索, 4-加入推广社区搜索，5-我的推广社区
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("keyword", keyword);
-        param.put("tags", "");
-        param.put("province", "");
-        param.put("city", "");
-        param.put("page", page + ""); //当前页码
-        param.put("perpage", perpage + ""); //每页显示条数
+        if (keyword.length() == 0) {
+            ArrayList<String> selectedTags = PaperUtils.getFavourTags();
+            String tags = "";
+            if (selectedTags != null && selectedTags.size() > 0) {
+                for (int i = 0; i < selectedTags.size(); i++) {
+                    String tag = selectedTags.get(i);
+                    if (!TextUtils.isEmpty(tag)) {
+                        if (i == selectedTags.size() - 1) {
+                            tags = tags + tag;
+                        } else {
+                            tags = tags + tag + ",";
+                        }
+                    }
+                }
+            }
+
+            param.put("type", "5"); //1-全部社区, 2-我的社区, 3-发布广告的社区搜索, 4-加入推广社区搜索，5-推荐社区
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("keyword", "");
+            param.put("tags", tags);
+            param.put("province", "");
+            param.put("city", "");
+            param.put("page", page + ""); //当前页码
+            param.put("perpage", perpage + ""); //每页显示条数
+        } else {
+            param.put("type", "1"); //1-全部社区, 2-我的社区, 3-发布广告的社区搜索, 4-加入推广社区搜索，5-推荐社区
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("keyword", keyword);
+            param.put("tags", "");
+            param.put("province", "");
+            param.put("city", "");
+            param.put("page", page + ""); //当前页码
+            param.put("perpage", perpage + ""); //每页显示条数
+        }
+
         Call<CommunityListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                 .getCommunityList(ParamHelper.formatData(param));
         call.enqueue(new RetrofitCallback<CommunityListEntity>() {
@@ -382,7 +410,7 @@ public class AddCommunityActivity extends BaseActivity {
 
     //跳转登陆
     private void goLogin() {
-        UIHelper.jump(this, LoginActivity.class);
+        UIHelper.login(this);
     }
 
     //加入社区

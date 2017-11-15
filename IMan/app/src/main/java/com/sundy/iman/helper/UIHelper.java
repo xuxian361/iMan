@@ -6,6 +6,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 
+import com.sundy.iman.ui.activity.LoginType2Activity;
+
 /**
  * Created by sundy on 17/9/21.
  */
@@ -58,5 +60,12 @@ public class UIHelper {
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         context.startActivity(intent);
     }
+
+    //Login 登陆
+    public static void login(Activity context) {
+//        jump(context, LoginActivity.class);
+        jump(context, LoginType2Activity.class);
+    }
+
 
 }

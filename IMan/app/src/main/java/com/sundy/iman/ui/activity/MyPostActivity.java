@@ -154,7 +154,7 @@ public class MyPostActivity extends BaseActivity {
     private void getPostList() {
         PostListEntity.DataEntity dataEntity = CacheData.getInstance().getMyPostList(page);
         if (dataEntity != null) {
-            showData(dataEntity.getList());
+            showCacheData(dataEntity.getList());
         }
 
         if (NetWorkUtils.isNetAvailable(this)) {
@@ -177,8 +177,20 @@ public class MyPostActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             PostListEntity.DataEntity dataEntity = postListEntity.getData();
                             if (dataEntity != null) {
-                                CacheData.getInstance().saveMyPostList(dataEntity, page);
-                                showData(dataEntity.getList());
+                                String total = dataEntity.getTotal();
+                                if ("0".equals(total)) {
+                                    canLoadMore = false;
+                                    myPostAdapter.loadMoreEnd();
+
+                                    llNullTips.setVisibility(View.VISIBLE);
+                                    rvPost.setVisibility(View.GONE);
+                                } else {
+                                    llNullTips.setVisibility(View.GONE);
+                                    rvPost.setVisibility(View.VISIBLE);
+
+                                    CacheData.getInstance().saveMyPostList(dataEntity, page);
+                                    showData(dataEntity.getList());
+                                }
                             }
                         }
                     }
@@ -202,36 +214,38 @@ public class MyPostActivity extends BaseActivity {
         }
     }
 
+    private void showCacheData(List<PostItemEntity> listData) {
+        try {
+            for (int i = 0; i < listData.size(); i++) {
+                PostItemEntity item = listData.get(i);
+                if (item != null) {
+                    listPost.add(item);
+                }
+            }
+            myPostAdapter.setNewData(listPost);
+            myPostAdapter.notifyDataSetChanged();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     private void showData(List<PostItemEntity> listData) {
         try {
-            if (listData.size() == 0 && page == 1) {
+            if (listData.size() < perpage) {
                 canLoadMore = false;
                 myPostAdapter.loadMoreEnd();
-
-                llNullTips.setVisibility(View.VISIBLE);
-                rvPost.setVisibility(View.GONE);
-
             } else {
-                llNullTips.setVisibility(View.GONE);
-                rvPost.setVisibility(View.VISIBLE);
-
-                if (listData.size() == 0) {
-                    canLoadMore = false;
-                    myPostAdapter.loadMoreEnd();
-                } else {
-                    page = page + 1;
-                    canLoadMore = true;
-                    myPostAdapter.loadMoreComplete();
-                    for (int i = 0; i < listData.size(); i++) {
-                        PostItemEntity item = listData.get(i);
-                        if (item != null) {
-                            listPost.add(item);
-                        }
+                page = page + 1;
+                canLoadMore = true;
+                myPostAdapter.loadMoreComplete();
+                for (int i = 0; i < listData.size(); i++) {
+                    PostItemEntity item = listData.get(i);
+                    if (item != null) {
+                        listPost.add(item);
                     }
-                    myPostAdapter.setNewData(listPost);
-                    myPostAdapter.notifyDataSetChanged();
                 }
-
+                myPostAdapter.setNewData(listPost);
+                myPostAdapter.notifyDataSetChanged();
             }
         } catch (Exception e) {
             e.printStackTrace();

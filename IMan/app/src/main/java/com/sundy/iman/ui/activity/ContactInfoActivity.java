@@ -300,7 +300,7 @@ public class ContactInfoActivity extends BaseActivity {
 
     //跳转登录
     private void goLogin() {
-        UIHelper.jump(this, LoginActivity.class);
+        UIHelper.login(this);
     }
 
     @OnClick({R.id.btn_chat, R.id.btn_add_contact})

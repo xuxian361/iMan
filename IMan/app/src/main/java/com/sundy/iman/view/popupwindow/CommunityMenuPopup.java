@@ -20,6 +20,11 @@ public class CommunityMenuPopup extends PopupWindow implements View.OnClickListe
     private Context mContext;
     private View view;
 
+    private LinearLayout ll_post_msg;
+    private LinearLayout ll_community_info;
+    private LinearLayout ll_share_community;
+    private LinearLayout ll_quit_community;
+
     public CommunityMenuPopup(Context context) {
         super(context);
         this.mContext = context;
@@ -31,10 +36,10 @@ public class CommunityMenuPopup extends PopupWindow implements View.OnClickListe
         view = LayoutInflater.from(mContext).inflate(R.layout.popup_community_menu, null);
 
         ImageView iv_close = (ImageView) view.findViewById(R.id.iv_close);
-        LinearLayout ll_post_msg = (LinearLayout) view.findViewById(R.id.ll_post_msg);
-        LinearLayout ll_community_info = (LinearLayout) view.findViewById(R.id.ll_community_info);
-        LinearLayout ll_share_community = (LinearLayout) view.findViewById(R.id.ll_share_community);
-        LinearLayout ll_quit_community = (LinearLayout) view.findViewById(R.id.ll_quit_community);
+        ll_post_msg = (LinearLayout) view.findViewById(R.id.ll_post_msg);
+        ll_community_info = (LinearLayout) view.findViewById(R.id.ll_community_info);
+        ll_share_community = (LinearLayout) view.findViewById(R.id.ll_share_community);
+        ll_quit_community = (LinearLayout) view.findViewById(R.id.ll_quit_community);
 
         iv_close.setOnClickListener(this);
         ll_post_msg.setOnClickListener(this);
@@ -53,6 +58,10 @@ public class CommunityMenuPopup extends PopupWindow implements View.OnClickListe
         this.setWidth(WindowManager.LayoutParams.MATCH_PARENT);
         this.setHeight(WindowManager.LayoutParams.WRAP_CONTENT);
         this.setAnimationStyle(R.style.popWindow_anim_style_top_in_out);
+    }
+
+    public View getQuitLayout() {
+        return ll_quit_community;
     }
 
     @Override

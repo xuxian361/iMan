@@ -41,7 +41,6 @@ import com.sundy.iman.ui.activity.CommunityMsgListActivity;
 import com.sundy.iman.ui.activity.CreateAdvertisementActivity;
 import com.sundy.iman.ui.activity.CreateCommunityActivity;
 import com.sundy.iman.ui.activity.EditProfileActivity;
-import com.sundy.iman.ui.activity.LoginActivity;
 import com.sundy.iman.ui.activity.MyContactsActivity;
 import com.sundy.iman.ui.activity.MyImcoinActivity;
 import com.sundy.iman.ui.activity.MyPostActivity;
@@ -603,7 +602,7 @@ public class MeFragment extends BaseFragment {
 
     //跳转登陆
     private void goLogin() {
-        UIHelper.jump(mContext, LoginActivity.class);
+        UIHelper.login(mContext);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

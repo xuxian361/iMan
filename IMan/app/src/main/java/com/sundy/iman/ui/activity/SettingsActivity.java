@@ -229,7 +229,7 @@ public class SettingsActivity extends BaseActivity {
         if (PaperUtils.isLogin()) {
             UIHelper.jump(this, SetTransferPwdActivity.class);
         } else {
-            UIHelper.jump(this, LoginActivity.class);
+            UIHelper.login(this);
         }
     }
 
@@ -287,7 +287,7 @@ public class SettingsActivity extends BaseActivity {
 
     //跳转登录
     private void goLogin() {
-        UIHelper.jump(this, LoginActivity.class);
+        UIHelper.login(this);
     }
 
 }
