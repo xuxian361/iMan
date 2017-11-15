@@ -42,6 +42,8 @@ import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
 import com.sundy.iman.view.dialog.CommonDialog;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;

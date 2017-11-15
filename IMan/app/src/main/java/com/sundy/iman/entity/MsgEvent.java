@@ -73,7 +73,8 @@ public class MsgEvent {
     public static final String EVENT_UPDATE_UNREAD_MSG_COUNT = "Event_update_unread_msg_count";
     //发送Imcoin 成功
     public static final String EVENT_SEND_IMCOIN_SUCCESS = "Event_send_imcoin_success";
-
+    //更新社区消息列表
+    public static final String EVENT_REFRESH_COMMUNITY_MSG_LIST = "Event_refresh_community_msg_list";
 
 
 }

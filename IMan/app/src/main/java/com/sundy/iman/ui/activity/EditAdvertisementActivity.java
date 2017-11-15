@@ -1151,6 +1151,7 @@ public class EditAdvertisementActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
+                UIHelper.jump(EditAdvertisementActivity.this, MainActivity.class);
                 finish();
             }
         });

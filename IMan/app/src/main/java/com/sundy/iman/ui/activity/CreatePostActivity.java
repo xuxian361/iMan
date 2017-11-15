@@ -939,9 +939,17 @@ public class CreatePostActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
+                sendRefreshMsg();
                 finish();
             }
         });
+    }
+
+    //发送刷新社区消息列表Event
+    private void sendRefreshMsg() {
+        MsgEvent msgEvent = new MsgEvent();
+        msgEvent.setMsg(MsgEvent.EVENT_REFRESH_COMMUNITY_MSG_LIST);
+        EventBus.getDefault().post(msgEvent);
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

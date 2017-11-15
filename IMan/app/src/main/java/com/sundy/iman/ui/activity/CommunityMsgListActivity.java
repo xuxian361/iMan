@@ -75,6 +75,8 @@ import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
 
 import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -143,6 +145,8 @@ public class CommunityMsgListActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.act_community_msg_list);
         ButterKnife.bind(this);
+
+        EventBus.getDefault().register(this);
 
         initData();
         initTitle();
@@ -1346,9 +1350,27 @@ public class CommunityMsgListActivity extends BaseActivity {
         GSYVideoManager.onResume();
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void onEventMainThread(MsgEvent event) {
+        if (event != null) {
+            String msg = event.getMsg();
+            switch (msg) {
+                case MsgEvent.EVENT_REFRESH_COMMUNITY_MSG_LIST:
+                    Logger.e("----->刷新社区消息");
+                    page = 1;
+                    if (listPost != null)
+                        listPost.clear();
+                    myPostAdapter.notifyDataSetChanged();
+                    getPostList();
+                    break;
+            }
+        }
+    }
+
     @Override
     protected void onDestroy() {
         super.onDestroy();
+        EventBus.getDefault().unregister(this);
         if (communityMenuPopup != null) {
             communityMenuPopup.dismiss();
             communityMenuPopup = null;
