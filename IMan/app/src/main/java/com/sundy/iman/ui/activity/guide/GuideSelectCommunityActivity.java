@@ -117,7 +117,7 @@ public class GuideSelectCommunityActivity extends BaseActivity {
         }
 
         Map<String, String> param = new HashMap<>();
-        param.put("type", "1"); //1-全部社区, 2-我的社区, 3-发布广告的社区搜索, 4-加入推广社区搜索，5-我的推广社区
+        param.put("type", "5"); //1-全部社区, 2-我的社区, 3-发布广告的社区搜索, 4-加入推广社区搜索，5-我的推荐社区
         param.put("mid", PaperUtils.getMId());
         param.put("session_key", PaperUtils.getSessionKey());
         param.put("keyword", "");
