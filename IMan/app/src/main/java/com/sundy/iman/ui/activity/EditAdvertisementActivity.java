@@ -500,6 +500,10 @@ public class EditAdvertisementActivity extends BaseActivity {
 
     //获取文件权限
     private void getFilePermission() {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
         AndPermission.with(this)
                 .requestCode(REQUEST_CODE_PERMISSION_PHOTO)
                 .permission(Permission.STORAGE, Permission.CAMERA)
@@ -1002,6 +1006,11 @@ public class EditAdvertisementActivity extends BaseActivity {
 
     //创建广告
     private void createAd() {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
         String title = etSubject.getText().toString().trim();
         String detail = etDetail.getText().toString().trim();
 

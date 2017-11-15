@@ -43,6 +43,7 @@
             android:layout_toLeftOf="@+id/iv_location"
             android:layout_toRightOf="@+id/tv_location_title"
             android:gravity="right"
+            android:hint="@string/please_choose"
             android:textColor="@color/txt_black"
             android:textSize="12sp" />
 

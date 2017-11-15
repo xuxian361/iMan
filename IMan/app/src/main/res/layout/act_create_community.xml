@@ -199,6 +199,7 @@
                     android:layout_toLeftOf="@+id/iv_location"
                     android:gravity="center"
                     android:maxLines="1"
+                    android:singleLine="true"
                     android:hint="@string/please_choose"
                     android:textColor="@color/txt_black"
                     android:textSize="13sp" />

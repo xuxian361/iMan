@@ -608,6 +608,10 @@ public class NearbyPostActivity extends BaseActivity {
                                     @Override
                                     public void deleteClick() {
                                         postItemMenuSelfPopup.dismiss();
+                                        if (!NetWorkUtils.isNetAvailable(NearbyPostActivity.this)) {
+                                            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+                                            return;
+                                        }
                                         showDeleteDialog(itemData);
                                     }
 
@@ -635,7 +639,6 @@ public class NearbyPostActivity extends BaseActivity {
                                         Logger.e("----->分享");
                                         postItemMenuPopup.dismiss();
                                         getShareInfo(1, post_id, creator_id, shareType);
-
                                     }
                                 });
                                 postItemMenuPopup.showPopup(iv_more);
@@ -793,6 +796,11 @@ public class NearbyPostActivity extends BaseActivity {
 
     //获取分享信息
     private void getShareInfo(int type, String post_id, String creator_id, final int shareType) {
+        if (!NetWorkUtils.isNetAvailable(NearbyPostActivity.this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
         Map<String, String> param = new HashMap<>();
         param.put("mid", PaperUtils.getMId());
         param.put("session_key", PaperUtils.getSessionKey());
@@ -969,6 +977,11 @@ public class NearbyPostActivity extends BaseActivity {
 
     //领取广告奖励
     private void collectAdvertising(final PostAdapter.ItemData itemData) {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
         final NearbyPostItemEntity postItemEntity = itemData.getItem();
         if (postItemEntity != null) {
             //来源

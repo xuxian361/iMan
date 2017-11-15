@@ -30,6 +30,7 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
+import com.sundy.iman.utils.NetWorkUtils;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
@@ -286,6 +287,11 @@ public class JoinPromoteCommunityActivity extends BaseActivity {
 
     //加入推广社区
     private void joinPromoteCommunity(final int position, final CommunityItemEntity item) {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
         Map<String, String> param = new HashMap<>();
         param.put("mid", PaperUtils.getMId());
         param.put("session_key", PaperUtils.getSessionKey());

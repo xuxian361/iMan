@@ -18,6 +18,7 @@ import com.sundy.iman.net.ParamHelper;
 import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
+import com.sundy.iman.utils.NetWorkUtils;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.dialog.CommonDialog;
 
@@ -143,6 +144,11 @@ public class ReportPostActivity extends BaseActivity {
 
     //举报Post
     private void reportPost() {
+        if (!NetWorkUtils.isNetAvailable(this)) {
+            MainApp.getInstance().showToast(getString(R.string.network_not_available));
+            return;
+        }
+
         String email = etEmail.getText().toString().trim();
         String content = etContent.getText().toString().trim();
 
