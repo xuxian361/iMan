@@ -233,6 +233,8 @@
     <string name="video_size_more_than_50">The selected video file can not be larger than 50MB!</string>
     <string name="input_pay_pwd">Enter payment password</string>
     <string name="imcoin">imcoin</string>
+    <string name="resend_str">Resend</string>
+    <string name="confirm_resend_str">Confirm to resend?</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

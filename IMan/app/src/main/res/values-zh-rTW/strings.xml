@@ -233,6 +233,8 @@
     <string name="video_size_more_than_50">所選的視頻文件不能大於100MB!</string>
     <string name="input_pay_pwd">請輸入支付密碼</string>
     <string name="imcoin">熒光幣</string>
+    <string name="resend_str">重發</string>
+    <string name="confirm_resend_str">確認重發消息?</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% 熒光幣將會送給用戶.

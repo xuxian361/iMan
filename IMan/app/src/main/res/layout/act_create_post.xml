@@ -63,7 +63,7 @@
                 android:layout_marginLeft="@dimen/layout_margin_size"
                 android:layout_marginRight="@dimen/layout_margin_size"
                 android:layout_marginTop="10dp"
-                android:background="@drawable/corner_bg_edit_gray_stroke"
+                android:background="@drawable/ease_corner_bg_edit_gray_stroke"
                 android:padding="5dp"
                 android:visibility="visible">
 
