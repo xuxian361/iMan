@@ -13,10 +13,11 @@ import com.sundy.iman.entity.LastPostListEntity;
 import com.sundy.iman.entity.MemberInfoEntity;
 import com.sundy.iman.entity.MyPromoteCommunityListEntity;
 import com.sundy.iman.entity.NearbyPostListEntity;
-import com.sundy.iman.entity.PostListEntity;
 import com.sundy.iman.entity.TagListEntity;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.FileUtils;
+import com.sundy.iman.utils.cache.beans.CommunityPostListCacheBean;
+import com.sundy.iman.utils.cache.beans.MyPostListCacheBean;
 
 import java.io.File;
 
@@ -128,23 +129,19 @@ public class CacheData {
      * 保存社区消息列表
      *
      * @param community_id 社区ID
-     * @param dataEntity   每一页数据
-     * @param curPage      当前页
      */
-    public void saveCommunityPostList(String community_id, PostListEntity.DataEntity dataEntity, int curPage) {
-        mCacheUtils.put(userId + "_" + Apis.URL_POST_LIST + "_" + community_id + "_" + curPage, dataEntity);
+    public void saveCommunityPostList(String community_id, CommunityPostListCacheBean cacheBean) {
+        mCacheUtils.put(userId + "_" + Apis.URL_POST_LIST + "_" + community_id, cacheBean);
     }
 
     /**
      * 获取社区消息列表
      *
      * @param community_id
-     * @param curPage
      * @return
      */
-    public PostListEntity.DataEntity getCommunityPostList(String community_id, int curPage) {
-        return (PostListEntity.DataEntity) mCacheUtils.getSerializable(userId + "_" +
-                Apis.URL_POST_LIST + "_" + community_id + "_" + curPage);
+    public CommunityPostListCacheBean getCommunityPostList(String community_id) {
+        return (CommunityPostListCacheBean) mCacheUtils.getSerializable(userId + "_" + Apis.URL_POST_LIST + "_" + community_id);
     }
 
     /**
@@ -275,23 +272,25 @@ public class CacheData {
 
     /**
      * 保存我的Post 列表
-     *
-     * @param dataEntity 每页的数据
-     * @param curPage    当前页
      */
-    public void saveMyPostList(PostListEntity.DataEntity dataEntity, int curPage) {
-        mCacheUtils.put(userId + "_" + Apis.URL_POST_LIST + "_" + curPage, dataEntity);
+    public void saveMyPostList(MyPostListCacheBean bean) {
+        mCacheUtils.put(userId + "_" + Apis.URL_POST_LIST, bean);
+    }
+
+    /**
+     * 清除我的Post 列表
+     */
+    public boolean removeMyPostList() {
+        return mCacheUtils.remove(userId + "_" + Apis.URL_POST_LIST);
     }
 
     /**
      * 获取我的Post 列表
      *
-     * @param curPage 当前页
      * @return
      */
-    public PostListEntity.DataEntity getMyPostList(int curPage) {
-        return (PostListEntity.DataEntity) mCacheUtils.getSerializable(userId + "_" +
-                Apis.URL_POST_LIST + "_" + curPage);
+    public MyPostListCacheBean getMyPostList() {
+        return (MyPostListCacheBean) mCacheUtils.getSerializable(userId + "_" + Apis.URL_POST_LIST);
     }
 
     /**

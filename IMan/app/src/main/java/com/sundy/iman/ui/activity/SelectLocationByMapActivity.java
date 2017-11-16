@@ -123,37 +123,48 @@ public class SelectLocationByMapActivity extends BaseActivity {
         }
 
         @Override
-        public void onCameraChangeFinish(CameraPosition cameraPosition) {
+        public void onCameraChangeFinish(final CameraPosition cameraPosition) {
             Logger.e("---->lat = " + cameraPosition.target.latitude);
             Logger.e("---->lng = " + cameraPosition.target.longitude);
-            try {
-                List<Address> locationList = geocoder.getFromLocation(cameraPosition.target.latitude, cameraPosition.target.longitude, 1);
-                Logger.e("---->size =" + locationList.size());
-                if (locationList != null && locationList.size() > 0) {
-                    Address address = locationList.get(0);
-                    if (address != null) {
-                        String country = address.getCountryName();
-                        String province = address.getAdminArea();
-                        String city = address.getLocality();
-                        String district = address.getSubLocality();
-                        String addressStr = country + " " + province + " " + city + " " + district + " " + address.getFeatureName();
-                        Logger.e("----->国家 = " + country);
-                        Logger.e("----->省份 = " + province);
-                        Logger.e("----->城市 = " + city);
-                        Logger.e("----->区域 = " + district);
-                        Logger.e("----->门牌号 = " + addressStr);
+            boolean isPresent = geocoder.isPresent();
+            if (isPresent) {
+                Logger.e("---->可以获取地址 ");
+                new Thread(new Runnable() {
+                    @Override
+                    public void run() {
+                        try {
+                            List<Address> locationList = geocoder.getFromLocation(cameraPosition.target.latitude, cameraPosition.target.longitude, 3);
+                            Logger.e("---->size =" + locationList.size());
+                            if (locationList != null && locationList.size() > 0) {
+                                Address address = locationList.get(0);
+                                if (address != null) {
+                                    String country = address.getCountryName();
+                                    String province = address.getAdminArea();
+                                    String city = address.getLocality();
+                                    String district = address.getSubLocality();
+                                    String addressStr = country + " " + province + " " + city + " " + district + " " + address.getFeatureName();
+                                    Logger.e("----->国家 = " + country);
+                                    Logger.e("----->省份 = " + province);
+                                    Logger.e("----->城市 = " + city);
+                                    Logger.e("----->区域 = " + district);
+                                    Logger.e("----->门牌号 = " + addressStr);
 
-                        locationEntity.setCountry(address.getCountryName());
-                        locationEntity.setProvince(address.getAdminArea());
-                        locationEntity.setCity(address.getLocality());
-                        locationEntity.setDistrict(address.getSubLocality());
-                        locationEntity.setAddress(addressStr);
-                        locationEntity.setLat(address.getLatitude());
-                        locationEntity.setLng(address.getLongitude());
+                                    locationEntity.setCountry(address.getCountryName());
+                                    locationEntity.setProvince(address.getAdminArea());
+                                    locationEntity.setCity(address.getLocality());
+                                    locationEntity.setDistrict(address.getSubLocality());
+                                    locationEntity.setAddress(addressStr);
+                                    locationEntity.setLat(address.getLatitude());
+                                    locationEntity.setLng(address.getLongitude());
+                                }
+                            }
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+                }).start();
+            } else {
+                Logger.e("---->不可以获取地址 ");
             }
         }
     };

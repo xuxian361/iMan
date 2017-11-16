@@ -54,6 +54,8 @@ public class ChatHelper {
             emOptions = new EMOptions();
             emOptions.setAutoLogin(true);
             emOptions.setAcceptInvitationAlways(false);
+            emOptions.setRequireAck(false);
+            emOptions.setRequireDeliveryAck(false);
         }
         return emOptions;
     }
@@ -188,7 +190,7 @@ public class ChatHelper {
             @Override
             public int getSmallIcon(EMMessage message) {
                 //you can update icon here
-                return 0;
+                return R.mipmap.ic_launcher;
             }
 
             @Override

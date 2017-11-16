@@ -36,6 +36,7 @@ import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
 import com.sundy.iman.utils.NetWorkUtils;
 import com.sundy.iman.utils.cache.CacheData;
+import com.sundy.iman.utils.cache.beans.MyPostListCacheBean;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
@@ -45,6 +46,7 @@ import com.yanzhenjie.permission.AndPermission;
 import com.yanzhenjie.permission.Permission;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -77,8 +79,10 @@ public class MyPostActivity extends BaseActivity {
     private int page = 1; //当前页码
     private int perpage = 10; //每页显示条数
     private boolean canLoadMore = true;
+    private List<PostItemEntity> listPost = new ArrayList<>();
     private MyPostAdapter myPostAdapter;
     private WrapContentLinearLayoutManager linearLayoutManager;
+    private MyPostListCacheBean myPostListCacheBean = new MyPostListCacheBean();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -88,6 +92,11 @@ public class MyPostActivity extends BaseActivity {
 
         initTitle();
         init();
+
+        getPostListCacheData();
+        page = 1;
+        if (listPost != null)
+            listPost.clear();
         getPostList();
     }
 
@@ -111,9 +120,10 @@ public class MyPostActivity extends BaseActivity {
 
         myPostAdapter = new MyPostAdapter(R.layout.item_my_post);
         myPostAdapter.setLoadMoreView(new CustomLoadMoreView());
-        myPostAdapter.setEnableLoadMore(true);
+        myPostAdapter.setPreLoadNumber(perpage);
         myPostAdapter.setOnLoadMoreListener(onLoadMoreListener, rvPost);
         rvPost.setAdapter(myPostAdapter);
+
         rvPost.addOnScrollListener(onScrollListener);
     }
 
@@ -147,6 +157,17 @@ public class MyPostActivity extends BaseActivity {
         });
     }
 
+    //获取post列表缓存
+    private void getPostListCacheData() {
+        boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+        if (hasPermission) {
+            MyPostListCacheBean myPostListCacheBean = CacheData.getInstance().getMyPostList();
+            if (myPostListCacheBean != null) {
+                showCacheData(myPostListCacheBean.getList());
+            }
+        }
+    }
+
     //获取post列表
     private void getPostList() {
         if (NetWorkUtils.isNetAvailable(this)) {
@@ -169,23 +190,7 @@ public class MyPostActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             PostListEntity.DataEntity dataEntity = postListEntity.getData();
                             if (dataEntity != null) {
-                                String total = dataEntity.getTotal();
-                                if ("0".equals(total)) {
-                                    canLoadMore = false;
-                                    myPostAdapter.loadMoreEnd();
-
-                                    llNullTips.setVisibility(View.VISIBLE);
-                                    rvPost.setVisibility(View.GONE);
-                                } else {
-                                    llNullTips.setVisibility(View.GONE);
-                                    rvPost.setVisibility(View.VISIBLE);
-
-                                    final boolean hasPermission = AndPermission.hasPermission(MyPostActivity.this, Permission.STORAGE);
-                                    if (hasPermission) {
-                                        CacheData.getInstance().saveMyPostList(dataEntity, page);
-                                    }
-                                    showData(dataEntity.getList());
-                                }
+                                showData(dataEntity.getList());
                             }
                         }
                     }
@@ -206,46 +211,62 @@ public class MyPostActivity extends BaseActivity {
         } else {
             if (swipeRefresh != null)
                 swipeRefresh.setRefreshing(false);
+            myPostAdapter.loadMoreEnd();
         }
     }
 
-    //获取缓存数据
-    private void getPostCacheData(int page) {
-        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
-        if (hasPermission) {
-            PostListEntity.DataEntity dataEntity = CacheData.getInstance().getMyPostList(page);
-            if (dataEntity != null) {
-                try {
-                    List<PostItemEntity> listData = dataEntity.getList();
-                    for (int i = 0; i < listData.size(); i++) {
-                        PostItemEntity item = listData.get(i);
-                        if (item != null) {
-                            myPostAdapter.addData(item);
-                        }
-                    }
-                    myPostAdapter.notifyDataSetChanged();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
+    private void showCacheData(List<PostItemEntity> listData) {
+        if (listData != null && listData.size() > 0) {
+            Logger.e("----->获取缓存数据 size = " + listData.size());
+            llNullTips.setVisibility(View.GONE);
+            rvPost.setVisibility(View.VISIBLE);
+
+            myPostAdapter.setNewData(listData);
+            myPostAdapter.notifyDataSetChanged();
         }
     }
 
     private void showData(List<PostItemEntity> listData) {
         try {
-            if (listData.size() < perpage) {
+            if (listData.size() == 0 && page == 1) {
                 canLoadMore = false;
                 myPostAdapter.loadMoreEnd();
+
+                llNullTips.setVisibility(View.VISIBLE);
+                rvPost.setVisibility(View.GONE);
+
             } else {
-                page = page + 1;
-                canLoadMore = true;
-                myPostAdapter.loadMoreComplete();
+                llNullTips.setVisibility(View.GONE);
+                rvPost.setVisibility(View.VISIBLE);
+
+                if (listData.size() < perpage) {
+                    canLoadMore = false;
+                    myPostAdapter.loadMoreEnd();
+                } else {
+                    page = page + 1;
+                    canLoadMore = true;
+                    myPostAdapter.loadMoreComplete();
+                }
+
                 for (int i = 0; i < listData.size(); i++) {
                     PostItemEntity item = listData.get(i);
                     if (item != null) {
-                        myPostAdapter.addData(item);
+                        listPost.add(item);
                     }
                 }
+                boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+                if (hasPermission) {
+                    boolean removeOk = CacheData.getInstance().removeMyPostList();
+                    if (removeOk) {
+                        Logger.e("----->已移除消息列表数据");
+                        if (myPostListCacheBean != null) {
+                            myPostListCacheBean.setList(listPost);
+                            Logger.e("----->保存消息列表数据");
+                            CacheData.getInstance().saveMyPostList(myPostListCacheBean);
+                        }
+                    }
+                }
+                myPostAdapter.setNewData(listPost);
                 myPostAdapter.notifyDataSetChanged();
             }
         } catch (Exception e) {
@@ -519,11 +540,11 @@ public class MyPostActivity extends BaseActivity {
                     String msg = deletePostEntity.getMsg();
                     if (code == Constants.CODE_SUCCESS) {
                         try {
-                            myPostAdapter.remove(itemData.getPosition());
+                            listPost.remove(itemData.getItem());
                             myPostAdapter.notifyDataSetChanged();
                             myPostAdapter.closeAllItems();
 
-                            if (myPostAdapter.getItemCount() == 0) {
+                            if (listPost.size() == 0) {
                                 llNullTips.setVisibility(View.VISIBLE);
                                 rvPost.setVisibility(View.GONE);
                             } else {
@@ -586,7 +607,7 @@ public class MyPostActivity extends BaseActivity {
                         try {
                             PostItemEntity itemEntity = itemData.getItem();
                             itemEntity.setStatus("3");
-                            myPostAdapter.setData(itemData.getPosition(), itemEntity);
+                            listPost.set(itemData.getPosition(), itemEntity);
                             myPostAdapter.notifyItemChanged(itemData.getPosition());
                             myPostAdapter.closeAllItems();
                         } catch (Exception e) {
@@ -613,10 +634,12 @@ public class MyPostActivity extends BaseActivity {
     private BaseQuickAdapter.RequestLoadMoreListener onLoadMoreListener = new BaseQuickAdapter.RequestLoadMoreListener() {
         @Override
         public void onLoadMoreRequested() {
-            Logger.e("----->onLoadMoreRequested ");
-            Logger.e("--->page = " + page);
             if (canLoadMore) {
+                Logger.e("----->onLoadMoreRequested ");
+                Logger.e("--->page = " + page);
                 getPostList();
+            } else {
+                myPostAdapter.loadMoreEnd();
             }
         }
     };

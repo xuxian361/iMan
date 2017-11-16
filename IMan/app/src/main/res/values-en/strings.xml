@@ -201,6 +201,7 @@
     <string name="record_title_type_5">Read advertising revenue</string>
     <string name="record_title_type_6">Promote community income</string>
     <string name="record_title_type_7">Registration reward</string>
+    <string name="record_title_type_8">Ads expired remaining refunds</string>
     <string name="year">Year</string>
     <string name="month">Month</string>
     <string name="day">Day</string>
@@ -237,6 +238,7 @@
     <string name="confirm_resend_str">Confirm to resend?</string>
     <string name="login_account_2_hint">Mobile number / Email</string>
     <string name="login_tips">*Only support mobile phone numbers in mainland China, other countries or regions, please use the e-mail.</string>
+    <string name="load_end_hint">Loading completed</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

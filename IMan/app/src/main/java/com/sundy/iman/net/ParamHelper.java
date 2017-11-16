@@ -2,6 +2,7 @@ package com.sundy.iman.net;
 
 import android.util.Log;
 
+import com.orhanobut.logger.Logger;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DeviceUtils;
@@ -63,7 +64,7 @@ public class ParamHelper {
     //获取签名
     public static String getSign(JSONObject object) {
         String jsonStr = object.toString();
-//        Log.e(TAG, "----->jsonStr=" + jsonStr);
+        Logger.t("json").json(jsonStr);
         String signature = EncryptorUtils.md5(EncryptorUtils.md5(jsonStr + EncryptorUtils.KEY_SIGN)).toUpperCase();
 //        Log.e(TAG,"----->signature = " + signature);
         return signature;

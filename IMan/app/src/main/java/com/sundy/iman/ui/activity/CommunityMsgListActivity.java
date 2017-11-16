@@ -57,6 +57,7 @@ import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
 import com.sundy.iman.utils.NetWorkUtils;
 import com.sundy.iman.utils.cache.CacheData;
+import com.sundy.iman.utils.cache.beans.CommunityPostListCacheBean;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
@@ -125,8 +126,8 @@ public class CommunityMsgListActivity extends BaseActivity {
 
     private int page = 1; //当前页码
     private int perpage = 10; //每页显示条数
-    private boolean canLoadMore = true;
     private PostAdapter myPostAdapter;
+    private boolean canLoadMore = true;
     private List<PostItemEntity> listPost = new ArrayList<>();
     private WrapContentLinearLayoutManager linearLayoutManager;
 
@@ -153,8 +154,11 @@ public class CommunityMsgListActivity extends BaseActivity {
         initData();
         initTitle();
         init();
+        getCommunityInfoCacheData();
         getCommunityInfo();
 
+        getPostListCacheData();
+        page = 1;
         if (listPost != null)
             listPost.clear();
         getPostList();
@@ -221,16 +225,16 @@ public class CommunityMsgListActivity extends BaseActivity {
 
         myPostAdapter = new PostAdapter(R.layout.item_post, listPost);
         myPostAdapter.setLoadMoreView(new CustomLoadMoreView());
-        myPostAdapter.setEnableLoadMore(true);
+        myPostAdapter.setPreLoadNumber(perpage);
         myPostAdapter.setOnLoadMoreListener(onLoadMoreListener, rvMsg);
         rvMsg.setAdapter(myPostAdapter);
 
         rvMsg.addOnScrollListener(onScrollListener);
     }
 
-    //社区详情
-    private void getCommunityInfo() {
-        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+    //社区详情缓存
+    private void getCommunityInfoCacheData() {
+        boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
         if (hasPermission) {
             CommunityInfoEntity.DataEntity dataEntity = CacheData.getInstance().getCommunityInfo(community_id);
             if (dataEntity != null) {
@@ -238,7 +242,10 @@ public class CommunityMsgListActivity extends BaseActivity {
                 titleBar.setRightIvVisibility(View.VISIBLE);
             }
         }
+    }
 
+    //社区详情
+    private void getCommunityInfo() {
         if (NetWorkUtils.isNetAvailable(this)) {
             Map<String, String> param = new HashMap<>();
             param.put("mid", PaperUtils.getMId());
@@ -259,6 +266,7 @@ public class CommunityMsgListActivity extends BaseActivity {
                             if (dataEntity != null) {
                                 titleBar.setBackMode(dataEntity.getName());
                                 titleBar.setRightIvVisibility(View.VISIBLE);
+                                boolean hasPermission = AndPermission.hasPermission(CommunityMsgListActivity.this, Permission.STORAGE);
                                 if (hasPermission) {
                                     CacheData.getInstance().saveCommunityInfo(community_id, dataEntity);
                                 }
@@ -282,16 +290,19 @@ public class CommunityMsgListActivity extends BaseActivity {
         }
     }
 
-    //获取post列表
-    private void getPostList() {
-        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+    //获取post列表缓存
+    private void getPostListCacheData() {
+        boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
         if (hasPermission) {
-            PostListEntity.DataEntity dataEntity = CacheData.getInstance().getCommunityPostList(community_id, page);
-            if (dataEntity != null) {
-                showData(dataEntity.getList());
+            CommunityPostListCacheBean communityPostListCacheBean = CacheData.getInstance().getCommunityPostList(community_id);
+            if (communityPostListCacheBean != null) {
+                showCacheData(communityPostListCacheBean.getListPost());
             }
         }
+    }
 
+    //获取post列表
+    private void getPostList() {
         if (NetWorkUtils.isNetAvailable(this)) {
             final Map<String, String> param = new HashMap<>();
             param.put("mid", PaperUtils.getMId());
@@ -312,9 +323,6 @@ public class CommunityMsgListActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             PostListEntity.DataEntity dataEntity = postListEntity.getData();
                             if (dataEntity != null) {
-                                if (hasPermission) {
-                                    CacheData.getInstance().saveCommunityPostList(community_id, dataEntity, page);
-                                }
                                 showData(dataEntity.getList());
                             }
                         }
@@ -336,6 +344,21 @@ public class CommunityMsgListActivity extends BaseActivity {
         } else {
             if (swipeRefresh != null)
                 swipeRefresh.setRefreshing(false);
+            myPostAdapter.loadMoreEnd();
+        }
+    }
+
+    private void showCacheData(List<PostItemEntity> listData) {
+        if (listData != null && listData.size() > 0) {
+            Logger.e("----->获取缓存数据 size = " + listData.size());
+
+            tvTips.setVisibility(View.GONE);
+            tvPost.setVisibility(View.GONE);
+            viewLine.setVisibility(View.VISIBLE);
+            rvMsg.setVisibility(View.VISIBLE);
+
+            myPostAdapter.setNewData(listData);
+            myPostAdapter.notifyDataSetChanged();
         }
     }
 
@@ -356,23 +379,30 @@ public class CommunityMsgListActivity extends BaseActivity {
                 viewLine.setVisibility(View.VISIBLE);
                 rvMsg.setVisibility(View.VISIBLE);
 
-                if (listData.size() == 0) {
+                if (listData.size() < perpage) {
                     canLoadMore = false;
                     myPostAdapter.loadMoreEnd();
                 } else {
                     page = page + 1;
                     canLoadMore = true;
                     myPostAdapter.loadMoreComplete();
-
-                    for (int i = 0; i < listData.size(); i++) {
-                        PostItemEntity item = listData.get(i);
-                        if (item != null) {
-                            listPost.add(item);
-                        }
-                    }
-                    myPostAdapter.setNewData(listPost);
-                    myPostAdapter.notifyDataSetChanged();
                 }
+
+                for (int i = 0; i < listData.size(); i++) {
+                    PostItemEntity item = listData.get(i);
+                    if (item != null) {
+                        listPost.add(item);
+                    }
+                }
+                boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+                if (hasPermission) {
+                    CommunityPostListCacheBean bean = new CommunityPostListCacheBean();
+                    bean.setListPost(listPost);
+                    Logger.e("----->保存消息列表数据");
+                    CacheData.getInstance().saveCommunityPostList(community_id, bean);
+                }
+                myPostAdapter.setNewData(listPost);
+                myPostAdapter.notifyDataSetChanged();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -1275,10 +1305,12 @@ public class CommunityMsgListActivity extends BaseActivity {
     private BaseQuickAdapter.RequestLoadMoreListener onLoadMoreListener = new BaseQuickAdapter.RequestLoadMoreListener() {
         @Override
         public void onLoadMoreRequested() {
-            Logger.e("----->onLoadMoreRequested ");
-            Logger.e("--->page = " + page);
             if (canLoadMore) {
+                Logger.e("----->onLoadMoreRequested ");
+                Logger.e("--->page = " + page);
                 getPostList();
+            } else {
+                myPostAdapter.loadMoreEnd();
             }
         }
     };

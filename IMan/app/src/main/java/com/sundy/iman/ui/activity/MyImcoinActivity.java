@@ -341,6 +341,9 @@ public class MyImcoinActivity extends BaseActivity {
                 } else if (type.equals("7")) {//注册奖励
                     tv_cost.setText("+" + income);
                     tv_title.setText(getString(R.string.record_title_type_7));
+                } else if (type.equals("8")) { //广告过期自动退款
+                    tv_cost.setText("+" + income);
+                    tv_title.setText(getString(R.string.record_title_type_8));
                 }
             } catch (Exception e) {
                 e.printStackTrace();

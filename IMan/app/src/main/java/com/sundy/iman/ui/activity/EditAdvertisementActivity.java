@@ -192,6 +192,7 @@ public class EditAdvertisementActivity extends BaseActivity {
         initTitle();
         getLocationPermission();
         init();
+        getCacheData();
         getPostInfo();
     }
 
@@ -272,9 +273,9 @@ public class EditAdvertisementActivity extends BaseActivity {
         rvMedia.setAdapter(mediaAdapter);
     }
 
-    //获取Post 信息
-    private void getPostInfo() {
-        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+    //获取缓存数据
+    private void getCacheData() {
+        boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
         if (hasPermission) {
             GetPostInfoEntity.DataEntity dataEntity = CacheData.getInstance().getPostInfo(post_id, creator_id);
             if (dataEntity != null) {
@@ -285,7 +286,10 @@ public class EditAdvertisementActivity extends BaseActivity {
                 }
             }
         }
+    }
 
+    //获取Post 信息
+    private void getPostInfo() {
         if (NetWorkUtils.isNetAvailable(this)) {
             Map<String, String> param = new HashMap<>();
             param.put("mid", PaperUtils.getMId());
@@ -306,10 +310,11 @@ public class EditAdvertisementActivity extends BaseActivity {
                             GetPostInfoEntity.DataEntity dataEntity = getPostInfoEntity.getData();
                             if (dataEntity != null) {
                                 try {
+                                    showData(dataEntity);
+                                    boolean hasPermission = AndPermission.hasPermission(EditAdvertisementActivity.this, Permission.STORAGE);
                                     if (hasPermission) {
                                         CacheData.getInstance().savePostInfo(dataEntity, post_id, creator_id);
                                     }
-                                    showData(dataEntity);
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }

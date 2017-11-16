@@ -949,6 +949,7 @@ public class CreatePostActivity extends BaseActivity {
     private void sendRefreshMsg() {
         MsgEvent msgEvent = new MsgEvent();
         msgEvent.setMsg(MsgEvent.EVENT_REFRESH_COMMUNITY_MSG_LIST);
+        //SUNDY - 刷新社区消息列表后展开对应的Item
         EventBus.getDefault().post(msgEvent);
     }
 

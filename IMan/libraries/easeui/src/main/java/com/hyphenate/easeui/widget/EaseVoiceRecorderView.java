@@ -196,6 +196,7 @@ public class EaseVoiceRecorderView extends RelativeLayout {
                 this.setVisibility(View.INVISIBLE);
             }
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 

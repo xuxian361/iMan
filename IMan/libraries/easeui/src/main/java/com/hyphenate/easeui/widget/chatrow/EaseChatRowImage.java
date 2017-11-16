@@ -19,6 +19,7 @@ import com.hyphenate.chat.EMMessage.ChatType;
 import com.hyphenate.easeui.R;
 import com.hyphenate.easeui.model.EaseImageCache;
 import com.hyphenate.easeui.ui.EaseShowBigImageActivity;
+import com.hyphenate.easeui.utils.EaseCommonUtils;
 import com.hyphenate.easeui.utils.EaseImageUtils;
 
 import java.io.File;
@@ -27,9 +28,11 @@ public class EaseChatRowImage extends EaseChatRowFile {
 
     protected ImageView imageView;
     private EMImageMessageBody imgBody;
+    private Context context;
 
     public EaseChatRowImage(Context context, EMMessage message, int position, BaseAdapter adapter) {
         super(context, message, position, adapter);
+        this.context = context;
     }
 
     @Override
@@ -132,14 +135,16 @@ public class EaseChatRowImage extends EaseChatRowFile {
                 @Override
                 protected Bitmap doInBackground(Object... args) {
                     File file = new File(thumbernailPath);
+                    int width = EaseCommonUtils.dp2px(context, 140);
+                    int height = EaseCommonUtils.dp2px(context, 160);
                     if (file.exists()) {
-                        return EaseImageUtils.decodeScaleImage(thumbernailPath, 300, 300);
+                        return EaseImageUtils.decodeScaleImage(thumbernailPath, width, height);
                     } else if (new File(imgBody.thumbnailLocalPath()).exists()) {
-                        return EaseImageUtils.decodeScaleImage(imgBody.thumbnailLocalPath(), 300, 300);
+                        return EaseImageUtils.decodeScaleImage(imgBody.thumbnailLocalPath(), width, height);
                     } else {
                         if (message.direct() == EMMessage.Direct.SEND) {
                             if (localFullSizePath != null && new File(localFullSizePath).exists()) {
-                                return EaseImageUtils.decodeScaleImage(localFullSizePath, 300, 300);
+                                return EaseImageUtils.decodeScaleImage(localFullSizePath, width, height);
                             } else {
                                 return null;
                             }

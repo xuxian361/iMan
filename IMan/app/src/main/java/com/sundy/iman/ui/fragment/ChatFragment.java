@@ -1,8 +1,10 @@
 package com.sundy.iman.ui.fragment;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.ClipboardManager;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -11,6 +13,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.annotation.NonNull;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.text.TextUtils;
 import android.view.Gravity;
@@ -65,6 +68,9 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.ui.activity.BillTransferActivity;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.PermissionNo;
+import com.yanzhenjie.permission.PermissionYes;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -89,6 +95,7 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
     protected static final int REQUEST_CODE_MAP = 1;
     protected static final int REQUEST_CODE_CAMERA = 2;
     protected static final int REQUEST_CODE_LOCAL = 3;
+    protected static final int REQUEST_CODE_PERMISSION = 4;
 
     /**
      * params to fragment
@@ -150,7 +157,27 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
         toChatUsername = fragmentArgs.getString(EaseConstant.EXTRA_USER_ID);
         user_id = fragmentArgs.getString(EaseConstant.EXTRA_MEMBER_ID, "");
 
+        AndPermission.with(getActivity())
+                .requestCode(REQUEST_CODE_PERMISSION)
+                .permission(Manifest.permission.CAMERA,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.RECORD_AUDIO)
+                .callback(getActivity())
+                .start();
+
         super.onActivityCreated(savedInstanceState);
+    }
+
+    @PermissionYes(REQUEST_CODE_PERMISSION)
+    private void getPermissionYes(@NonNull List<String> grantedPermissions) {
+        Logger.e("权限申请成功!");
+
+    }
+
+    @PermissionNo(REQUEST_CODE_PERMISSION)
+    private void getPermissionNo(@NonNull List<String> deniedPermissions) {
+        Logger.e("权限申请失败!");
+
     }
 
     /**
@@ -182,13 +209,18 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
 
             @Override
             public boolean onPressToSpeakBtnTouch(View v, MotionEvent event) {
-                return voiceRecorderView.onPressToSpeakBtnTouch(v, event, new EaseVoiceRecorderView.EaseVoiceRecorderCallback() {
+                boolean hasCameraPermission = AndPermission.hasPermission(getActivity(), Manifest.permission.RECORD_AUDIO);
+                if (hasCameraPermission) {
+                    return voiceRecorderView.onPressToSpeakBtnTouch(v, event, new EaseVoiceRecorderView.EaseVoiceRecorderCallback() {
 
-                    @Override
-                    public void onVoiceRecordComplete(String voiceFilePath, int voiceTimeLength) {
-                        sendVoiceMessage(voiceFilePath, voiceTimeLength);
-                    }
-                });
+                        @Override
+                        public void onVoiceRecordComplete(String voiceFilePath, int voiceTimeLength) {
+                            sendVoiceMessage(voiceFilePath, voiceTimeLength);
+                        }
+                    });
+                } else {
+                    return false;
+                }
             }
 
             @Override
@@ -635,7 +667,6 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
 
             @Override
             public void onError(final int error, String errorMsg) {
-                // TODO Auto-generated method stub
                 EMLog.d(TAG, "join room failure : " + error);
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
@@ -727,10 +758,14 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
             }
             switch (itemId) {
                 case ITEM_TAKE_PICTURE:
-                    selectPicFromCamera();
+                    boolean hasCameraPermission = AndPermission.hasPermission(getActivity(), Manifest.permission.CAMERA);
+                    if (hasCameraPermission)
+                        selectPicFromCamera();
                     break;
                 case ITEM_PICTURE:
-                    selectPicFromLocal();
+                    boolean hasStoragePermission = AndPermission.hasPermission(getActivity(), Manifest.permission.WRITE_EXTERNAL_STORAGE);
+                    if (hasStoragePermission)
+                        selectPicFromLocal();
                     break;
                 case ITEM_SEND_IMCOIN:
                     goSendImcoin();
@@ -971,9 +1006,22 @@ public class ChatFragment extends EaseBaseFragment implements EMMessageListener 
                 + System.currentTimeMillis() + ".jpg");
         //noinspection ResultOfMethodCallIgnored
         cameraFile.getParentFile().mkdirs();
-        startActivityForResult(
-                new Intent(MediaStore.ACTION_IMAGE_CAPTURE).putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(cameraFile)),
-                REQUEST_CODE_CAMERA);
+
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        if (takePictureIntent.resolveActivity(getActivity().getPackageManager()) != null) {
+            if (cameraFile != null) {
+                if (android.os.Build.VERSION.SDK_INT < 24) {
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(cameraFile));
+                    startActivityForResult(takePictureIntent, REQUEST_CODE_CAMERA);
+                } else {
+                    ContentValues contentValues = new ContentValues(1);
+                    contentValues.put(MediaStore.Images.Media.DATA, cameraFile.getAbsolutePath());
+                    Uri uri = getActivity().getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                    startActivityForResult(takePictureIntent, REQUEST_CODE_CAMERA);
+                }
+            }
+        }
     }
 
     /**

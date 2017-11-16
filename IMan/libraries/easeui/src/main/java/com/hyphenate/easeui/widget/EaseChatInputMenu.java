@@ -289,7 +289,6 @@ public class EaseChatInputMenu extends LinearLayout {
                 chatExtendMenu.setVisibility(View.GONE);
                 emojiconMenu.setVisibility(View.VISIBLE);
             }
-
         }
     }
 

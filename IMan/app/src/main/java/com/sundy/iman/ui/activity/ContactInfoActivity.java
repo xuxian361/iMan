@@ -87,6 +87,7 @@ public class ContactInfoActivity extends BaseActivity {
         initData();
         initTitle();
         init();
+        getCacheData();
         getMemberInfo();
     }
 
@@ -158,8 +159,8 @@ public class ContactInfoActivity extends BaseActivity {
         }
     };
 
-    //获取个人用户信息
-    private void getMemberInfo() {
+    //获取缓存数据
+    private void getCacheData() {
         final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
         if (hasPermission) {
             dataEntity = CacheData.getInstance().getContactInfo(profile_id);
@@ -167,7 +168,10 @@ public class ContactInfoActivity extends BaseActivity {
                 showData(dataEntity);
             }
         }
+    }
 
+    //获取个人用户信息
+    private void getMemberInfo() {
         if (NetWorkUtils.isNetAvailable(this)) {
             Map<String, String> param = new HashMap<>();
             param.put("mid", PaperUtils.getMId());
@@ -187,6 +191,7 @@ public class ContactInfoActivity extends BaseActivity {
                             dataEntity = memberInfoEntity.getData();
                             if (dataEntity != null) {
                                 showData(dataEntity);
+                                boolean hasPermission = AndPermission.hasPermission(ContactInfoActivity.this, Permission.STORAGE);
                                 if (hasPermission) {
                                     CacheData.getInstance().saveContactInfo(profile_id, dataEntity);
                                 }

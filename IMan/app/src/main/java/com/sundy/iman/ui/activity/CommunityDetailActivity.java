@@ -91,6 +91,7 @@ public class CommunityDetailActivity extends BaseActivity {
 
         initData();
         initTitle();
+        getCacheData();
         getCommunityInfo();
     }
 
@@ -217,8 +218,8 @@ public class CommunityDetailActivity extends BaseActivity {
         startActivity(intent);
     }
 
-    //社区详情
-    private void getCommunityInfo() {
+    //获取缓存
+    private void getCacheData() {
         final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
         if (hasPermission) {
             dataEntity = CacheData.getInstance().getCommunityInfo(community_id);
@@ -227,7 +228,10 @@ public class CommunityDetailActivity extends BaseActivity {
                 showData(dataEntity);
             }
         }
+    }
 
+    //社区详情
+    private void getCommunityInfo() {
         if (NetWorkUtils.isNetAvailable(this)) {
             Map<String, String> param = new HashMap<>();
             param.put("mid", PaperUtils.getMId());
@@ -248,6 +252,7 @@ public class CommunityDetailActivity extends BaseActivity {
                             if (dataEntity != null) {
                                 titleBar.setRightIvVisibility(View.VISIBLE);
                                 showData(dataEntity);
+                                boolean hasPermission = AndPermission.hasPermission(CommunityDetailActivity.this, Permission.STORAGE);
                                 if (hasPermission) {
                                     CacheData.getInstance().saveCommunityInfo(community_id, dataEntity);
                                 }

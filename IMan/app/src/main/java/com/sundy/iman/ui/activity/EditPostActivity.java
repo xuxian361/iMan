@@ -324,15 +324,9 @@ public class EditPostActivity extends BaseActivity {
             if (status.equals("1")) {
                 btnPostModifiedAgain.setVisibility(View.VISIBLE);
                 btnPostAgain.setVisibility(View.GONE);
-
-                titleBar.setTitleTvText(getString(R.string.active_message));
-                titleBar.setTitleTvVisibility(View.VISIBLE);
             } else {
                 btnPostModifiedAgain.setVisibility(View.GONE);
                 btnPostAgain.setVisibility(View.VISIBLE);
-
-                titleBar.setTitleTvText(getString(R.string.old_message));
-                titleBar.setTitleTvVisibility(View.VISIBLE);
             }
         }
 
@@ -383,6 +377,15 @@ public class EditPostActivity extends BaseActivity {
                 }
             }
             mediaAdapter.notifyDataSetChanged();
+        }
+
+        List<GetPostInfoEntity.CommunityEntity> community_list = dataEntity.getCommunity_list();
+        if (community_list != null && community_list.size() > 0) {
+            GetPostInfoEntity.CommunityEntity communityEntity = community_list.get(0);
+            if (communityEntity != null) {
+                titleBar.setBackMode(communityEntity.getName());
+                titleBar.setVisibility(View.VISIBLE);
+            }
         }
 
     }
@@ -1133,6 +1136,8 @@ public class EditPostActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
+                //SUNDY - 跳转到社区消息列表
+
             }
         });
     }

@@ -1,7 +1,6 @@
 package com.sundy.iman.net;
 
-import android.util.Log;
-
+import com.orhanobut.logger.Logger;
 import com.sundy.iman.config.Apis;
 
 import java.util.concurrent.TimeUnit;
@@ -46,7 +45,7 @@ public class RetrofitHelper {
             HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
                 @Override
                 public void log(String message) {
-                    Log.e("HttpLog", message);
+                    Logger.t("HttpLog").json(message);
                 }
             });
             logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);

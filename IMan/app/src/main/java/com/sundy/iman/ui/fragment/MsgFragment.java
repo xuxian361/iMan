@@ -271,6 +271,14 @@ public class MsgFragment extends BaseFragment {
         conversationAdapter.addHeaderView(headerView);
         rvMsg.setAdapter(conversationAdapter);
         rvMsg.addOnScrollListener(onScrollListener);
+
+        final boolean hasPermission = AndPermission.hasPermission(mContext, Permission.STORAGE);
+        if (hasPermission) {
+            GetHomeListEntity getHomeListEntity = CacheData.getInstance().getHomeList();
+            if (getHomeListEntity != null) {
+                showHeaderData(getHomeListEntity);
+            }
+        }
     }
 
     //跳转查看更多消息
@@ -513,14 +521,6 @@ public class MsgFragment extends BaseFragment {
         if (locationEntity == null)
             return;
 
-        final boolean hasPermission = AndPermission.hasPermission(mContext, Permission.STORAGE);
-        if (hasPermission) {
-            GetHomeListEntity getHomeListEntity = CacheData.getInstance().getHomeList();
-            if (getHomeListEntity != null) {
-                showHeaderData(getHomeListEntity);
-            }
-        }
-
         if (NetWorkUtils.isNetAvailable(mContext)) {
             Map<String, String> param = new HashMap<>();
             param.put("mid", PaperUtils.getMId());
@@ -537,6 +537,7 @@ public class MsgFragment extends BaseFragment {
                         int code = getHomeListEntity.getCode();
                         String msg = getHomeListEntity.getMsg();
                         if (code == Constants.CODE_SUCCESS) {
+                            boolean hasPermission = AndPermission.hasPermission(mContext, Permission.STORAGE);
                             if (hasPermission) {
                                 CacheData.getInstance().saveHomeList(getHomeListEntity);
                             }

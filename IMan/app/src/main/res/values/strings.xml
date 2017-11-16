@@ -200,6 +200,7 @@
     <string name="record_title_type_5">阅览广告收入</string>
     <string name="record_title_type_6">推广社区收入</string>
     <string name="record_title_type_7">注册奖励</string>
+    <string name="record_title_type_8">广告过期剩余退款</string>
     <string name="year">年</string>
     <string name="month">月</string>
     <string name="day">日</string>
@@ -236,6 +237,7 @@
     <string name="confirm_resend_str">确认重发消息?</string>
     <string name="login_account_2_hint">手机号码 / 邮箱</string>
     <string name="login_tips">*只支持中国大陆手机号码，其他国家或地区请使用电子邮箱</string>
+    <string name="load_end_hint">加载完毕</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% 荧光币将会送给用户.

@@ -11,7 +11,7 @@ import lombok.Data;
 public class BillRecordItemEntity implements Serializable {
 
     private String id;
-    private String type; //类型: 1-创建广告支出，2-个人转出，3-个人转入，4-官方充值，5-阅览广告收人，6-推广社区收人，7-注册奖励
+    private String type; //类型: 1-创建广告支出，2-个人转出，3-个人转入，4-官方充值，5-阅览广告收人，6-推广社区收人，7-注册奖励，8-广告过期自动退款
     private String income; //金额
     private String create_time; //创建时间
     private String remark; //备注

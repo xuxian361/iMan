@@ -39,6 +39,7 @@ public class GetPostInfoEntity extends BaseResEntity {
 
         private List<AttachmentEntity> attachment; //附件列表
         private List<MemberEntity> member; //成员列表
+        private List<CommunityEntity> community_list;
 
     }
 
@@ -58,5 +59,11 @@ public class GetPostInfoEntity extends BaseResEntity {
         private String profile_image; //头像
         private String easemob_account; //环信账号
 
+    }
+
+    @Data
+    public static class CommunityEntity implements Serializable {
+        private String id;
+        private String name;
     }
 }
