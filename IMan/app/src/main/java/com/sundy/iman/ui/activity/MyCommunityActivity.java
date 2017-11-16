@@ -43,6 +43,8 @@ import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
 import com.sundy.iman.view.dialog.CommonDialog;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
 import com.zhy.view.flowlayout.FlowLayout;
 import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
@@ -175,9 +177,12 @@ public class MyCommunityActivity extends BaseActivity {
 
     //获取社区列表
     private void getCommunityList() {
-        CommunityListEntity.DataEntity dataEntity = CacheData.getInstance().getMyCommunityList(page);
-        if (dataEntity != null) {
-            showData(dataEntity.getList());
+        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+        if (hasPermission) {
+            CommunityListEntity.DataEntity dataEntity = CacheData.getInstance().getMyCommunityList(page);
+            if (dataEntity != null) {
+                showData(dataEntity.getList());
+            }
         }
 
         if (NetWorkUtils.isNetAvailable(this)) {
@@ -203,7 +208,9 @@ public class MyCommunityActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             CommunityListEntity.DataEntity dataEntity = communityListEntity.getData();
                             if (dataEntity != null) {
-                                CacheData.getInstance().saveMyCommunityList(dataEntity, page);
+                                if (hasPermission) {
+                                    CacheData.getInstance().saveMyCommunityList(dataEntity, page);
+                                }
                                 showData(dataEntity.getList());
                             }
                         }

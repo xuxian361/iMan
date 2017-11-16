@@ -31,6 +31,8 @@ import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -141,9 +143,12 @@ public class LatestPostActivity extends BaseActivity {
 
     //获取最新消息列表
     private void getLastPost() {
-        LastPostListEntity.DataEntity dataEntity = CacheData.getInstance().getLatestPostList(page);
-        if (dataEntity != null) {
-            showData(dataEntity.getList());
+        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+        if (hasPermission) {
+            LastPostListEntity.DataEntity dataEntity = CacheData.getInstance().getLatestPostList(page);
+            if (dataEntity != null) {
+                showData(dataEntity.getList());
+            }
         }
 
         if (NetWorkUtils.isNetAvailable(this)) {
@@ -164,7 +169,9 @@ public class LatestPostActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             LastPostListEntity.DataEntity dataEntity = lastPostListEntity.getData();
                             if (dataEntity != null) {
-                                CacheData.getInstance().saveLatestPostList(dataEntity, page);
+                                if (hasPermission) {
+                                    CacheData.getInstance().saveLatestPostList(dataEntity, page);
+                                }
                                 showData(dataEntity.getList());
                             }
                         }

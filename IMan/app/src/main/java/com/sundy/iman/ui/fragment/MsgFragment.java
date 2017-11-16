@@ -103,7 +103,7 @@ import retrofit2.Response;
 
 public class MsgFragment extends BaseFragment {
 
-    private static final int REQUEST_CODE_PERMISSION_LOCATION = 100;
+    private static final int REQUEST_CODE_PERMISSION = 100;
     private final static int MSG_REFRESH = 2;
     private final static int MSG_CLEAR = 3;
     private final static int MSG_GET_HOME_LIST = 4;
@@ -383,8 +383,8 @@ public class MsgFragment extends BaseFragment {
     public void onStart() {
         super.onStart();
         AndPermission.with(this)
-                .requestCode(REQUEST_CODE_PERMISSION_LOCATION)
-                .permission(Permission.LOCATION)
+                .requestCode(REQUEST_CODE_PERMISSION)
+                .permission(Permission.LOCATION, Permission.STORAGE)
                 .callback(this)
                 // rationale作用是：用户拒绝一次权限，再次申请时先征求用户同意，再打开授权对话框；
                 // 这样避免用户勾选不再提示，导致以后无法申请权限。
@@ -399,14 +399,14 @@ public class MsgFragment extends BaseFragment {
                 .start();
     }
 
-    @PermissionYes(REQUEST_CODE_PERMISSION_LOCATION)
+    @PermissionYes(REQUEST_CODE_PERMISSION)
     private void getPermissionYes(@NonNull List<String> grantedPermissions) {
         Logger.e("位置权限申请成功!");
         initLocation();
         startLocation();
     }
 
-    @PermissionNo(REQUEST_CODE_PERMISSION_LOCATION)
+    @PermissionNo(REQUEST_CODE_PERMISSION)
     private void getPermissionNo(@NonNull List<String> deniedPermissions) {
         Logger.e("位置权限申请失败!");
         //获取默认定位
@@ -513,9 +513,12 @@ public class MsgFragment extends BaseFragment {
         if (locationEntity == null)
             return;
 
-        GetHomeListEntity getHomeListEntity = CacheData.getInstance().getHomeList();
-        if (getHomeListEntity != null) {
-            showHeaderData(getHomeListEntity);
+        final boolean hasPermission = AndPermission.hasPermission(mContext, Permission.STORAGE);
+        if (hasPermission) {
+            GetHomeListEntity getHomeListEntity = CacheData.getInstance().getHomeList();
+            if (getHomeListEntity != null) {
+                showHeaderData(getHomeListEntity);
+            }
         }
 
         if (NetWorkUtils.isNetAvailable(mContext)) {
@@ -534,7 +537,9 @@ public class MsgFragment extends BaseFragment {
                         int code = getHomeListEntity.getCode();
                         String msg = getHomeListEntity.getMsg();
                         if (code == Constants.CODE_SUCCESS) {
-                            CacheData.getInstance().saveHomeList(getHomeListEntity);
+                            if (hasPermission) {
+                                CacheData.getInstance().saveHomeList(getHomeListEntity);
+                            }
                             showHeaderData(getHomeListEntity);
                         }
                     }

@@ -337,6 +337,22 @@ public class FileUtils {
         return path;
     }
 
+    //保存Bitmap 到缓存文件夹
+    public static String saveBitmapToSD(String filePath, Bitmap bitmap) {
+        String path = "";
+        try {
+            File file = new File(filePath, System.currentTimeMillis() + ".jpg");
+            path = file.getPath();
+            FileOutputStream out = new FileOutputStream(file);
+            bitmap.compress(Bitmap.CompressFormat.JPEG, 90, out);
+            out.flush();
+            out.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return path;
+    }
+
     // 保存图片到手机指定目录
     public static String saveBitmap(String imgName, byte[] bytes) {
         String path = null;

@@ -39,6 +39,8 @@ import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
 import com.sundy.iman.view.dialog.CommonDialog;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -154,9 +156,12 @@ public class MyPromoteCommunityActivity extends BaseActivity {
 
     //我的推广社区列表
     private void getMyPromoteCommunity() {
-        MyPromoteCommunityListEntity.DataEntity dataEntity = CacheData.getInstance().getPromoteCommunityList(page);
-        if (dataEntity != null) {
-            showData(dataEntity.getList());
+        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+        if (hasPermission) {
+            MyPromoteCommunityListEntity.DataEntity dataEntity = CacheData.getInstance().getPromoteCommunityList(page);
+            if (dataEntity != null) {
+                showData(dataEntity.getList());
+            }
         }
 
         if (NetWorkUtils.isNetAvailable(this)) {
@@ -177,7 +182,9 @@ public class MyPromoteCommunityActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             MyPromoteCommunityListEntity.DataEntity dataEntity = communityListEntity.getData();
                             if (dataEntity != null) {
-                                CacheData.getInstance().savePromoteCommunityList(dataEntity, page);
+                                if (hasPermission) {
+                                    CacheData.getInstance().savePromoteCommunityList(dataEntity, page);
+                                }
                                 showData(dataEntity.getList());
                             }
                         }

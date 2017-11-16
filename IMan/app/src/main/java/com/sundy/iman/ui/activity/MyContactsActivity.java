@@ -41,6 +41,8 @@ import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
 import com.sundy.iman.view.dialog.CommonDialog;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -175,9 +177,12 @@ public class MyContactsActivity extends BaseActivity {
 
     //获取联系人列表
     private void getContactList() {
-        ContactListEntity.DataEntity dataEntity = CacheData.getInstance().getMyContactList(page);
-        if (dataEntity != null) {
-            showData(dataEntity.getList());
+        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+        if (hasPermission) {
+            ContactListEntity.DataEntity dataEntity = CacheData.getInstance().getMyContactList(page);
+            if (dataEntity != null) {
+                showData(dataEntity.getList());
+            }
         }
 
         if (NetWorkUtils.isNetAvailable(this)) {
@@ -199,7 +204,9 @@ public class MyContactsActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             ContactListEntity.DataEntity dataEntity = contactListEntity.getData();
                             if (dataEntity != null) {
-                                CacheData.getInstance().saveMyContactsList(dataEntity, page);
+                                if (hasPermission) {
+                                    CacheData.getInstance().saveMyContactsList(dataEntity, page);
+                                }
                                 showData(dataEntity.getList());
                             }
                         }

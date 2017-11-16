@@ -68,6 +68,8 @@ import com.umeng.socialize.UMShareListener;
 import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.media.UMImage;
 import com.umeng.socialize.media.UMWeb;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
 import com.zhy.view.flowlayout.FlowLayout;
 import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
@@ -200,9 +202,12 @@ public class NearbyPostActivity extends BaseActivity {
 
     //获取post列表
     private void getPostList() {
-        NearbyPostListEntity.DataEntity dataEntity = CacheData.getInstance().getNearbyPostList(page);
-        if (dataEntity != null) {
-            showData(dataEntity.getList());
+        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+        if (hasPermission) {
+            NearbyPostListEntity.DataEntity dataEntity = CacheData.getInstance().getNearbyPostList(page);
+            if (dataEntity != null) {
+                showData(dataEntity.getList());
+            }
         }
 
         if (NetWorkUtils.isNetAvailable(this)) {
@@ -226,7 +231,9 @@ public class NearbyPostActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             NearbyPostListEntity.DataEntity dataEntity = postListEntity.getData();
                             if (dataEntity != null) {
-                                CacheData.getInstance().saveNearbyPostList(dataEntity, page);
+                                if (hasPermission) {
+                                    CacheData.getInstance().saveNearbyPostList(dataEntity, page);
+                                }
                                 showData(dataEntity.getList());
                             }
                         }

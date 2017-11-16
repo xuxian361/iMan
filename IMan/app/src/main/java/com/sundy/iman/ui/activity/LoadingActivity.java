@@ -1,6 +1,5 @@
 package com.sundy.iman.ui.activity;
 
-import android.Manifest;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -14,6 +13,7 @@ import com.sundy.iman.R;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
 import com.yanzhenjie.permission.PermissionNo;
 import com.yanzhenjie.permission.PermissionYes;
 
@@ -27,7 +27,7 @@ public class LoadingActivity extends BaseActivity {
 
     private final static int MSG_GO_INTENT = 1;
     private final static int MSG_GO_GUIDE = 2;
-    private final static long DELAY_TIME = 3000;
+    private final static long DELAY_TIME = 1000;
     private Handler handler;
     private static final int REQUEST_CODE_PERMISSION = 100;
 
@@ -38,7 +38,7 @@ public class LoadingActivity extends BaseActivity {
 
         AndPermission.with(this)
                 .requestCode(REQUEST_CODE_PERMISSION)
-                .permission(Manifest.permission.READ_PHONE_STATE)
+                .permission(Permission.STORAGE,Permission.PHONE)
                 .callback(this)
                 .start();
     }

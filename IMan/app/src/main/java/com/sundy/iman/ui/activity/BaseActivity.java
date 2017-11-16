@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import com.sundy.iman.R;
+import com.sundy.iman.utils.SizeUtils;
 import com.sundy.iman.view.dialog.FlipProgressDialog;
 import com.umeng.analytics.MobclickAgent;
 
@@ -71,7 +72,7 @@ public class BaseActivity extends AppCompatActivity {
         slow.setOrientation("rotationY");
         slow.setDuration(500);
         slow.setBackgroundColor(ContextCompat.getColor(this, R.color.main_green_light));
-        slow.setImageSize(120);
+        slow.setImageSize(SizeUtils.dp2px(this, 36));
     }
 
     /**

@@ -41,11 +41,10 @@ import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
 import com.sundy.iman.view.dialog.CommonDialog;
-
-import org.greenrobot.eventbus.EventBus;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -79,7 +78,6 @@ public class MyPostActivity extends BaseActivity {
     private int perpage = 10; //每页显示条数
     private boolean canLoadMore = true;
     private MyPostAdapter myPostAdapter;
-    private List<PostItemEntity> listPost = new ArrayList<>();
     private WrapContentLinearLayoutManager linearLayoutManager;
 
     @Override
@@ -90,8 +88,6 @@ public class MyPostActivity extends BaseActivity {
 
         initTitle();
         init();
-        if (listPost != null)
-            listPost.clear();
         getPostList();
     }
 
@@ -103,8 +99,7 @@ public class MyPostActivity extends BaseActivity {
             @Override
             public void onRefresh() {
                 page = 1;
-                if (listPost != null)
-                    listPost.clear();
+                myPostAdapter.setNewData(null);
                 myPostAdapter.notifyDataSetChanged();
                 getPostList();
             }
@@ -114,7 +109,7 @@ public class MyPostActivity extends BaseActivity {
         rvPost.setLayoutManager(linearLayoutManager);
         rvPost.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
-        myPostAdapter = new MyPostAdapter(R.layout.item_my_post, listPost);
+        myPostAdapter = new MyPostAdapter(R.layout.item_my_post);
         myPostAdapter.setLoadMoreView(new CustomLoadMoreView());
         myPostAdapter.setEnableLoadMore(true);
         myPostAdapter.setOnLoadMoreListener(onLoadMoreListener, rvPost);
@@ -154,11 +149,6 @@ public class MyPostActivity extends BaseActivity {
 
     //获取post列表
     private void getPostList() {
-        PostListEntity.DataEntity dataEntity = CacheData.getInstance().getMyPostList(page);
-        if (dataEntity != null) {
-            showCacheData(dataEntity.getList());
-        }
-
         if (NetWorkUtils.isNetAvailable(this)) {
             Map<String, String> param = new HashMap<>();
             param.put("mid", PaperUtils.getMId());
@@ -190,7 +180,10 @@ public class MyPostActivity extends BaseActivity {
                                     llNullTips.setVisibility(View.GONE);
                                     rvPost.setVisibility(View.VISIBLE);
 
-                                    CacheData.getInstance().saveMyPostList(dataEntity, page);
+                                    final boolean hasPermission = AndPermission.hasPermission(MyPostActivity.this, Permission.STORAGE);
+                                    if (hasPermission) {
+                                        CacheData.getInstance().saveMyPostList(dataEntity, page);
+                                    }
                                     showData(dataEntity.getList());
                                 }
                             }
@@ -216,18 +209,25 @@ public class MyPostActivity extends BaseActivity {
         }
     }
 
-    private void showCacheData(List<PostItemEntity> listData) {
-        try {
-            for (int i = 0; i < listData.size(); i++) {
-                PostItemEntity item = listData.get(i);
-                if (item != null) {
-                    listPost.add(item);
+    //获取缓存数据
+    private void getPostCacheData(int page) {
+        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+        if (hasPermission) {
+            PostListEntity.DataEntity dataEntity = CacheData.getInstance().getMyPostList(page);
+            if (dataEntity != null) {
+                try {
+                    List<PostItemEntity> listData = dataEntity.getList();
+                    for (int i = 0; i < listData.size(); i++) {
+                        PostItemEntity item = listData.get(i);
+                        if (item != null) {
+                            myPostAdapter.addData(item);
+                        }
+                    }
+                    myPostAdapter.notifyDataSetChanged();
+                } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
-            myPostAdapter.setNewData(listPost);
-            myPostAdapter.notifyDataSetChanged();
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
@@ -243,10 +243,9 @@ public class MyPostActivity extends BaseActivity {
                 for (int i = 0; i < listData.size(); i++) {
                     PostItemEntity item = listData.get(i);
                     if (item != null) {
-                        listPost.add(item);
+                        myPostAdapter.addData(item);
                     }
                 }
-                myPostAdapter.setNewData(listPost);
                 myPostAdapter.notifyDataSetChanged();
             }
         } catch (Exception e) {
@@ -268,6 +267,10 @@ public class MyPostActivity extends BaseActivity {
             implements SwipeItemMangerInterface, SwipeAdapterInterface, View.OnClickListener {
 
         public SwipeItemRecyclerMangerImpl mItemManger = new SwipeItemRecyclerMangerImpl(this);
+
+        public MyPostAdapter(@LayoutRes int layoutResId) {
+            super(layoutResId);
+        }
 
         public MyPostAdapter(@LayoutRes int layoutResId, @Nullable List<PostItemEntity> data) {
             super(layoutResId, data);
@@ -516,11 +519,11 @@ public class MyPostActivity extends BaseActivity {
                     String msg = deletePostEntity.getMsg();
                     if (code == Constants.CODE_SUCCESS) {
                         try {
-                            listPost.remove(itemData.getItem());
+                            myPostAdapter.remove(itemData.getPosition());
                             myPostAdapter.notifyDataSetChanged();
                             myPostAdapter.closeAllItems();
 
-                            if (listPost.size() == 0) {
+                            if (myPostAdapter.getItemCount() == 0) {
                                 llNullTips.setVisibility(View.VISIBLE);
                                 rvPost.setVisibility(View.GONE);
                             } else {
@@ -583,7 +586,7 @@ public class MyPostActivity extends BaseActivity {
                         try {
                             PostItemEntity itemEntity = itemData.getItem();
                             itemEntity.setStatus("3");
-                            listPost.set(itemData.getPosition(), itemEntity);
+                            myPostAdapter.setData(itemData.getPosition(), itemEntity);
                             myPostAdapter.notifyItemChanged(itemData.getPosition());
                             myPostAdapter.closeAllItems();
                         } catch (Exception e) {

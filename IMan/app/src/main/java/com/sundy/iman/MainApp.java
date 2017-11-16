@@ -113,6 +113,7 @@ public class MainApp extends MultiDexApplication {
     public void onConfigurationChanged(Configuration newConfig) {
         if (newConfig.fontScale != 1)//非默认值
             getResources();
+
         super.onConfigurationChanged(newConfig);
     }
 

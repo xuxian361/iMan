@@ -28,6 +28,8 @@ import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.NetWorkUtils;
 import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.TitleBarView;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
 
 import java.util.HashMap;
 import java.util.List;
@@ -158,9 +160,12 @@ public class ContactInfoActivity extends BaseActivity {
 
     //获取个人用户信息
     private void getMemberInfo() {
-        dataEntity = CacheData.getInstance().getContactInfo(profile_id);
-        if (dataEntity != null) {
-            showData(dataEntity);
+        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+        if (hasPermission) {
+            dataEntity = CacheData.getInstance().getContactInfo(profile_id);
+            if (dataEntity != null) {
+                showData(dataEntity);
+            }
         }
 
         if (NetWorkUtils.isNetAvailable(this)) {
@@ -181,8 +186,10 @@ public class ContactInfoActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             dataEntity = memberInfoEntity.getData();
                             if (dataEntity != null) {
-                                CacheData.getInstance().saveContactInfo(profile_id, dataEntity);
                                 showData(dataEntity);
+                                if (hasPermission) {
+                                    CacheData.getInstance().saveContactInfo(profile_id, dataEntity);
+                                }
                             }
                         } else {
                             MainApp.getInstance().showToast(msg);

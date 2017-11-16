@@ -32,6 +32,8 @@ import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -167,9 +169,12 @@ public class MyImcoinActivity extends BaseActivity {
             }
         }
 
-        BillRecordListEntity.DataEntity dataEntity = CacheData.getInstance().getBillRecordList(yearMonth, page);
-        if (dataEntity != null) {
-            showData(dataEntity);
+        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+        if (hasPermission) {
+            BillRecordListEntity.DataEntity dataEntity = CacheData.getInstance().getBillRecordList(yearMonth, page);
+            if (dataEntity != null) {
+                showData(dataEntity);
+            }
         }
 
         if (NetWorkUtils.isNetAvailable(this)) {
@@ -192,7 +197,9 @@ public class MyImcoinActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             BillRecordListEntity.DataEntity dataEntity = billRecordListEntity.getData();
                             if (dataEntity != null) {
-                                CacheData.getInstance().saveBillRecordList(dataEntity, finalYearMonth, page);
+                                if (hasPermission) {
+                                    CacheData.getInstance().saveBillRecordList(dataEntity, finalYearMonth, page);
+                                }
                                 showData(dataEntity);
                             }
                         }

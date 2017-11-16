@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.os.Build;
+import android.util.DisplayMetrics;
 
 import com.orhanobut.logger.Logger;
 import com.sundy.iman.config.Constants;
@@ -61,6 +62,31 @@ public class LocaleHelper {
 
         resources.updateConfiguration(configuration, resources.getDisplayMetrics());
         return context;
+    }
+
+    public static void setConfiguration(Context context, String language) {
+        Locale targetLocale = getLanguageLocale(language);
+        Configuration configuration = context.getResources().getConfiguration();
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
+            configuration.setLocale(targetLocale);
+        } else {
+            configuration.locale = targetLocale;
+        }
+        Resources resources = context.getResources();
+        DisplayMetrics dm = resources.getDisplayMetrics();
+        resources.updateConfiguration(configuration, dm);//语言更换生效的代码!
+    }
+
+    private static Locale getLanguageLocale(String language) {
+        if (language.equals(Constants.LANG_EN)) {
+            return Locale.ENGLISH;
+        } else if (language.equals(Constants.LANG_SC)) {
+            return Locale.SIMPLIFIED_CHINESE;
+        } else if (language.equals(Constants.LANG_TC)) {
+            return Locale.TRADITIONAL_CHINESE;
+        } else {
+            return Locale.ENGLISH;
+        }
     }
 
 }

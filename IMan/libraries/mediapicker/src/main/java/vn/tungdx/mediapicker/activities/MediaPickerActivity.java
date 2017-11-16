@@ -2,6 +2,7 @@ package vn.tungdx.mediapicker.activities;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -351,9 +352,18 @@ public class MediaPickerActivity extends AppCompatActivity implements
             }
             if (file != null) {
                 mPhotoFileCapture = file;
-                takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT,
-                        Uri.fromFile(file));
-                startActivityForResult(takePictureIntent, REQUEST_PHOTO_CAPTURE);
+
+                if (android.os.Build.VERSION.SDK_INT < 24) {
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(file));
+                    startActivityForResult(takePictureIntent, REQUEST_PHOTO_CAPTURE);
+                } else {
+                    ContentValues contentValues = new ContentValues(1);
+                    contentValues.put(MediaStore.Images.Media.DATA, file.getAbsolutePath());
+                    Uri uri = this.getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, contentValues);
+                    takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, uri);
+                    startActivityForResult(takePictureIntent, REQUEST_PHOTO_CAPTURE);
+                }
+
                 mFileObserverTask = new FileObserverTask();
                 mFileObserverTask.execute();
             }

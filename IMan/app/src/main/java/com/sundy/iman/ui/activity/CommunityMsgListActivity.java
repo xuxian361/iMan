@@ -70,6 +70,8 @@ import com.umeng.socialize.UMShareListener;
 import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.media.UMImage;
 import com.umeng.socialize.media.UMWeb;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
 import com.zhy.view.flowlayout.FlowLayout;
 import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
@@ -228,10 +230,13 @@ public class CommunityMsgListActivity extends BaseActivity {
 
     //社区详情
     private void getCommunityInfo() {
-        CommunityInfoEntity.DataEntity dataEntity = CacheData.getInstance().getCommunityInfo(community_id);
-        if (dataEntity != null) {
-            titleBar.setBackMode(dataEntity.getName());
-            titleBar.setRightIvVisibility(View.VISIBLE);
+        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+        if (hasPermission) {
+            CommunityInfoEntity.DataEntity dataEntity = CacheData.getInstance().getCommunityInfo(community_id);
+            if (dataEntity != null) {
+                titleBar.setBackMode(dataEntity.getName());
+                titleBar.setRightIvVisibility(View.VISIBLE);
+            }
         }
 
         if (NetWorkUtils.isNetAvailable(this)) {
@@ -254,7 +259,9 @@ public class CommunityMsgListActivity extends BaseActivity {
                             if (dataEntity != null) {
                                 titleBar.setBackMode(dataEntity.getName());
                                 titleBar.setRightIvVisibility(View.VISIBLE);
-                                CacheData.getInstance().saveCommunityInfo(community_id, dataEntity);
+                                if (hasPermission) {
+                                    CacheData.getInstance().saveCommunityInfo(community_id, dataEntity);
+                                }
                             }
                         } else {
                             MainApp.getInstance().showToast(msg);
@@ -277,9 +284,12 @@ public class CommunityMsgListActivity extends BaseActivity {
 
     //获取post列表
     private void getPostList() {
-        PostListEntity.DataEntity dataEntity = CacheData.getInstance().getCommunityPostList(community_id, page);
-        if (dataEntity != null) {
-            showData(dataEntity.getList());
+        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+        if (hasPermission) {
+            PostListEntity.DataEntity dataEntity = CacheData.getInstance().getCommunityPostList(community_id, page);
+            if (dataEntity != null) {
+                showData(dataEntity.getList());
+            }
         }
 
         if (NetWorkUtils.isNetAvailable(this)) {
@@ -302,7 +312,9 @@ public class CommunityMsgListActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             PostListEntity.DataEntity dataEntity = postListEntity.getData();
                             if (dataEntity != null) {
-                                CacheData.getInstance().saveCommunityPostList(community_id, dataEntity, page);
+                                if (hasPermission) {
+                                    CacheData.getInstance().saveCommunityPostList(community_id, dataEntity, page);
+                                }
                                 showData(dataEntity.getList());
                             }
                         }

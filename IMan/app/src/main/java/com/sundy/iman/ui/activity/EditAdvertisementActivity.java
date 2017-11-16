@@ -274,12 +274,15 @@ public class EditAdvertisementActivity extends BaseActivity {
 
     //获取Post 信息
     private void getPostInfo() {
-        GetPostInfoEntity.DataEntity dataEntity = CacheData.getInstance().getPostInfo(post_id, creator_id);
-        if (dataEntity != null) {
-            try {
-                showData(dataEntity);
-            } catch (Exception e) {
-                e.printStackTrace();
+        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+        if (hasPermission) {
+            GetPostInfoEntity.DataEntity dataEntity = CacheData.getInstance().getPostInfo(post_id, creator_id);
+            if (dataEntity != null) {
+                try {
+                    showData(dataEntity);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             }
         }
 
@@ -303,7 +306,9 @@ public class EditAdvertisementActivity extends BaseActivity {
                             GetPostInfoEntity.DataEntity dataEntity = getPostInfoEntity.getData();
                             if (dataEntity != null) {
                                 try {
-                                    CacheData.getInstance().savePostInfo(dataEntity, post_id, creator_id);
+                                    if (hasPermission) {
+                                        CacheData.getInstance().savePostInfo(dataEntity, post_id, creator_id);
+                                    }
                                     showData(dataEntity);
                                 } catch (Exception e) {
                                     e.printStackTrace();

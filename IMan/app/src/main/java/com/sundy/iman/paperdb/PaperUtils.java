@@ -38,7 +38,8 @@ public class PaperUtils {
     //保存App 当前语言
     public static void setLanguage(String language) {
         LanguagePaper.saveLanguage(language);
-        LocaleHelper.setLocale(MainApp.getInstance(), language);
+//        LocaleHelper.setLocale(MainApp.getInstance(), language);
+        LocaleHelper.setConfiguration(MainApp.getInstance(),language);
     }
 
     //保存设备ID

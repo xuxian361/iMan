@@ -31,6 +31,8 @@ import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.TitleBarView;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersAdapter;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
+import com.yanzhenjie.permission.AndPermission;
+import com.yanzhenjie.permission.Permission;
 import com.zhy.view.flowlayout.FlowLayout;
 import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
@@ -148,14 +150,17 @@ public class SelectTagsActivity extends BaseActivity {
 
     //获取标签列表
     private void getTagList() {
-        TagListEntity.DataEntity dataEntity = CacheData.getInstance().getTagsList();
-        if (dataEntity != null) {
-            List<TagListEntity.ListEntity> list = dataEntity.getList();
-            if (list != null && list.size() > 0) {
-                if (listTags != null)
-                    listTags.clear();
-                listTags.addAll(list);
-                setData();
+        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+        if (hasPermission) {
+            TagListEntity.DataEntity dataEntity = CacheData.getInstance().getTagsList();
+            if (dataEntity != null) {
+                List<TagListEntity.ListEntity> list = dataEntity.getList();
+                if (list != null && list.size() > 0) {
+                    if (listTags != null)
+                        listTags.clear();
+                    listTags.addAll(list);
+                    setData();
+                }
             }
         }
 
@@ -173,7 +178,9 @@ public class SelectTagsActivity extends BaseActivity {
                                 if (code == Constants.CODE_SUCCESS) {
                                     TagListEntity.DataEntity dataEntity = entity.getData();
                                     if (dataEntity != null) {
-                                        CacheData.getInstance().saveTagsList(dataEntity);
+                                        if (hasPermission) {
+                                            CacheData.getInstance().saveTagsList(dataEntity);
+                                        }
                                         List<TagListEntity.ListEntity> list = dataEntity.getList();
                                         if (list != null && list.size() > 0) {
                                             if (listTags != null)

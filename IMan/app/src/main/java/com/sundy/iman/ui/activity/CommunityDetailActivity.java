@@ -4,9 +4,12 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.content.FileProvider;
 import android.text.TextUtils;
 import android.view.View;
 import android.view.Window;
@@ -17,6 +20,7 @@ import android.widget.TextView;
 import com.google.zxing.BarcodeFormat;
 import com.google.zxing.WriterException;
 import com.orhanobut.logger.Logger;
+import com.sundy.iman.BuildConfig;
 import com.sundy.iman.MainApp;
 import com.sundy.iman.R;
 import com.sundy.iman.config.Constants;
@@ -160,42 +164,68 @@ public class CommunityDetailActivity extends BaseActivity {
         if (dataEntity == null) {
             return;
         }
-        //截取二维码
-        ivQrCode.setDrawingCacheEnabled(true);
-        ivQrCode.buildDrawingCache();
-        Bitmap bitmap = ivQrCode.getDrawingCache();
-        if (bitmap != null) {
-            //保存二维码到SD card
-            qrCodePath = FileUtils.saveBitmapToSD(bitmap);
-        }
 
         Intent intent = new Intent(Intent.ACTION_SEND);
         String[] tos = {""};
         String body = getString(R.string.app_name) + " " + getString(R.string.invite_you) + " " + dataEntity.getName() + "\n\n" + Constants.DOWNLOAD_LINK;
         String subject = getString(R.string.app_name) + " " + getString(R.string.invitation);
         String path = "";
-        if (!TextUtils.isEmpty(qrCodePath)) {
-            path = qrCodePath;
-            if (!qrCodePath.startsWith("file://"))
-                path = "file://" + qrCodePath;
-        }
 
         intent.putExtra(Intent.EXTRA_EMAIL, tos);
         intent.putExtra(Intent.EXTRA_TEXT, body);
         intent.putExtra(Intent.EXTRA_SUBJECT, subject);
-        intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(path));
         intent.setType("image/*");
         intent.setType("message/rfc882");
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            //截取二维码
+            ivQrCode.setDrawingCacheEnabled(true);
+            ivQrCode.buildDrawingCache();
+            Bitmap bitmap = ivQrCode.getDrawingCache();
+            if (bitmap != null) {
+                //保存二维码到SD card
+                qrCodePath = FileUtils.saveBitmapToSD(Environment.getExternalStorageDirectory().getPath(), bitmap);
+
+                if (!TextUtils.isEmpty(qrCodePath)) {
+                    path = qrCodePath;
+
+                    File file = new File(path);
+                    Uri contentUri = FileProvider.getUriForFile(this, BuildConfig.APPLICATION_ID + ".fileprovider", file);
+                    intent.putExtra(Intent.EXTRA_STREAM, contentUri);
+                }
+            }
+        } else {
+            //截取二维码
+            ivQrCode.setDrawingCacheEnabled(true);
+            ivQrCode.buildDrawingCache();
+            Bitmap bitmap = ivQrCode.getDrawingCache();
+            if (bitmap != null) {
+                //保存二维码到SD card
+                qrCodePath = FileUtils.saveBitmapToSD(bitmap);
+
+                if (!TextUtils.isEmpty(qrCodePath)) {
+                    path = qrCodePath;
+                    if (!qrCodePath.startsWith("file://"))
+                        path = "file://" + qrCodePath;
+                }
+
+                intent.putExtra(Intent.EXTRA_STREAM, Uri.parse(path));
+            }
+        }
+
         Intent.createChooser(intent, getString(R.string.choose_email_client));
         startActivity(intent);
     }
 
     //社区详情
     private void getCommunityInfo() {
-        dataEntity = CacheData.getInstance().getCommunityInfo(community_id);
-        if (dataEntity != null) {
-            titleBar.setRightIvVisibility(View.VISIBLE);
-            showData(dataEntity);
+        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
+        if (hasPermission) {
+            dataEntity = CacheData.getInstance().getCommunityInfo(community_id);
+            if (dataEntity != null) {
+                titleBar.setRightIvVisibility(View.VISIBLE);
+                showData(dataEntity);
+            }
         }
 
         if (NetWorkUtils.isNetAvailable(this)) {
@@ -217,8 +247,10 @@ public class CommunityDetailActivity extends BaseActivity {
                             dataEntity = communityInfoEntity.getData();
                             if (dataEntity != null) {
                                 titleBar.setRightIvVisibility(View.VISIBLE);
-                                CacheData.getInstance().saveCommunityInfo(community_id, dataEntity);
                                 showData(dataEntity);
+                                if (hasPermission) {
+                                    CacheData.getInstance().saveCommunityInfo(community_id, dataEntity);
+                                }
                             }
                         } else {
                             MainApp.getInstance().showToast(msg);
