@@ -3,6 +3,7 @@ package com.sundy.iman.ui.activity;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
@@ -33,14 +34,11 @@ import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
 import com.sundy.iman.utils.NetWorkUtils;
-import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
 import com.sundy.iman.view.dialog.CommonDialog;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.Permission;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -76,12 +74,19 @@ public class MyPromoteCommunityActivity extends BaseActivity {
     TextView tvAddCommunity;
     @BindView(R.id.ll_null_tips)
     LinearLayout llNullTips;
+    @BindView(R.id.tv_try_again)
+    TextView tvTryAgain;
+    @BindView(R.id.ll_no_net_content)
+    LinearLayout llNoNetContent;
+    @BindView(R.id.swipe_refresh)
+    SwipeRefreshLayout swipeRefresh;
 
     private int page = 1; //当前页码
     private int perpage = 10; //每页显示条数
     private boolean canLoadMore = true;
     private MyCommunityAdapter communityAdapter;
     private List<MyPromoteCommunityItemEntity> listCommunity = new ArrayList<>();
+    private WrapContentLinearLayoutManager linearLayoutManager;
 
 
     @Override
@@ -93,11 +98,6 @@ public class MyPromoteCommunityActivity extends BaseActivity {
         initTitle();
         init();
 
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
         page = 1;
         if (listCommunity != null)
             listCommunity.clear();
@@ -105,14 +105,31 @@ public class MyPromoteCommunityActivity extends BaseActivity {
     }
 
     private void init() {
-        rvCommunity.setLayoutManager(new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        swipeRefresh.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light,
+                android.R.color.holo_orange_light, android.R.color.holo_green_light);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+            @Override
+            public void onRefresh() {
+                page = 1;
+                if (listCommunity != null)
+                    listCommunity.clear();
+                communityAdapter.notifyDataSetChanged();
+                getMyPromoteCommunity();
+            }
+        });
+
+        linearLayoutManager = new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        rvCommunity.setLayoutManager(linearLayoutManager);
         rvCommunity.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
         communityAdapter = new MyCommunityAdapter(R.layout.item_my_promote_community, listCommunity);
         communityAdapter.setLoadMoreView(new CustomLoadMoreView());
-        communityAdapter.setEnableLoadMore(true);
+        communityAdapter.setPreLoadNumber(perpage);
         communityAdapter.setOnLoadMoreListener(onLoadMoreListener, rvCommunity);
         rvCommunity.setAdapter(communityAdapter);
+
+        rvCommunity.addOnScrollListener(onScrollListener);
     }
 
     private void initTitle() {
@@ -156,15 +173,9 @@ public class MyPromoteCommunityActivity extends BaseActivity {
 
     //我的推广社区列表
     private void getMyPromoteCommunity() {
-        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
-        if (hasPermission) {
-            MyPromoteCommunityListEntity.DataEntity dataEntity = CacheData.getInstance().getPromoteCommunityList(page);
-            if (dataEntity != null) {
-                showData(dataEntity.getList());
-            }
-        }
-
         if (NetWorkUtils.isNetAvailable(this)) {
+            llNoNetContent.setVisibility(View.GONE);
+
             Map<String, String> param = new HashMap<>();
             param.put("mid", PaperUtils.getMId());
             param.put("session_key", PaperUtils.getSessionKey());
@@ -182,9 +193,6 @@ public class MyPromoteCommunityActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             MyPromoteCommunityListEntity.DataEntity dataEntity = communityListEntity.getData();
                             if (dataEntity != null) {
-                                if (hasPermission) {
-                                    CacheData.getInstance().savePromoteCommunityList(dataEntity, page);
-                                }
                                 showData(dataEntity.getList());
                             }
                         }
@@ -193,14 +201,22 @@ public class MyPromoteCommunityActivity extends BaseActivity {
 
                 @Override
                 public void onAfter() {
-
+                    if (swipeRefresh != null)
+                        swipeRefresh.setRefreshing(false);
                 }
 
                 @Override
                 public void onFailure(Call<MyPromoteCommunityListEntity> call, Throwable t) {
-
+                    if (swipeRefresh != null)
+                        swipeRefresh.setRefreshing(false);
                 }
             });
+        } else {
+            if (swipeRefresh != null)
+                swipeRefresh.setRefreshing(false);
+            communityAdapter.loadMoreEnd();
+
+            llNoNetContent.setVisibility(View.VISIBLE);
         }
     }
 
@@ -217,22 +233,22 @@ public class MyPromoteCommunityActivity extends BaseActivity {
                 llNullTips.setVisibility(View.GONE);
                 rvCommunity.setVisibility(View.VISIBLE);
 
-                if (listData.size() == 0) {
+                if (listData.size() < perpage) {
                     canLoadMore = false;
                     communityAdapter.loadMoreEnd();
                 } else {
                     page = page + 1;
                     canLoadMore = true;
                     communityAdapter.loadMoreComplete();
-                    for (int i = 0; i < listData.size(); i++) {
-                        MyPromoteCommunityItemEntity item = listData.get(i);
-                        if (item != null) {
-                            listCommunity.add(item);
-                        }
-                    }
-                    communityAdapter.setNewData(listCommunity);
-                    communityAdapter.notifyDataSetChanged();
                 }
+                for (int i = 0; i < listData.size(); i++) {
+                    MyPromoteCommunityItemEntity item = listData.get(i);
+                    if (item != null) {
+                        listCommunity.add(item);
+                    }
+                }
+                communityAdapter.setNewData(listCommunity);
+                communityAdapter.notifyDataSetChanged();
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -244,7 +260,7 @@ public class MyPromoteCommunityActivity extends BaseActivity {
         UIHelper.jump(this, JoinPromoteCommunityActivity.class);
     }
 
-    @OnClick({R.id.rel_search, R.id.tv_add_community})
+    @OnClick({R.id.rel_search, R.id.tv_add_community, R.id.tv_try_again})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.rel_search:
@@ -252,6 +268,14 @@ public class MyPromoteCommunityActivity extends BaseActivity {
                 break;
             case R.id.tv_add_community:
                 goJoinPromoteCommunity();
+                break;
+            case R.id.tv_try_again:
+                swipeRefresh.setRefreshing(true);
+                page = 1;
+                if (listCommunity != null)
+                    listCommunity.clear();
+                communityAdapter.notifyDataSetChanged();
+                getMyPromoteCommunity();
                 break;
         }
     }
@@ -468,11 +492,32 @@ public class MyPromoteCommunityActivity extends BaseActivity {
     private BaseQuickAdapter.RequestLoadMoreListener onLoadMoreListener = new BaseQuickAdapter.RequestLoadMoreListener() {
         @Override
         public void onLoadMoreRequested() {
-            Logger.e("----->onLoadMoreRequested ");
-            Logger.e("--->page = " + page);
             if (canLoadMore) {
+                Logger.e("----->onLoadMoreRequested ");
+                Logger.e("--->page = " + page);
                 getMyPromoteCommunity();
+            } else {
+                communityAdapter.loadMoreEnd();
             }
+        }
+    };
+
+    //解决滑动冲突
+    private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+        private int lastVisibleItemPosition;
+
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            //第一个可视View 的位置
+            int FirstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+            rvCommunity.setEnabled(FirstVisibleItemPosition == 0);
+            //最后一个可视View 的位置
+            lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition();
+        }
+
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
         }
     };
 

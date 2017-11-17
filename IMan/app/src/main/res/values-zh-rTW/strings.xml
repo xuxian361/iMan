@@ -239,6 +239,8 @@
     <string name="login_account_2_hint">手機號碼 / 電子郵箱</string>
     <string name="login_tips">*只支持中國大陸手機號碼，其他國家或地區請使用電子郵箱</string>
     <string name="load_end_hint">加載完畢</string>
+    <string name="try_again">再試一次</string>
+    <string name="start">開始</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% 熒光幣將會送給用戶.

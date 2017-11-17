@@ -27,13 +27,10 @@ import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
 import com.sundy.iman.utils.NetWorkUtils;
-import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.Permission;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -71,6 +68,10 @@ public class MyImcoinActivity extends BaseActivity {
     LinearLayout llNullTips;
     @BindView(R.id.swipe_refresh)
     SwipeRefreshLayout swipeRefresh;
+    @BindView(R.id.tv_try_again)
+    TextView tvTryAgain;
+    @BindView(R.id.ll_no_net_content)
+    LinearLayout llNoNetContent;
 
     private int page = 1; //当前页码
     private int perpage = 10; //每页显示条数
@@ -88,6 +89,7 @@ public class MyImcoinActivity extends BaseActivity {
 
         initTitle();
         init();
+        page = 1;
         if (listRecord != null)
             listRecord.clear();
         getRecord();
@@ -148,9 +150,10 @@ public class MyImcoinActivity extends BaseActivity {
 
         mAdapter = new RecordAdapter(R.layout.item_record, listRecord);
         mAdapter.setLoadMoreView(new CustomLoadMoreView());
-        mAdapter.setEnableLoadMore(true);
+        mAdapter.setPreLoadNumber(perpage);
         mAdapter.setOnLoadMoreListener(onLoadMoreListener, rvRecord);
         rvRecord.setAdapter(mAdapter);
+
         rvRecord.addOnScrollListener(onScrollListener);
     }
 
@@ -169,15 +172,9 @@ public class MyImcoinActivity extends BaseActivity {
             }
         }
 
-        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
-        if (hasPermission) {
-            BillRecordListEntity.DataEntity dataEntity = CacheData.getInstance().getBillRecordList(yearMonth, page);
-            if (dataEntity != null) {
-                showData(dataEntity);
-            }
-        }
-
         if (NetWorkUtils.isNetAvailable(this)) {
+            llNoNetContent.setVisibility(View.GONE);
+
             final Map<String, String> param = new HashMap<>();
             param.put("mid", PaperUtils.getMId());
             param.put("session_key", PaperUtils.getSessionKey());
@@ -186,7 +183,6 @@ public class MyImcoinActivity extends BaseActivity {
             param.put("perpage", perpage + "");
             Call<BillRecordListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
                     .getBillRecord(ParamHelper.formatData(param));
-            final String finalYearMonth = yearMonth;
             call.enqueue(new RetrofitCallback<BillRecordListEntity>() {
                 @Override
                 public void onSuccess(Call<BillRecordListEntity> call, Response<BillRecordListEntity> response) {
@@ -197,9 +193,6 @@ public class MyImcoinActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             BillRecordListEntity.DataEntity dataEntity = billRecordListEntity.getData();
                             if (dataEntity != null) {
-                                if (hasPermission) {
-                                    CacheData.getInstance().saveBillRecordList(dataEntity, finalYearMonth, page);
-                                }
                                 showData(dataEntity);
                             }
                         }
@@ -221,6 +214,9 @@ public class MyImcoinActivity extends BaseActivity {
         } else {
             if (swipeRefresh != null)
                 swipeRefresh.setRefreshing(false);
+            mAdapter.loadMoreEnd();
+
+            llNoNetContent.setVisibility(View.VISIBLE);
         }
     }
 
@@ -244,31 +240,43 @@ public class MyImcoinActivity extends BaseActivity {
                 llNullTips.setVisibility(View.GONE);
                 rvRecord.setVisibility(View.VISIBLE);
 
-                if (listData.size() == 0) {
+                if (listData.size() < perpage) {
                     canLoadMore = false;
                     mAdapter.loadMoreEnd();
                 } else {
                     page = page + 1;
                     canLoadMore = true;
                     mAdapter.loadMoreComplete();
-                    for (int i = 0; i < listData.size(); i++) {
-                        BillRecordItemEntity item = listData.get(i);
-                        if (item != null) {
-                            listRecord.add(item);
-                        }
-                    }
-                    mAdapter.setNewData(listRecord);
-                    mAdapter.notifyDataSetChanged();
                 }
+                for (int i = 0; i < listData.size(); i++) {
+                    BillRecordItemEntity item = listData.get(i);
+                    if (item != null) {
+                        listRecord.add(item);
+                    }
+                }
+                mAdapter.setNewData(listRecord);
+                mAdapter.notifyDataSetChanged();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @OnClick(R.id.iv_calendar)
-    public void onViewClicked() {
-        showDataPicker();
+    @OnClick({R.id.iv_calendar, R.id.tv_try_again})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.iv_calendar:
+                showDataPicker();
+                break;
+            case R.id.tv_try_again:
+                swipeRefresh.setRefreshing(true);
+                page = 1;
+                if (listRecord != null)
+                    listRecord.clear();
+                mAdapter.notifyDataSetChanged();
+                getRecord();
+                break;
+        }
     }
 
     //显示时间选择器
@@ -354,10 +362,12 @@ public class MyImcoinActivity extends BaseActivity {
     private BaseQuickAdapter.RequestLoadMoreListener onLoadMoreListener = new BaseQuickAdapter.RequestLoadMoreListener() {
         @Override
         public void onLoadMoreRequested() {
-            Logger.e("----->onLoadMoreRequested ");
-            Logger.e("--->page = " + page);
             if (canLoadMore) {
+                Logger.e("----->onLoadMoreRequested ");
+                Logger.e("--->page = " + page);
                 getRecord();
+            } else {
+                mAdapter.loadMoreEnd();
             }
         }
     };

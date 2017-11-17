@@ -56,8 +56,6 @@ import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
 import com.sundy.iman.utils.NetWorkUtils;
-import com.sundy.iman.utils.cache.CacheData;
-import com.sundy.iman.utils.cache.beans.CommunityPostListCacheBean;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
@@ -71,8 +69,6 @@ import com.umeng.socialize.UMShareListener;
 import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.media.UMImage;
 import com.umeng.socialize.media.UMWeb;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.Permission;
 import com.zhy.view.flowlayout.FlowLayout;
 import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
@@ -103,7 +99,6 @@ import retrofit2.Response;
 
 public class CommunityMsgListActivity extends BaseActivity {
 
-
     @BindView(R.id.title_bar)
     TitleBarView titleBar;
     @BindView(R.id.rv_msg)
@@ -120,6 +115,12 @@ public class CommunityMsgListActivity extends BaseActivity {
     TextView tvTips;
     @BindView(R.id.video_full_container)
     FrameLayout videoFullContainer;
+    @BindView(R.id.ll_no_data)
+    LinearLayout llNoData;
+    @BindView(R.id.tv_try_again)
+    TextView tvTryAgain;
+    @BindView(R.id.ll_no_net_content)
+    LinearLayout llNoNetContent;
 
     private String community_id;
     private CommunityMenuPopup communityMenuPopup;
@@ -154,10 +155,8 @@ public class CommunityMsgListActivity extends BaseActivity {
         initData();
         initTitle();
         init();
-        getCommunityInfoCacheData();
         getCommunityInfo();
 
-        getPostListCacheData();
         page = 1;
         if (listPost != null)
             listPost.clear();
@@ -232,18 +231,6 @@ public class CommunityMsgListActivity extends BaseActivity {
         rvMsg.addOnScrollListener(onScrollListener);
     }
 
-    //社区详情缓存
-    private void getCommunityInfoCacheData() {
-        boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
-        if (hasPermission) {
-            CommunityInfoEntity.DataEntity dataEntity = CacheData.getInstance().getCommunityInfo(community_id);
-            if (dataEntity != null) {
-                titleBar.setBackMode(dataEntity.getName());
-                titleBar.setRightIvVisibility(View.VISIBLE);
-            }
-        }
-    }
-
     //社区详情
     private void getCommunityInfo() {
         if (NetWorkUtils.isNetAvailable(this)) {
@@ -266,10 +253,6 @@ public class CommunityMsgListActivity extends BaseActivity {
                             if (dataEntity != null) {
                                 titleBar.setBackMode(dataEntity.getName());
                                 titleBar.setRightIvVisibility(View.VISIBLE);
-                                boolean hasPermission = AndPermission.hasPermission(CommunityMsgListActivity.this, Permission.STORAGE);
-                                if (hasPermission) {
-                                    CacheData.getInstance().saveCommunityInfo(community_id, dataEntity);
-                                }
                             }
                         } else {
                             MainApp.getInstance().showToast(msg);
@@ -290,20 +273,11 @@ public class CommunityMsgListActivity extends BaseActivity {
         }
     }
 
-    //获取post列表缓存
-    private void getPostListCacheData() {
-        boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
-        if (hasPermission) {
-            CommunityPostListCacheBean communityPostListCacheBean = CacheData.getInstance().getCommunityPostList(community_id);
-            if (communityPostListCacheBean != null) {
-                showCacheData(communityPostListCacheBean.getListPost());
-            }
-        }
-    }
-
     //获取post列表
     private void getPostList() {
         if (NetWorkUtils.isNetAvailable(this)) {
+            llNoNetContent.setVisibility(View.GONE);
+
             final Map<String, String> param = new HashMap<>();
             param.put("mid", PaperUtils.getMId());
             param.put("session_key", PaperUtils.getSessionKey());
@@ -345,20 +319,8 @@ public class CommunityMsgListActivity extends BaseActivity {
             if (swipeRefresh != null)
                 swipeRefresh.setRefreshing(false);
             myPostAdapter.loadMoreEnd();
-        }
-    }
 
-    private void showCacheData(List<PostItemEntity> listData) {
-        if (listData != null && listData.size() > 0) {
-            Logger.e("----->获取缓存数据 size = " + listData.size());
-
-            tvTips.setVisibility(View.GONE);
-            tvPost.setVisibility(View.GONE);
-            viewLine.setVisibility(View.VISIBLE);
-            rvMsg.setVisibility(View.VISIBLE);
-
-            myPostAdapter.setNewData(listData);
-            myPostAdapter.notifyDataSetChanged();
+            llNoNetContent.setVisibility(View.VISIBLE);
         }
     }
 
@@ -368,14 +330,12 @@ public class CommunityMsgListActivity extends BaseActivity {
                 canLoadMore = false;
                 myPostAdapter.loadMoreEnd();
 
-                tvTips.setVisibility(View.VISIBLE);
-                tvPost.setVisibility(View.VISIBLE);
+                llNoData.setVisibility(View.VISIBLE);
                 viewLine.setVisibility(View.GONE);
                 rvMsg.setVisibility(View.GONE);
 
             } else {
-                tvTips.setVisibility(View.GONE);
-                tvPost.setVisibility(View.GONE);
+                llNoData.setVisibility(View.GONE);
                 viewLine.setVisibility(View.VISIBLE);
                 rvMsg.setVisibility(View.VISIBLE);
 
@@ -393,13 +353,6 @@ public class CommunityMsgListActivity extends BaseActivity {
                     if (item != null) {
                         listPost.add(item);
                     }
-                }
-                boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
-                if (hasPermission) {
-                    CommunityPostListCacheBean bean = new CommunityPostListCacheBean();
-                    bean.setListPost(listPost);
-                    Logger.e("----->保存消息列表数据");
-                    CacheData.getInstance().saveCommunityPostList(community_id, bean);
                 }
                 myPostAdapter.setNewData(listPost);
                 myPostAdapter.notifyDataSetChanged();
@@ -524,9 +477,25 @@ public class CommunityMsgListActivity extends BaseActivity {
         UIHelper.jump(this, CommunityDetailActivity.class, bundle);
     }
 
-    @OnClick(R.id.tv_post)
-    public void onViewClicked() {
-        goAddPost();
+    @OnClick({R.id.tv_post, R.id.tv_try_again})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.tv_post:
+                if (PaperUtils.isLogin()) {
+                    goAddPost();
+                } else {
+                    goLogin();
+                }
+                break;
+            case R.id.tv_try_again:
+                swipeRefresh.setRefreshing(true);
+                page = 1;
+                if (listPost != null)
+                    listPost.clear();
+                myPostAdapter.notifyDataSetChanged();
+                getPostList();
+                break;
+        }
     }
 
     private class PostAdapter extends BaseQuickAdapter<PostItemEntity, BaseViewHolder>
@@ -1125,13 +1094,11 @@ public class CommunityMsgListActivity extends BaseActivity {
                             myPostAdapter.notifyDataSetChanged();
 
                             if (listPost.size() == 0) {
-                                tvTips.setVisibility(View.VISIBLE);
-                                tvPost.setVisibility(View.VISIBLE);
+                                llNoData.setVisibility(View.VISIBLE);
                                 viewLine.setVisibility(View.GONE);
                                 rvMsg.setVisibility(View.GONE);
                             } else {
-                                tvTips.setVisibility(View.GONE);
-                                tvPost.setVisibility(View.GONE);
+                                llNoData.setVisibility(View.GONE);
                                 viewLine.setVisibility(View.VISIBLE);
                                 rvMsg.setVisibility(View.VISIBLE);
                             }

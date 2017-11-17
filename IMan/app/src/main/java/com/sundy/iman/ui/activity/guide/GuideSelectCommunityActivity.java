@@ -76,6 +76,7 @@ public class GuideSelectCommunityActivity extends BaseActivity {
 
         initData();
         init();
+        page = 1;
         if (listCommunity != null)
             listCommunity.clear();
         getCommunityList();

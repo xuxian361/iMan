@@ -239,6 +239,8 @@
     <string name="login_account_2_hint">Mobile number / Email</string>
     <string name="login_tips">*Only support mobile phone numbers in mainland China, other countries or regions, please use the e-mail.</string>
     <string name="load_end_hint">Loading completed</string>
+    <string name="try_again">Try again</string>
+    <string name="start">Start</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

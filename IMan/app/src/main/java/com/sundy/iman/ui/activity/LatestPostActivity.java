@@ -27,12 +27,9 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.NetWorkUtils;
-import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.Permission;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -42,6 +39,7 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -57,6 +55,10 @@ public class LatestPostActivity extends BaseActivity {
     RecyclerView rvPost;
     @BindView(R.id.swipe_refresh)
     SwipeRefreshLayout swipeRefresh;
+    @BindView(R.id.tv_try_again)
+    TextView tvTryAgain;
+    @BindView(R.id.ll_no_net_content)
+    LinearLayout llNoNetContent;
 
     private int page = 1; //当前页码
     private int perpage = 10; //每页显示条数
@@ -73,6 +75,7 @@ public class LatestPostActivity extends BaseActivity {
 
         initTitle();
         init();
+        page = 1;
         if (listPost != null)
             listPost.clear();
         getLastPost();
@@ -135,23 +138,18 @@ public class LatestPostActivity extends BaseActivity {
 
         myPostAdapter = new LastPostAdapter(R.layout.item_community_msg, listPost);
         myPostAdapter.setLoadMoreView(new CustomLoadMoreView());
-        myPostAdapter.setEnableLoadMore(true);
+        myPostAdapter.setPreLoadNumber(perpage);
         myPostAdapter.setOnLoadMoreListener(onLoadMoreListener, rvPost);
         rvPost.setAdapter(myPostAdapter);
+
         rvPost.addOnScrollListener(onScrollListener);
     }
 
     //获取最新消息列表
     private void getLastPost() {
-        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
-        if (hasPermission) {
-            LastPostListEntity.DataEntity dataEntity = CacheData.getInstance().getLatestPostList(page);
-            if (dataEntity != null) {
-                showData(dataEntity.getList());
-            }
-        }
-
         if (NetWorkUtils.isNetAvailable(this)) {
+            llNoNetContent.setVisibility(View.GONE);
+
             Map<String, String> param = new HashMap<>();
             param.put("mid", PaperUtils.getMId());
             param.put("session_key", PaperUtils.getSessionKey());
@@ -169,9 +167,6 @@ public class LatestPostActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             LastPostListEntity.DataEntity dataEntity = lastPostListEntity.getData();
                             if (dataEntity != null) {
-                                if (hasPermission) {
-                                    CacheData.getInstance().saveLatestPostList(dataEntity, page);
-                                }
                                 showData(dataEntity.getList());
                             }
                         }
@@ -193,30 +188,43 @@ public class LatestPostActivity extends BaseActivity {
         } else {
             if (swipeRefresh != null)
                 swipeRefresh.setRefreshing(false);
+            myPostAdapter.loadMoreEnd();
+
+            llNoNetContent.setVisibility(View.VISIBLE);
         }
     }
 
     private void showData(List<LastPostItemEntity> listData) {
         try {
-            if (listData.size() == 0) {
+            if (listData.size() < perpage) {
                 canLoadMore = false;
                 myPostAdapter.loadMoreEnd();
             } else {
                 page = page + 1;
                 canLoadMore = true;
                 myPostAdapter.loadMoreComplete();
-                for (int i = 0; i < listData.size(); i++) {
-                    LastPostItemEntity item = listData.get(i);
-                    if (item != null) {
-                        listPost.add(item);
-                    }
-                }
-                myPostAdapter.setNewData(listPost);
-                myPostAdapter.notifyDataSetChanged();
             }
+            for (int i = 0; i < listData.size(); i++) {
+                LastPostItemEntity item = listData.get(i);
+                if (item != null) {
+                    listPost.add(item);
+                }
+            }
+            myPostAdapter.setNewData(listPost);
+            myPostAdapter.notifyDataSetChanged();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @OnClick(R.id.tv_try_again)
+    public void onViewClicked() {
+        swipeRefresh.setRefreshing(true);
+        page = 1;
+        if (listPost != null)
+            listPost.clear();
+        myPostAdapter.notifyDataSetChanged();
+        getLastPost();
     }
 
     private class LastPostAdapter extends BaseQuickAdapter<LastPostItemEntity, BaseViewHolder> {
@@ -278,10 +286,12 @@ public class LatestPostActivity extends BaseActivity {
     private BaseQuickAdapter.RequestLoadMoreListener onLoadMoreListener = new BaseQuickAdapter.RequestLoadMoreListener() {
         @Override
         public void onLoadMoreRequested() {
-            Logger.e("----->onLoadMoreRequested ");
-            Logger.e("--->page = " + page);
             if (canLoadMore) {
+                Logger.e("----->onLoadMoreRequested ");
+                Logger.e("--->page = " + page);
                 getLastPost();
+            } else {
+                myPostAdapter.loadMoreEnd();
             }
         }
     };

@@ -136,12 +136,12 @@
         "source": "/Users/sundy/.android/build-cache/cf6fe9af2ecf2d053780190e1e606c9965e363ae/output/res/drawable-xxhdpi-v4/common_google_signin_btn_text_light_normal.9.png"
     },
     {
-        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/androidTest/debug/drawable-xxhdpi-v4/abc_btn_switch_to_on_mtrl_00001.9.png",
-        "source": "/Users/sundy/.android/build-cache/fd222f627f2c06f25759251e0957757ff5395771/output/res/drawable-xxhdpi-v4/abc_btn_switch_to_on_mtrl_00001.9.png"
-    },
-    {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/androidTest/debug/drawable-xxhdpi-v4/abc_list_longpressed_holo.9.png",
         "source": "/Users/sundy/.android/build-cache/fd222f627f2c06f25759251e0957757ff5395771/output/res/drawable-xxhdpi-v4/abc_list_longpressed_holo.9.png"
+    },
+    {
+        "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/androidTest/debug/drawable-xxhdpi-v4/abc_btn_switch_to_on_mtrl_00001.9.png",
+        "source": "/Users/sundy/.android/build-cache/fd222f627f2c06f25759251e0957757ff5395771/output/res/drawable-xxhdpi-v4/abc_btn_switch_to_on_mtrl_00001.9.png"
     },
     {
         "merged": "/Users/sundy/Documents/Projects/Android-iMan/iMan/IMan/libraries/easeui/build/intermediates/res/merged/androidTest/debug/drawable-xxhdpi-v4/abc_btn_switch_to_on_mtrl_00012.9.png",

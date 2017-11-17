@@ -917,41 +917,46 @@ public class EditPostActivity extends BaseActivity {
     };
 
     //保存定位信息
-    private void saveLocation(double latitude, double longitude) {
+    private void saveLocation(final double latitude, final double longitude) {
         Logger.e("---->lat = " + latitude);
         Logger.e("---->lng = " + longitude);
-        try {
-            List<Address> locationList = geocoder.getFromLocation(latitude, longitude, 1);
-            Logger.e("---->size =" + locationList.size());
-            if (locationList != null && locationList.size() > 0) {
-                Address address = locationList.get(0);
-                if (address != null) {
-                    String country = address.getCountryName();
-                    String province = address.getAdminArea();
-                    String city = address.getLocality();
-                    String district = address.getSubLocality();
-                    String addressStr = country + " " + province + " " + city + " " + district + " " + address.getFeatureName();
-                    Logger.e("----->国家 = " + country);
-                    Logger.e("----->省份 = " + province);
-                    Logger.e("----->城市 = " + city);
-                    Logger.e("----->区域 = " + district);
-                    Logger.e("----->门牌号 = " + addressStr);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    List<Address> locationList = geocoder.getFromLocation(latitude, longitude, 1);
+                    Logger.e("---->size =" + locationList.size());
+                    if (locationList != null && locationList.size() > 0) {
+                        Address address = locationList.get(0);
+                        if (address != null) {
+                            String country = address.getCountryName();
+                            String province = address.getAdminArea();
+                            String city = address.getLocality();
+                            String district = address.getSubLocality();
+                            String addressStr = country + " " + province + " " + city + " " + district + " " + address.getFeatureName();
+                            Logger.e("----->国家 = " + country);
+                            Logger.e("----->省份 = " + province);
+                            Logger.e("----->城市 = " + city);
+                            Logger.e("----->区域 = " + district);
+                            Logger.e("----->门牌号 = " + addressStr);
 
-                    locationEntity = new LocationEntity();
-                    locationEntity.setCountry(address.getCountryName());
-                    locationEntity.setProvince(address.getAdminArea());
-                    locationEntity.setCity(address.getLocality());
-                    locationEntity.setDistrict(address.getSubLocality());
-                    locationEntity.setAddress(addressStr);
-                    locationEntity.setLat(address.getLatitude());
-                    locationEntity.setLng(address.getLongitude());
+                            locationEntity = new LocationEntity();
+                            locationEntity.setCountry(address.getCountryName());
+                            locationEntity.setProvince(address.getAdminArea());
+                            locationEntity.setCity(address.getLocality());
+                            locationEntity.setDistrict(address.getSubLocality());
+                            locationEntity.setAddress(addressStr);
+                            locationEntity.setLat(address.getLatitude());
+                            locationEntity.setLng(address.getLongitude());
 
-                    canBtnClick();
+                            canBtnClick();
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
             }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        }).start();
     }
 
     @Subscribe(threadMode = ThreadMode.MAIN)

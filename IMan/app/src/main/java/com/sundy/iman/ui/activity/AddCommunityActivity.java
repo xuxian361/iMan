@@ -94,6 +94,7 @@ public class AddCommunityActivity extends BaseActivity {
 
         initTitle();
         init();
+        page = 1;
         if (listCommunity != null)
             listCommunity.clear();
         getCommunityList();
@@ -247,22 +248,22 @@ public class AddCommunityActivity extends BaseActivity {
 
     private void showData(List<CommunityItemEntity> listData) {
         try {
-            if (listData.size() == 0) {
+            if (listData.size() < perpage) {
                 canLoadMore = false;
                 communityAdapter.loadMoreEnd();
             } else {
                 page = page + 1;
                 canLoadMore = true;
                 communityAdapter.loadMoreComplete();
-                for (int i = 0; i < listData.size(); i++) {
-                    CommunityItemEntity item = listData.get(i);
-                    if (item != null) {
-                        listCommunity.add(item);
-                    }
-                }
-                communityAdapter.setNewData(listCommunity);
-                communityAdapter.notifyDataSetChanged();
             }
+            for (int i = 0; i < listData.size(); i++) {
+                CommunityItemEntity item = listData.get(i);
+                if (item != null) {
+                    listCommunity.add(item);
+                }
+            }
+            communityAdapter.setNewData(listCommunity);
+            communityAdapter.notifyDataSetChanged();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -549,10 +550,12 @@ public class AddCommunityActivity extends BaseActivity {
     private BaseQuickAdapter.RequestLoadMoreListener onLoadMoreListener = new BaseQuickAdapter.RequestLoadMoreListener() {
         @Override
         public void onLoadMoreRequested() {
-            Logger.e("----->onLoadMoreRequested ");
-            Logger.e("--->page = " + page);
             if (canLoadMore) {
+                Logger.e("----->onLoadMoreRequested ");
+                Logger.e("--->page = " + page);
                 getCommunityList();
+            } else {
+                communityAdapter.loadMoreEnd();
             }
         }
     };

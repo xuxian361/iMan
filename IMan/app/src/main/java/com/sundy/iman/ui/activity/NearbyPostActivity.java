@@ -55,7 +55,6 @@ import com.sundy.iman.paperdb.LocationPaper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
 import com.sundy.iman.utils.NetWorkUtils;
-import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
@@ -68,8 +67,6 @@ import com.umeng.socialize.UMShareListener;
 import com.umeng.socialize.bean.SHARE_MEDIA;
 import com.umeng.socialize.media.UMImage;
 import com.umeng.socialize.media.UMWeb;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.Permission;
 import com.zhy.view.flowlayout.FlowLayout;
 import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
@@ -83,6 +80,7 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import de.hdodenhof.circleimageview.CircleImageView;
 import lombok.Data;
 import retrofit2.Call;
@@ -110,6 +108,12 @@ public class NearbyPostActivity extends BaseActivity {
     TextView tvTips;
     @BindView(R.id.video_full_container)
     FrameLayout videoFullContainer;
+    @BindView(R.id.ll_null_tips)
+    LinearLayout llNullTips;
+    @BindView(R.id.tv_try_again)
+    TextView tvTryAgain;
+    @BindView(R.id.ll_no_net_content)
+    LinearLayout llNoNetContent;
 
 
     private int page = 1; //当前页码
@@ -139,6 +143,7 @@ public class NearbyPostActivity extends BaseActivity {
 
         initTitle();
         init();
+        page = 1;
         if (listPost != null)
             listPost.clear();
         getPostList();
@@ -193,7 +198,7 @@ public class NearbyPostActivity extends BaseActivity {
 
         myPostAdapter = new PostAdapter(R.layout.item_nearby_post, listPost);
         myPostAdapter.setLoadMoreView(new CustomLoadMoreView());
-        myPostAdapter.setEnableLoadMore(true);
+        myPostAdapter.setPreLoadNumber(perpage);
         myPostAdapter.setOnLoadMoreListener(onLoadMoreListener, rvMsg);
         rvMsg.setAdapter(myPostAdapter);
 
@@ -202,15 +207,9 @@ public class NearbyPostActivity extends BaseActivity {
 
     //获取post列表
     private void getPostList() {
-        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
-        if (hasPermission) {
-            NearbyPostListEntity.DataEntity dataEntity = CacheData.getInstance().getNearbyPostList(page);
-            if (dataEntity != null) {
-                showData(dataEntity.getList());
-            }
-        }
-
         if (NetWorkUtils.isNetAvailable(this)) {
+            llNoNetContent.setVisibility(View.GONE);
+
             LocationEntity locationEntity = LocationPaper.getLocation();
             Map<String, String> param = new HashMap<>();
             param.put("mid", PaperUtils.getMId());
@@ -231,9 +230,6 @@ public class NearbyPostActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             NearbyPostListEntity.DataEntity dataEntity = postListEntity.getData();
                             if (dataEntity != null) {
-                                if (hasPermission) {
-                                    CacheData.getInstance().saveNearbyPostList(dataEntity, page);
-                                }
                                 showData(dataEntity.getList());
                             }
                         }
@@ -255,6 +251,9 @@ public class NearbyPostActivity extends BaseActivity {
         } else {
             if (swipeRefresh != null)
                 swipeRefresh.setRefreshing(false);
+            myPostAdapter.loadMoreEnd();
+
+            llNoNetContent.setVisibility(View.VISIBLE);
         }
     }
 
@@ -264,38 +263,62 @@ public class NearbyPostActivity extends BaseActivity {
                 canLoadMore = false;
                 myPostAdapter.loadMoreEnd();
 
-                tvTips.setVisibility(View.VISIBLE);
-                tvPost.setVisibility(View.VISIBLE);
+                llNullTips.setVisibility(View.VISIBLE);
                 viewLine.setVisibility(View.GONE);
                 rvMsg.setVisibility(View.GONE);
 
             } else {
-                tvTips.setVisibility(View.GONE);
-                tvPost.setVisibility(View.GONE);
+                llNullTips.setVisibility(View.GONE);
                 viewLine.setVisibility(View.VISIBLE);
                 rvMsg.setVisibility(View.VISIBLE);
 
-                if (listData.size() == 0) {
+                if (listData.size() < perpage) {
                     canLoadMore = false;
                     myPostAdapter.loadMoreEnd();
                 } else {
                     page = page + 1;
                     canLoadMore = true;
                     myPostAdapter.loadMoreComplete();
-
-                    for (int i = 0; i < listData.size(); i++) {
-                        NearbyPostItemEntity item = listData.get(i);
-                        if (item != null) {
-                            listPost.add(item);
-                        }
-                    }
-                    myPostAdapter.setNewData(listPost);
-                    myPostAdapter.notifyDataSetChanged();
                 }
+
+                for (int i = 0; i < listData.size(); i++) {
+                    NearbyPostItemEntity item = listData.get(i);
+                    if (item != null) {
+                        listPost.add(item);
+                    }
+                }
+                myPostAdapter.setNewData(listPost);
+                myPostAdapter.notifyDataSetChanged();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @OnClick({R.id.tv_try_again, R.id.tv_post})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.tv_post:
+                if (PaperUtils.isLogin()) {
+                    getAddPost();
+                } else {
+                    goLogin();
+                }
+                break;
+            case R.id.tv_try_again:
+                swipeRefresh.setRefreshing(true);
+                page = 1;
+                if (listPost != null)
+                    listPost.clear();
+                myPostAdapter.notifyDataSetChanged();
+                getPostList();
+                break;
+        }
+    }
+
+    //跳转发布广告
+    private void getAddPost() {
+        UIHelper.jump(this, CreateAdvertisementActivity.class);
     }
 
     private class PostAdapter extends BaseQuickAdapter<NearbyPostItemEntity, BaseViewHolder>
@@ -349,7 +372,7 @@ public class NearbyPostActivity extends BaseActivity {
                 List<NearbyPostItemEntity.AttachmentEntity> attachment = item.getAttachment();
                 String is_collect = item.getIs_collect(); //是否领取过奖励: 1-是，0-否
 
-                final PostAdapter.ItemData itemData = new PostAdapter.ItemData();
+                final ItemData itemData = new ItemData();
                 itemData.setItem(item);
                 itemData.setPosition(helper.getLayoutPosition());
 
@@ -680,7 +703,7 @@ public class NearbyPostActivity extends BaseActivity {
 
         @Override
         public void onClick(View view) {
-            PostAdapter.ItemData itemData = (PostAdapter.ItemData) view.getTag(R.id.item_tag);
+            ItemData itemData = (ItemData) view.getTag(R.id.item_tag);
             switch (view.getId()) {
                 case R.id.rel_item:
                     Logger.e("----->展开Item");
@@ -951,13 +974,11 @@ public class NearbyPostActivity extends BaseActivity {
                             myPostAdapter.notifyDataSetChanged();
 
                             if (listPost.size() == 0) {
-                                tvTips.setVisibility(View.VISIBLE);
-                                tvPost.setVisibility(View.VISIBLE);
+                                llNullTips.setVisibility(View.VISIBLE);
                                 viewLine.setVisibility(View.GONE);
                                 rvMsg.setVisibility(View.GONE);
                             } else {
-                                tvTips.setVisibility(View.GONE);
-                                tvPost.setVisibility(View.GONE);
+                                llNullTips.setVisibility(View.GONE);
                                 viewLine.setVisibility(View.VISIBLE);
                                 rvMsg.setVisibility(View.VISIBLE);
                             }
@@ -1141,10 +1162,12 @@ public class NearbyPostActivity extends BaseActivity {
     private BaseQuickAdapter.RequestLoadMoreListener onLoadMoreListener = new BaseQuickAdapter.RequestLoadMoreListener() {
         @Override
         public void onLoadMoreRequested() {
-            Logger.e("----->onLoadMoreRequested ");
-            Logger.e("--->page = " + page);
             if (canLoadMore) {
+                Logger.e("----->onLoadMoreRequested ");
+                Logger.e("--->page = " + page);
                 getPostList();
+            } else {
+                myPostAdapter.loadMoreEnd();
             }
         }
     };

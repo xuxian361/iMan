@@ -470,6 +470,7 @@ public class EditProfileActivity extends BaseActivity {
         jsonObject.addProperty("width", headerSize + "");
         jsonObject.addProperty("height", headerSize + "");
         jsonArray.add(jsonObject);
+
         Map<String, String> param = new HashMap<>();
         param.put("category", "1"); //类型:1-用户头像，2-社区，3-post
         param.put("upload_params", jsonArray.toString()); //上传参数:json格式的数据:ext-上传文件的格式，width-上传文件的宽度，height-上传文件的高度

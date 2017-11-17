@@ -238,6 +238,8 @@
     <string name="login_account_2_hint">手机号码 / 邮箱</string>
     <string name="login_tips">*只支持中国大陆手机号码，其他国家或地区请使用电子邮箱</string>
     <string name="load_end_hint">加载完毕</string>
+    <string name="try_again">再试一次</string>
+    <string name="start">开始</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% 荧光币将会送给用户.

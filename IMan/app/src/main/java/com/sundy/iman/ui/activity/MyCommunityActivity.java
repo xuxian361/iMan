@@ -3,6 +3,7 @@ package com.sundy.iman.ui.activity;
 import android.os.Bundle;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.Nullable;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
@@ -37,14 +38,11 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.NetWorkUtils;
-import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
 import com.sundy.iman.view.dialog.CommonDialog;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.Permission;
 import com.zhy.view.flowlayout.FlowLayout;
 import com.zhy.view.flowlayout.TagAdapter;
 import com.zhy.view.flowlayout.TagFlowLayout;
@@ -88,6 +86,12 @@ public class MyCommunityActivity extends BaseActivity {
     TextView tvCreateCommunity;
     @BindView(R.id.ll_null_tips)
     LinearLayout llNullTips;
+    @BindView(R.id.tv_try_again)
+    TextView tvTryAgain;
+    @BindView(R.id.ll_no_net_content)
+    LinearLayout llNoNetContent;
+    @BindView(R.id.swipe_refresh)
+    SwipeRefreshLayout swipeRefresh;
 
     private String keyword = "";
     private int page = 1; //当前页码
@@ -95,6 +99,7 @@ public class MyCommunityActivity extends BaseActivity {
     private boolean canLoadMore = true;
     private MyCommunityAdapter communityAdapter;
     private List<CommunityItemEntity> listCommunity = new ArrayList<>();
+    private WrapContentLinearLayoutManager linearLayoutManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -105,6 +110,7 @@ public class MyCommunityActivity extends BaseActivity {
         EventBus.getDefault().register(this);
         initTitle();
         init();
+        page = 1;
         if (listCommunity != null)
             listCommunity.clear();
         getCommunityList();
@@ -143,14 +149,31 @@ public class MyCommunityActivity extends BaseActivity {
     private void init() {
         etSearch.addTextChangedListener(textWatcher);
 
-        rvCommunity.setLayoutManager(new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
+        swipeRefresh.setColorSchemeResources(android.R.color.holo_blue_light, android.R.color.holo_red_light,
+                android.R.color.holo_orange_light, android.R.color.holo_green_light);
+        swipeRefresh.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+
+            @Override
+            public void onRefresh() {
+                page = 1;
+                if (listCommunity != null)
+                    listCommunity.clear();
+                communityAdapter.notifyDataSetChanged();
+                getCommunityList();
+            }
+        });
+
+        linearLayoutManager = new WrapContentLinearLayoutManager(this, LinearLayoutManager.VERTICAL, false);
+        rvCommunity.setLayoutManager(linearLayoutManager);
         rvCommunity.addItemDecoration(new DividerItemDecoration(this, DividerItemDecoration.VERTICAL_LIST));
 
         communityAdapter = new MyCommunityAdapter(R.layout.item_my_community, listCommunity);
         communityAdapter.setLoadMoreView(new CustomLoadMoreView());
-        communityAdapter.setEnableLoadMore(true);
+        communityAdapter.setPreLoadNumber(perpage);
         communityAdapter.setOnLoadMoreListener(onLoadMoreListener, rvCommunity);
         rvCommunity.setAdapter(communityAdapter);
+
+        rvCommunity.addOnScrollListener(onScrollListener);
     }
 
     private TextWatcher textWatcher = new TextWatcher() {
@@ -177,15 +200,9 @@ public class MyCommunityActivity extends BaseActivity {
 
     //获取社区列表
     private void getCommunityList() {
-        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
-        if (hasPermission) {
-            CommunityListEntity.DataEntity dataEntity = CacheData.getInstance().getMyCommunityList(page);
-            if (dataEntity != null) {
-                showData(dataEntity.getList());
-            }
-        }
-
         if (NetWorkUtils.isNetAvailable(this)) {
+            llNoNetContent.setVisibility(View.GONE);
+
             final Map<String, String> param = new HashMap<>();
             param.put("type", "2"); //1-全部社区, 2-我的社区, 3-发布广告的社区搜索, 4-加入推广社区搜索，5-我的推广社区
             param.put("mid", PaperUtils.getMId());
@@ -208,9 +225,6 @@ public class MyCommunityActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             CommunityListEntity.DataEntity dataEntity = communityListEntity.getData();
                             if (dataEntity != null) {
-                                if (hasPermission) {
-                                    CacheData.getInstance().saveMyCommunityList(dataEntity, page);
-                                }
                                 showData(dataEntity.getList());
                             }
                         }
@@ -219,14 +233,22 @@ public class MyCommunityActivity extends BaseActivity {
 
                 @Override
                 public void onAfter() {
-
+                    if (swipeRefresh != null)
+                        swipeRefresh.setRefreshing(false);
                 }
 
                 @Override
                 public void onFailure(Call<CommunityListEntity> call, Throwable t) {
-
+                    if (swipeRefresh != null)
+                        swipeRefresh.setRefreshing(false);
                 }
             });
+        } else {
+            if (swipeRefresh != null)
+                swipeRefresh.setRefreshing(false);
+            communityAdapter.loadMoreEnd();
+
+            llNoNetContent.setVisibility(View.VISIBLE);
         }
     }
 
@@ -243,29 +265,29 @@ public class MyCommunityActivity extends BaseActivity {
                 llNullTips.setVisibility(View.GONE);
                 rvCommunity.setVisibility(View.VISIBLE);
 
-                if (listData.size() == 0) {
+                if (listData.size() < perpage) {
                     canLoadMore = false;
                     communityAdapter.loadMoreEnd();
                 } else {
                     page = page + 1;
                     canLoadMore = true;
                     communityAdapter.loadMoreComplete();
-                    for (int i = 0; i < listData.size(); i++) {
-                        CommunityItemEntity item = listData.get(i);
-                        if (item != null) {
-                            listCommunity.add(item);
-                        }
-                    }
-                    communityAdapter.setNewData(listCommunity);
-                    communityAdapter.notifyDataSetChanged();
                 }
+                for (int i = 0; i < listData.size(); i++) {
+                    CommunityItemEntity item = listData.get(i);
+                    if (item != null) {
+                        listCommunity.add(item);
+                    }
+                }
+                communityAdapter.setNewData(listCommunity);
+                communityAdapter.notifyDataSetChanged();
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @OnClick({R.id.tv_add_community, R.id.tv_create_community})
+    @OnClick({R.id.tv_add_community, R.id.tv_create_community, R.id.tv_try_again})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.tv_add_community:
@@ -273,6 +295,14 @@ public class MyCommunityActivity extends BaseActivity {
                 break;
             case R.id.tv_create_community:
                 goCreateCommunity();
+                break;
+            case R.id.tv_try_again:
+                swipeRefresh.setRefreshing(true);
+                page = 1;
+                if (listCommunity != null)
+                    listCommunity.clear();
+                communityAdapter.notifyDataSetChanged();
+                getCommunityList();
                 break;
         }
     }
@@ -505,13 +535,34 @@ public class MyCommunityActivity extends BaseActivity {
         });
     }
 
+    //解决滑动冲突
+    private RecyclerView.OnScrollListener onScrollListener = new RecyclerView.OnScrollListener() {
+        private int lastVisibleItemPosition;
+
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            //第一个可视View 的位置
+            int FirstVisibleItemPosition = linearLayoutManager.findFirstVisibleItemPosition();
+            rvCommunity.setEnabled(FirstVisibleItemPosition == 0);
+            //最后一个可视View 的位置
+            lastVisibleItemPosition = linearLayoutManager.findLastVisibleItemPosition();
+        }
+
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            super.onScrollStateChanged(recyclerView, newState);
+        }
+    };
+
     private BaseQuickAdapter.RequestLoadMoreListener onLoadMoreListener = new BaseQuickAdapter.RequestLoadMoreListener() {
         @Override
         public void onLoadMoreRequested() {
-            Logger.e("----->onLoadMoreRequested ");
-            Logger.e("--->page = " + page);
             if (canLoadMore) {
+                Logger.e("----->onLoadMoreRequested ");
+                Logger.e("--->page = " + page);
                 getCommunityList();
+            } else {
+                communityAdapter.loadMoreEnd();
             }
         }
     };

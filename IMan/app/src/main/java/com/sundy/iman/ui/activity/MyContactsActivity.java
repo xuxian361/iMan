@@ -35,14 +35,11 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.NetWorkUtils;
-import com.sundy.iman.utils.cache.CacheData;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
 import com.sundy.iman.view.dialog.CommonDialog;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.Permission;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -91,6 +88,7 @@ public class MyContactsActivity extends BaseActivity {
 
         initTitle();
         init();
+        page = 1;
         if (listContact != null)
             listContact.clear();
         getContactList();
@@ -104,7 +102,7 @@ public class MyContactsActivity extends BaseActivity {
 
         contactAdapter = new ContactAdapter(R.layout.item_contact, listContact);
         contactAdapter.setLoadMoreView(new CustomLoadMoreView());
-        contactAdapter.setEnableLoadMore(true);
+        contactAdapter.setPreLoadNumber(perpage);
         contactAdapter.setOnLoadMoreListener(onLoadMoreListener, rvContact);
         View view_community = getLayoutInflater().inflate(R.layout.view_my_community_header, null);
         view_community.setOnClickListener(new View.OnClickListener() {
@@ -177,14 +175,6 @@ public class MyContactsActivity extends BaseActivity {
 
     //获取联系人列表
     private void getContactList() {
-        final boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
-        if (hasPermission) {
-            ContactListEntity.DataEntity dataEntity = CacheData.getInstance().getMyContactList(page);
-            if (dataEntity != null) {
-                showData(dataEntity.getList());
-            }
-        }
-
         if (NetWorkUtils.isNetAvailable(this)) {
             Map<String, String> param = new HashMap<>();
             param.put("mid", PaperUtils.getMId());
@@ -204,9 +194,6 @@ public class MyContactsActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             ContactListEntity.DataEntity dataEntity = contactListEntity.getData();
                             if (dataEntity != null) {
-                                if (hasPermission) {
-                                    CacheData.getInstance().saveMyContactsList(dataEntity, page);
-                                }
                                 showData(dataEntity.getList());
                             }
                         }
@@ -223,27 +210,29 @@ public class MyContactsActivity extends BaseActivity {
 
                 }
             });
+        } else {
+            contactAdapter.loadMoreEnd();
         }
     }
 
     private void showData(List<ContactItemEntity> listData) {
         try {
-            if (listData.size() == 0) {
+            if (listData.size() < perpage) {
                 canLoadMore = false;
                 contactAdapter.loadMoreEnd();
             } else {
                 page = page + 1;
                 canLoadMore = true;
                 contactAdapter.loadMoreComplete();
-                for (int i = 0; i < listData.size(); i++) {
-                    ContactItemEntity item = listData.get(i);
-                    if (item != null) {
-                        listContact.add(item);
-                    }
-                }
-                contactAdapter.setNewData(listContact);
-                contactAdapter.notifyDataSetChanged();
             }
+            for (int i = 0; i < listData.size(); i++) {
+                ContactItemEntity item = listData.get(i);
+                if (item != null) {
+                    listContact.add(item);
+                }
+            }
+            contactAdapter.setNewData(listContact);
+            contactAdapter.notifyDataSetChanged();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -440,10 +429,12 @@ public class MyContactsActivity extends BaseActivity {
     private BaseQuickAdapter.RequestLoadMoreListener onLoadMoreListener = new BaseQuickAdapter.RequestLoadMoreListener() {
         @Override
         public void onLoadMoreRequested() {
-            Logger.e("----->onLoadMoreRequested ");
-            Logger.e("--->page = " + page);
             if (canLoadMore) {
+                Logger.e("----->onLoadMoreRequested ");
+                Logger.e("--->page = " + page);
                 getContactList();
+            } else {
+                contactAdapter.loadMoreEnd();
             }
         }
     };

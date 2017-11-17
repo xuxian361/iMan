@@ -45,7 +45,7 @@ public class RetrofitHelper {
             HttpLoggingInterceptor logInterceptor = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
                 @Override
                 public void log(String message) {
-                    Logger.t("HttpLog").json(message);
+                    Logger.w(message);
                 }
             });
             logInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);

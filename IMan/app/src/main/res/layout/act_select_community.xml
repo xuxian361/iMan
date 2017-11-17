@@ -61,13 +61,25 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <android.support.v7.widget.RecyclerView
-            android:id="@+id/rv_community"
+        <RelativeLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_above="@+id/ll_bottom"
-            android:paddingBottom="15dp"
-            android:paddingTop="10dp" />
+            android:layout_above="@+id/ll_bottom">
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_community"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingBottom="15dp"
+                android:paddingTop="10dp" />
+
+            <include
+                layout="@layout/layout_no_network"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="gone" />
+
+        </RelativeLayout>
 
         <LinearLayout
             android:id="@+id/ll_bottom"
@@ -98,7 +110,6 @@
                 android:background="@drawable/selector_arrow_black" />
 
         </LinearLayout>
-
 
     </RelativeLayout>
 

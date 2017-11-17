@@ -36,7 +36,7 @@
         android:layout_marginTop="8dp"
         android:clickable="true"
         android:padding="4dp"
-        android:text="跳过 >"
+        android:text="@string/skip"
         android:textColor="@android:color/white"
         android:textSize="14sp" />
 
@@ -48,7 +48,7 @@
         android:layout_marginBottom="60dp"
         android:background="@drawable/selector_btn_guide"
         android:padding="8dp"
-        android:text="进入主界面"
+        android:text="@string/start"
         android:textColor="@android:color/white"
         android:textSize="14sp"
         android:visibility="gone"

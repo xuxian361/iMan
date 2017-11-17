@@ -35,15 +35,11 @@ import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
 import com.sundy.iman.utils.NetWorkUtils;
-import com.sundy.iman.utils.cache.CacheData;
-import com.sundy.iman.utils.cache.beans.MyPostListCacheBean;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
 import com.sundy.iman.view.WrapContentLinearLayoutManager;
 import com.sundy.iman.view.dialog.CommonDialog;
-import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.Permission;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -75,6 +71,10 @@ public class MyPostActivity extends BaseActivity {
     TextView tvCreateAd;
     @BindView(R.id.ll_null_tips)
     LinearLayout llNullTips;
+    @BindView(R.id.tv_try_again)
+    TextView tvTryAgain;
+    @BindView(R.id.ll_no_net_content)
+    LinearLayout llNoNetContent;
 
     private int page = 1; //当前页码
     private int perpage = 10; //每页显示条数
@@ -82,7 +82,6 @@ public class MyPostActivity extends BaseActivity {
     private List<PostItemEntity> listPost = new ArrayList<>();
     private MyPostAdapter myPostAdapter;
     private WrapContentLinearLayoutManager linearLayoutManager;
-    private MyPostListCacheBean myPostListCacheBean = new MyPostListCacheBean();
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -93,7 +92,6 @@ public class MyPostActivity extends BaseActivity {
         initTitle();
         init();
 
-        getPostListCacheData();
         page = 1;
         if (listPost != null)
             listPost.clear();
@@ -108,7 +106,8 @@ public class MyPostActivity extends BaseActivity {
             @Override
             public void onRefresh() {
                 page = 1;
-                myPostAdapter.setNewData(null);
+                if (listPost != null)
+                    listPost.clear();
                 myPostAdapter.notifyDataSetChanged();
                 getPostList();
             }
@@ -157,20 +156,11 @@ public class MyPostActivity extends BaseActivity {
         });
     }
 
-    //获取post列表缓存
-    private void getPostListCacheData() {
-        boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
-        if (hasPermission) {
-            MyPostListCacheBean myPostListCacheBean = CacheData.getInstance().getMyPostList();
-            if (myPostListCacheBean != null) {
-                showCacheData(myPostListCacheBean.getList());
-            }
-        }
-    }
-
     //获取post列表
     private void getPostList() {
         if (NetWorkUtils.isNetAvailable(this)) {
+            llNoNetContent.setVisibility(View.GONE);
+
             Map<String, String> param = new HashMap<>();
             param.put("mid", PaperUtils.getMId());
             param.put("session_key", PaperUtils.getSessionKey());
@@ -212,17 +202,8 @@ public class MyPostActivity extends BaseActivity {
             if (swipeRefresh != null)
                 swipeRefresh.setRefreshing(false);
             myPostAdapter.loadMoreEnd();
-        }
-    }
 
-    private void showCacheData(List<PostItemEntity> listData) {
-        if (listData != null && listData.size() > 0) {
-            Logger.e("----->获取缓存数据 size = " + listData.size());
-            llNullTips.setVisibility(View.GONE);
-            rvPost.setVisibility(View.VISIBLE);
-
-            myPostAdapter.setNewData(listData);
-            myPostAdapter.notifyDataSetChanged();
+            llNoNetContent.setVisibility(View.VISIBLE);
         }
     }
 
@@ -254,18 +235,6 @@ public class MyPostActivity extends BaseActivity {
                         listPost.add(item);
                     }
                 }
-                boolean hasPermission = AndPermission.hasPermission(this, Permission.STORAGE);
-                if (hasPermission) {
-                    boolean removeOk = CacheData.getInstance().removeMyPostList();
-                    if (removeOk) {
-                        Logger.e("----->已移除消息列表数据");
-                        if (myPostListCacheBean != null) {
-                            myPostListCacheBean.setList(listPost);
-                            Logger.e("----->保存消息列表数据");
-                            CacheData.getInstance().saveMyPostList(myPostListCacheBean);
-                        }
-                    }
-                }
                 myPostAdapter.setNewData(listPost);
                 myPostAdapter.notifyDataSetChanged();
             }
@@ -274,9 +243,21 @@ public class MyPostActivity extends BaseActivity {
         }
     }
 
-    @OnClick(R.id.tv_create_ad)
-    public void onViewClicked() {
-        goCreateAd();
+    @OnClick({R.id.tv_create_ad, R.id.tv_try_again})
+    public void onViewClicked(View view) {
+        switch (view.getId()) {
+            case R.id.tv_create_ad:
+                goCreateAd();
+                break;
+            case R.id.tv_try_again:
+                swipeRefresh.setRefreshing(true);
+                page = 1;
+                if (listPost != null)
+                    listPost.clear();
+                myPostAdapter.notifyDataSetChanged();
+                getPostList();
+                break;
+        }
     }
 
     //创建广告

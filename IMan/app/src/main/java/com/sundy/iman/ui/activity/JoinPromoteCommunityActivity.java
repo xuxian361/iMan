@@ -11,6 +11,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -44,6 +45,7 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 import retrofit2.Call;
 import retrofit2.Response;
 
@@ -64,6 +66,10 @@ public class JoinPromoteCommunityActivity extends BaseActivity {
     RelativeLayout relSearch;
     @BindView(R.id.rv_community)
     RecyclerView rvCommunity;
+    @BindView(R.id.tv_try_again)
+    TextView tvTryAgain;
+    @BindView(R.id.ll_no_net_content)
+    LinearLayout llNoNetContent;
 
     private int page = 1; //当前页码
     private int perpage = 10; //每页显示条数
@@ -81,6 +87,7 @@ public class JoinPromoteCommunityActivity extends BaseActivity {
 
         initTitle();
         init();
+        page = 1;
         if (listCommunity != null)
             listCommunity.clear();
         getCommunityList();
@@ -163,67 +170,83 @@ public class JoinPromoteCommunityActivity extends BaseActivity {
 
     //获取社区列表
     private void getCommunityList() {
-        Map<String, String> param = new HashMap<>();
-        param.put("type", "4"); //1-全部社区, 2-我的社区, 3-发布广告的社区搜索, 4-加入推广社区搜索，5-我的推广社区
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("keyword", keyword);
-        param.put("tags", "");
-        param.put("province", "");
-        param.put("city", "");
-        param.put("page", page + ""); //当前页码
-        param.put("perpage", perpage + ""); //每页显示条数
-        Call<CommunityListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getCommunityList(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<CommunityListEntity>() {
-            @Override
-            public void onSuccess(Call<CommunityListEntity> call, Response<CommunityListEntity> response) {
-                CommunityListEntity communityListEntity = response.body();
-                if (communityListEntity != null) {
-                    int code = communityListEntity.getCode();
-                    String msg = communityListEntity.getMsg();
-                    if (code == Constants.CODE_SUCCESS) {
-                        CommunityListEntity.DataEntity dataEntity = communityListEntity.getData();
-                        if (dataEntity != null) {
-                            showData(dataEntity.getList());
+        if (NetWorkUtils.isNetAvailable(this)) {
+            llNoNetContent.setVisibility(View.GONE);
+
+            Map<String, String> param = new HashMap<>();
+            param.put("type", "4"); //1-全部社区, 2-我的社区, 3-发布广告的社区搜索, 4-加入推广社区搜索，5-我的推广社区
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("keyword", keyword);
+            param.put("tags", "");
+            param.put("province", "");
+            param.put("city", "");
+            param.put("page", page + ""); //当前页码
+            param.put("perpage", perpage + ""); //每页显示条数
+            Call<CommunityListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .getCommunityList(ParamHelper.formatData(param));
+            call.enqueue(new RetrofitCallback<CommunityListEntity>() {
+                @Override
+                public void onSuccess(Call<CommunityListEntity> call, Response<CommunityListEntity> response) {
+                    CommunityListEntity communityListEntity = response.body();
+                    if (communityListEntity != null) {
+                        int code = communityListEntity.getCode();
+                        String msg = communityListEntity.getMsg();
+                        if (code == Constants.CODE_SUCCESS) {
+                            CommunityListEntity.DataEntity dataEntity = communityListEntity.getData();
+                            if (dataEntity != null) {
+                                showData(dataEntity.getList());
+                            }
                         }
                     }
                 }
-            }
 
-            @Override
-            public void onAfter() {
+                @Override
+                public void onAfter() {
 
-            }
+                }
 
-            @Override
-            public void onFailure(Call<CommunityListEntity> call, Throwable t) {
+                @Override
+                public void onFailure(Call<CommunityListEntity> call, Throwable t) {
 
-            }
-        });
+                }
+            });
+        } else {
+            communityAdapter.loadMoreEnd();
+            llNoNetContent.setVisibility(View.VISIBLE);
+        }
     }
 
     private void showData(List<CommunityItemEntity> listData) {
         try {
-            if (listData.size() == 0) {
+            if (listData.size() < perpage) {
                 canLoadMore = false;
                 communityAdapter.loadMoreEnd();
             } else {
                 page = page + 1;
                 canLoadMore = true;
                 communityAdapter.loadMoreComplete();
-                for (int i = 0; i < listData.size(); i++) {
-                    CommunityItemEntity item = listData.get(i);
-                    if (item != null) {
-                        listCommunity.add(item);
-                    }
-                }
-                communityAdapter.setNewData(listCommunity);
-                communityAdapter.notifyDataSetChanged();
             }
+            for (int i = 0; i < listData.size(); i++) {
+                CommunityItemEntity item = listData.get(i);
+                if (item != null) {
+                    listCommunity.add(item);
+                }
+            }
+            communityAdapter.setNewData(listCommunity);
+            communityAdapter.notifyDataSetChanged();
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+
+    @OnClick(R.id.tv_try_again)
+    public void onViewClicked() {
+        page = 1;
+        if (listCommunity != null)
+            listCommunity.clear();
+        communityAdapter.notifyDataSetChanged();
+        getCommunityList();
     }
 
     private class CommunityAdapter extends BaseQuickAdapter<CommunityItemEntity, BaseViewHolder> {
@@ -277,10 +300,12 @@ public class JoinPromoteCommunityActivity extends BaseActivity {
     private BaseQuickAdapter.RequestLoadMoreListener onLoadMoreListener = new BaseQuickAdapter.RequestLoadMoreListener() {
         @Override
         public void onLoadMoreRequested() {
-            Logger.e("----->onLoadMoreRequested ");
-            Logger.e("--->page = " + page);
             if (canLoadMore) {
+                Logger.e("----->onLoadMoreRequested ");
+                Logger.e("--->page = " + page);
                 getCommunityList();
+            } else {
+                communityAdapter.loadMoreEnd();
             }
         }
     };

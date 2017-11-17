@@ -33,6 +33,7 @@ import com.sundy.iman.net.RetrofitCallback;
 import com.sundy.iman.net.RetrofitHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.sundy.iman.utils.DateUtils;
+import com.sundy.iman.utils.NetWorkUtils;
 import com.sundy.iman.view.CustomLoadMoreView;
 import com.sundy.iman.view.DividerItemDecoration;
 import com.sundy.iman.view.TitleBarView;
@@ -93,6 +94,10 @@ public class SelectCommunityActivity extends BaseActivity {
     ImageView ivDetail;
     @BindView(R.id.ll_bottom)
     LinearLayout llBottom;
+    @BindView(R.id.tv_try_again)
+    TextView tvTryAgain;
+    @BindView(R.id.ll_no_net_content)
+    LinearLayout llNoNetContent;
 
     private ArrayList<CommunityItemEntity> selectedCommunity = new ArrayList<>(); //已选择的社区列表(存放社区ID)
     private List<CommunityItemEntity> listCommunity = new ArrayList<>();
@@ -118,6 +123,7 @@ public class SelectCommunityActivity extends BaseActivity {
         initData();
         initTitle();
         init();
+        page = 1;
         if (listCommunity != null)
             listCommunity.clear();
         getCommunityList();
@@ -224,79 +230,87 @@ public class SelectCommunityActivity extends BaseActivity {
 
     //获取社区列表
     private void getCommunityList() {
-        String country = "";
-        String province = "";
-        String city = "";
-        String latitude = "";
-        String longitude = "";
-        String addressStr = "";
-        if (locationEntity != null) {
-            country = locationEntity.getCountry();
-            province = locationEntity.getProvince();
-            city = locationEntity.getCity();
-            latitude = locationEntity.getLat() + "";
-            longitude = locationEntity.getLng() + "";
-            addressStr = locationEntity.getAddress();
-        }
+        if (NetWorkUtils.isNetAvailable(this)) {
+            llNoNetContent.setVisibility(View.GONE);
 
-        Map<String, String> param = new HashMap<>();
-        param.put("type", "3"); //1-全部社区, 2-我的社区, 3-发布广告的社区搜索, 4-加入推广社区搜索，5-我的推广社区
-        param.put("mid", PaperUtils.getMId());
-        param.put("session_key", PaperUtils.getSessionKey());
-        param.put("keyword", keyword);
-        param.put("tags", "");
-        param.put("province", province);
-        param.put("city", city);
-        param.put("page", page + ""); //当前页码
-        param.put("perpage", perpage + ""); //每页显示条数
-        Call<CommunityListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
-                .getCommunityList(ParamHelper.formatData(param));
-        call.enqueue(new RetrofitCallback<CommunityListEntity>() {
-            @Override
-            public void onSuccess(Call<CommunityListEntity> call, Response<CommunityListEntity> response) {
-                CommunityListEntity communityListEntity = response.body();
-                if (communityListEntity != null) {
-                    int code = communityListEntity.getCode();
-                    String msg = communityListEntity.getMsg();
-                    if (code == Constants.CODE_SUCCESS) {
-                        CommunityListEntity.DataEntity dataEntity = communityListEntity.getData();
-                        if (dataEntity != null) {
-                            showData(dataEntity.getList());
+            String country = "";
+            String province = "";
+            String city = "";
+            String latitude = "";
+            String longitude = "";
+            String addressStr = "";
+            if (locationEntity != null) {
+                country = locationEntity.getCountry();
+                province = locationEntity.getProvince();
+                city = locationEntity.getCity();
+                latitude = locationEntity.getLat() + "";
+                longitude = locationEntity.getLng() + "";
+                addressStr = locationEntity.getAddress();
+            }
+
+            Map<String, String> param = new HashMap<>();
+            param.put("type", "3"); //1-全部社区, 2-我的社区, 3-发布广告的社区搜索, 4-加入推广社区搜索，5-我的推广社区
+            param.put("mid", PaperUtils.getMId());
+            param.put("session_key", PaperUtils.getSessionKey());
+            param.put("keyword", keyword);
+            param.put("tags", "");
+            param.put("province", province);
+            param.put("city", city);
+            param.put("page", page + ""); //当前页码
+            param.put("perpage", perpage + ""); //每页显示条数
+            Call<CommunityListEntity> call = RetrofitHelper.getInstance().getRetrofitServer()
+                    .getCommunityList(ParamHelper.formatData(param));
+            call.enqueue(new RetrofitCallback<CommunityListEntity>() {
+                @Override
+                public void onSuccess(Call<CommunityListEntity> call, Response<CommunityListEntity> response) {
+                    CommunityListEntity communityListEntity = response.body();
+                    if (communityListEntity != null) {
+                        int code = communityListEntity.getCode();
+                        String msg = communityListEntity.getMsg();
+                        if (code == Constants.CODE_SUCCESS) {
+                            CommunityListEntity.DataEntity dataEntity = communityListEntity.getData();
+                            if (dataEntity != null) {
+                                showData(dataEntity.getList());
+                            }
                         }
                     }
                 }
-            }
 
-            @Override
-            public void onAfter() {
+                @Override
+                public void onAfter() {
 
-            }
+                }
 
-            @Override
-            public void onFailure(Call<CommunityListEntity> call, Throwable t) {
+                @Override
+                public void onFailure(Call<CommunityListEntity> call, Throwable t) {
 
-            }
-        });
+                }
+            });
+        } else {
+            communityAdapter.loadMoreEnd();
+
+            llNoNetContent.setVisibility(View.VISIBLE);
+        }
     }
 
     private void showData(List<CommunityItemEntity> listData) {
         try {
-            if (listData.size() == 0) {
+            if (listData.size() < perpage) {
                 canLoadMore = false;
                 communityAdapter.loadMoreEnd();
             } else {
                 page = page + 1;
                 canLoadMore = true;
-                communityAdapter.loadMoreComplete();
-                for (int i = 0; i < listData.size(); i++) {
-                    CommunityItemEntity item = listData.get(i);
-                    if (item != null) {
-                        listCommunity.add(item);
-                    }
-                }
-                communityAdapter.setNewData(listCommunity);
-                communityAdapter.notifyDataSetChanged();
             }
+            communityAdapter.loadMoreComplete();
+            for (int i = 0; i < listData.size(); i++) {
+                CommunityItemEntity item = listData.get(i);
+                if (item != null) {
+                    listCommunity.add(item);
+                }
+            }
+            communityAdapter.setNewData(listCommunity);
+            communityAdapter.notifyDataSetChanged();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -345,7 +359,7 @@ public class SelectCommunityActivity extends BaseActivity {
         UIHelper.jump(this, SelectLocationByMapActivity.class);
     }
 
-    @OnClick({R.id.rel_location, R.id.ll_bottom})
+    @OnClick({R.id.rel_location, R.id.ll_bottom, R.id.tv_try_again})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.rel_location:
@@ -359,6 +373,13 @@ public class SelectCommunityActivity extends BaseActivity {
                 } else {
                     hideBottom();
                 }
+                break;
+            case R.id.tv_try_again:
+                page = 1;
+                if (listCommunity != null)
+                    listCommunity.clear();
+                communityAdapter.notifyDataSetChanged();
+                getCommunityList();
                 break;
         }
     }
@@ -454,10 +475,12 @@ public class SelectCommunityActivity extends BaseActivity {
     private BaseQuickAdapter.RequestLoadMoreListener onLoadMoreListener = new BaseQuickAdapter.RequestLoadMoreListener() {
         @Override
         public void onLoadMoreRequested() {
-            Logger.e("----->onLoadMoreRequested ");
-            Logger.e("--->page = " + page);
             if (canLoadMore) {
+                Logger.e("----->onLoadMoreRequested ");
+                Logger.e("--->page = " + page);
                 getCommunityList();
+            } else {
+                communityAdapter.loadMoreEnd();
             }
         }
     };
