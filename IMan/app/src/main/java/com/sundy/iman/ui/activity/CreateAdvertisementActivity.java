@@ -260,6 +260,10 @@ public class CreateAdvertisementActivity extends BaseActivity {
     private MediaAdapter.OnItemClickListener onItemClickListener = new MediaAdapter.OnItemClickListener() {
         @Override
         public void onAddClick(MediaAdapter.PhotoViewHolder holder, int position) {
+            if (isUploading) {
+                MainApp.getInstance().showToast(getString(R.string.media_uploading));
+                return;
+            }
             getFilePermission();
         }
 

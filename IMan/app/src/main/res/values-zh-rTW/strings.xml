@@ -241,6 +241,7 @@
     <string name="load_end_hint">加載完畢</string>
     <string name="try_again">再試一次</string>
     <string name="start">開始</string>
+    <string name="media_uploading">媒體正在上傳中,請稍後.</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% 熒光幣將會送給用戶.

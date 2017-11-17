@@ -240,6 +240,7 @@
     <string name="load_end_hint">加载完毕</string>
     <string name="try_again">再试一次</string>
     <string name="start">开始</string>
+    <string name="media_uploading">媒体正在上传中,请稍后.</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% 荧光币将会送给用户.
