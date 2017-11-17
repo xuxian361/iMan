@@ -414,44 +414,60 @@ public class EditAdvertisementActivity extends BaseActivity {
         @Override
         public void onImageClick(MediaAdapter.PhotoViewHolder holder, int position) {
             Logger.e("----->position = " + position);
-            if (selectMediaEntities != null) {
-                SelectMediaEntity selectMediaEntity = selectMediaEntities.get(position);
-                if (selectMediaEntity != null) {
-                    String videoPath = selectMediaEntity.getLocalVideoPath();
-                    if (!TextUtils.isEmpty(videoPath)) //视频
-                    {
-                        try {
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            Uri uri = Uri.parse("file://" + videoPath);
-                            intent.setDataAndType(uri, "video/mp4");
-                            startActivity(intent);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    } else {
-                        ArrayList<ThumbViewInfo> selectList = new ArrayList<>();
-                        for (int i = 0; i < selectMediaEntities.size(); i++) {
-                            SelectMediaEntity entity = selectMediaEntities.get(i);
-                            if (entity != null) {
-                                String localPath = entity.getLocalImagePath();
-                                String localVideoPath = entity.getLocalVideoPath();
-                                ThumbViewInfo thumbViewInfo = new ThumbViewInfo(localPath);
-                                if (TextUtils.isEmpty(localVideoPath)) {
-                                    selectList.add(thumbViewInfo);
+            try {
+                if (selectMediaEntities != null && position < selectMediaEntities.size()) {
+                    SelectMediaEntity selectMediaEntity = selectMediaEntities.get(position);
+                    if (selectMediaEntity != null) {
+                        String videoPath = selectMediaEntity.getLocalVideoPath();
+                        if (!TextUtils.isEmpty(videoPath)) //视频
+                        {
+                            playVideo(selectMediaEntity.getUrl());
+                        } else {
+                            ArrayList<ThumbViewInfo> selectList = new ArrayList<>();
+                            for (int i = 0; i < selectMediaEntities.size(); i++) {
+                                SelectMediaEntity entity = selectMediaEntities.get(i);
+                                if (entity != null) {
+                                    String localPath = entity.getLocalImagePath();
+                                    String localVideoPath = entity.getLocalVideoPath();
+                                    ThumbViewInfo thumbViewInfo = new ThumbViewInfo(localPath);
+                                    if (TextUtils.isEmpty(localVideoPath)) {
+                                        selectList.add(thumbViewInfo);
+                                    }
                                 }
                             }
-                        }
 
-                        GPreviewBuilder.from(EditAdvertisementActivity.this)
-                                .setData(selectList)
-                                .setCurrentIndex(position)
-                                .setType(GPreviewBuilder.IndicatorType.Number)
-                                .start();
+                            GPreviewBuilder.from(EditAdvertisementActivity.this)
+                                    .setData(selectList)
+                                    .setCurrentIndex(0)
+                                    .setType(GPreviewBuilder.IndicatorType.Number)
+                                    .start();
+                        }
                     }
                 }
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         }
     };
+
+    //播放视频
+    private void playVideo(String videoPath) {
+        try {
+            if (videoPath.startsWith("http")) {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                Uri uri = Uri.parse(videoPath);
+                intent.setDataAndType(uri, "video/*");
+                startActivity(intent);
+            } else {
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                Uri uri = Uri.parse("file://" + videoPath);
+                intent.setDataAndType(uri, "video/mp4");
+                startActivity(intent);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     private TextWatcher textWatcher = new TextWatcher() {
         @Override
@@ -661,10 +677,10 @@ public class EditAdvertisementActivity extends BaseActivity {
                                 if (itemEntity != null) {
                                     String key = itemEntity.getKey();
                                     String token = itemEntity.getToken();
-                                    String header = itemEntity.getUrl();
                                     String path = itemEntity.getPath();
+                                    String url = itemEntity.getUrl();
                                     if (file != null && !TextUtils.isEmpty(token)) {
-                                        uploadMedia(file, key, token, path);
+                                        uploadMedia(file, key, token, path, url);
                                     }
                                 }
                             }
@@ -686,7 +702,7 @@ public class EditAdvertisementActivity extends BaseActivity {
     }
 
     //上传视频和图片
-    private void uploadMedia(final File file, String key, String token, final String path) {
+    private void uploadMedia(final File file, String key, String token, final String path, final String url) {
         uploadManager.put(file, key, token, new UpCompletionHandler() {
             @Override
             public void complete(String key, ResponseInfo info, JSONObject response) {
@@ -715,6 +731,7 @@ public class EditAdvertisementActivity extends BaseActivity {
                             selectMediaEntity.setLocalImagePath(file.getPath());
                         }
 
+                        selectMediaEntity.setUrl(url);
                         selectMediaEntity.setPath(path);
                         selectMediaEntities.add(selectMediaEntity);
 
