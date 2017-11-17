@@ -40,7 +40,7 @@
                     android:layout_toLeftOf="@+id/iv_arrow_pwd"
                     android:text="@string/set_imcoin_password"
                     android:textColor="@color/txt_black"
-                    android:textSize="13sp" />
+                    android:textSize="14sp" />
 
                 <ImageView
                     android:id="@+id/iv_arrow_pwd"
@@ -75,7 +75,7 @@
                     android:layout_toLeftOf="@+id/iv_arrow_language"
                     android:text="@string/language"
                     android:textColor="@color/txt_black"
-                    android:textSize="13sp" />
+                    android:textSize="14sp" />
 
                 <ImageView
                     android:id="@+id/iv_arrow_language"
@@ -109,7 +109,7 @@
                     android:layout_toLeftOf="@+id/iv_arrow_terms"
                     android:text="@string/terms_of_use"
                     android:textColor="@color/txt_black"
-                    android:textSize="13sp" />
+                    android:textSize="14sp" />
 
                 <ImageView
                     android:id="@+id/iv_arrow_terms"
@@ -144,7 +144,7 @@
                     android:layout_toLeftOf="@+id/iv_arrow_privacy"
                     android:text="@string/privacy"
                     android:textColor="@color/txt_black"
-                    android:textSize="13sp" />
+                    android:textSize="14sp" />
 
                 <ImageView
                     android:id="@+id/iv_arrow_privacy"
@@ -179,7 +179,7 @@
                     android:layout_toLeftOf="@+id/iv_arrow_contact_us"
                     android:text="@string/contact_us"
                     android:textColor="@color/txt_black"
-                    android:textSize="13sp" />
+                    android:textSize="14sp" />
 
                 <ImageView
                     android:id="@+id/iv_arrow_contact_us"
@@ -213,7 +213,7 @@
                     android:layout_marginLeft="15dp"
                     android:text="@string/version"
                     android:textColor="@color/txt_black"
-                    android:textSize="13sp" />
+                    android:textSize="14sp" />
 
                 <ImageView
                     android:id="@+id/iv_dot_version"
@@ -236,7 +236,7 @@
                     android:layout_marginRight="12dp"
                     android:layout_toLeftOf="@+id/iv_dot_version"
                     android:textColor="@color/txt_gray"
-                    android:textSize="13sp" />
+                    android:textSize="14sp" />
             </RelativeLayout>
 
             <View
@@ -255,7 +255,7 @@
                 android:minWidth="@dimen/button_min_width"
                 android:text="@string/logout"
                 android:textColor="@color/txt_white"
-                android:textSize="13sp"
+                android:textSize="14sp"
                 android:visibility="gone" />
 
         </LinearLayout>

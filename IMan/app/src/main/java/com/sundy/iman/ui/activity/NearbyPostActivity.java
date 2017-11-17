@@ -936,13 +936,15 @@ public class NearbyPostActivity extends BaseActivity {
     //跳转用户信息
     private void goMemberInfo(NearbyPostItemEntity.MemberEntity memberEntity) {
         String profile_id = memberEntity.getId();
-        if (profile_id.equals(PaperUtils.getMId()))
-            return;
-        Bundle bundle = new Bundle();
-        bundle.putString("profile_id", profile_id);
-        bundle.putString("type", "1");
-        bundle.putString("goal_id", "");
-        UIHelper.jump(this, ContactInfoActivity.class, bundle);
+        if (profile_id.equals(PaperUtils.getMId())) {
+            UIHelper.jump(this, EditProfileActivity.class);
+        } else {
+            Bundle bundle = new Bundle();
+            bundle.putString("profile_id", profile_id);
+            bundle.putString("type", "1");
+            bundle.putString("goal_id", "");
+            UIHelper.jump(this, ContactInfoActivity.class, bundle);
+        }
     }
 
     //举报消息
