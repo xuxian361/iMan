@@ -1,5 +1,6 @@
 package com.sundy.iman.ui.activity;
 
+import android.Manifest;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -13,7 +14,6 @@ import com.sundy.iman.R;
 import com.sundy.iman.helper.UIHelper;
 import com.sundy.iman.paperdb.PaperUtils;
 import com.yanzhenjie.permission.AndPermission;
-import com.yanzhenjie.permission.Permission;
 import com.yanzhenjie.permission.PermissionNo;
 import com.yanzhenjie.permission.PermissionYes;
 
@@ -38,7 +38,11 @@ public class LoadingActivity extends BaseActivity {
 
         AndPermission.with(this)
                 .requestCode(REQUEST_CODE_PERMISSION)
-                .permission(Permission.STORAGE,Permission.PHONE)
+                .permission(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.READ_PHONE_STATE,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.CALL_PHONE,
+                        Manifest.permission.CAMERA)
                 .callback(this)
                 .start();
     }

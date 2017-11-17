@@ -71,15 +71,16 @@ public class DeviceUtils {
     @TargetApi(Build.VERSION_CODES.CUPCAKE)
     public static String getDeviceIMEI(Context context) {
         String deviceId;
-        if (isPhone(context)) {
+        /*if (isPhone(context)) {
             TelephonyManager telephony = (TelephonyManager) context
                     .getSystemService(Context.TELEPHONY_SERVICE);
             deviceId = telephony.getDeviceId();
         } else {
             deviceId = Settings.Secure.getString(context.getContentResolver(),
                     Settings.Secure.ANDROID_ID);
-
-        }
+        }*/
+        String androidID = Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID);
+        deviceId = androidID + Build.SERIAL;
         return deviceId;
     }
 
