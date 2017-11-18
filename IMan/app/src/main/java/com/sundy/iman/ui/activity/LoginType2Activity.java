@@ -184,6 +184,8 @@ public class LoginType2Activity extends BaseActivity {
         String verification_code = etCode.getText().toString().trim();
         if (TextUtils.isEmpty(verification_code) || verification_code.length() < 4
                 || TextUtils.isEmpty(account)) {
+            btnLogin.setSelected(false);
+            btnLogin.setEnabled(false);
             if (account.contains("@")) { //邮箱
                 if (!CommonUtils.isEmail(account)) {
                     btnLogin.setSelected(false);
