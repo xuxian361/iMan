@@ -52,7 +52,9 @@ public class ChatRowImcoin extends EaseChatRow {
     @Override
     protected void onSetUpView() {
         String amount = message.getStringAttribute(EaseConstant.CONS_ATTR_IMCOIN, "");
-        tv_amount.setText(amount);
+        double amountDou = Double.parseDouble(amount);
+        String value = String.format("%.2f", amountDou);
+        tv_amount.setText(value);
 
         boolean isReceived = (message.direct() == EMMessage.Direct.RECEIVE);
         if (isReceived)
