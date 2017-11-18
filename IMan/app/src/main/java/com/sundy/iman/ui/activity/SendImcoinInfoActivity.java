@@ -83,7 +83,9 @@ public class SendImcoinInfoActivity extends BaseActivity {
         else if (type == 2)
             tvUsername.setText(username + " " + getString(R.string.sent));
 
-        tvAmount.setText(amount);
+        double amountDou = Double.parseDouble(amount);
+        String value = String.format("%.2f", amountDou);
+        tvAmount.setText(value);
     }
 
 }
