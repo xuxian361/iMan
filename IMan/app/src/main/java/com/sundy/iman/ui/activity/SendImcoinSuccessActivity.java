@@ -45,8 +45,11 @@ public class SendImcoinSuccessActivity extends BaseActivity {
     }
 
     private void init() {
+        double amountDou = Double.parseDouble(amount);
+        String value = String.format("%.2f", amountDou);
+
         tvUsername.setText(username);
-        tvAmount.setText(amount);
+        tvAmount.setText(value);
     }
 
     @OnClick(R.id.btn_finish)

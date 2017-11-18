@@ -242,6 +242,8 @@
     <string name="try_again">Try again</string>
     <string name="start">Start</string>
     <string name="media_uploading">Media is uploading, please wait a moment.</string>
+    <string name="not_set_transfer_pwd_yet">You have not set transaction password yet, please set it first</string>
+    <string name="go_set_pwd">Setting now</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

@@ -242,6 +242,8 @@
     <string name="try_again">再試一次</string>
     <string name="start">開始</string>
     <string name="media_uploading">媒體正在上傳中,請稍後.</string>
+    <string name="not_set_transfer_pwd_yet">您還沒有設置過交易密碼，請先設置</string>
+    <string name="go_set_pwd">前往設置</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% 熒光幣將會送給用戶.

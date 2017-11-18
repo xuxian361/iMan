@@ -240,6 +240,9 @@ public class BillTransferActivity extends BaseActivity {
                         if (code == Constants.CODE_SUCCESS) {
                             closeKeyboard();
                             sendTransfer();
+                        } else if (code == Constants.CODE_NOT_EXIST_TRANSFER_PWD) {
+                            passwordDialog.getViewPwd().setText("");
+                            showSetPwdDialog();
                         } else {
                             passwordDialog.getViewPwd().setText("");
                             MainApp.getInstance().showToast(msg);
@@ -258,6 +261,26 @@ public class BillTransferActivity extends BaseActivity {
                 }
             });
         }
+    }
+
+    //显示跳转设置支付密码弹框
+    private void showSetPwdDialog() {
+        final CommonDialog dialog = new CommonDialog(BillTransferActivity.this);
+        dialog.getTitle().setVisibility(View.GONE);
+        dialog.getContent().setText(getString(R.string.not_set_transfer_pwd_yet));
+        dialog.getBtnOk().setText(getString(R.string.go_set_pwd));
+        dialog.getBtnOk().setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                dialog.dismiss();
+                goSetTransferPwd();
+            }
+        });
+    }
+
+    //跳转设置支付密码
+    private void goSetTransferPwd() {
+        UIHelper.jump(this, SetTransferPwdActivity.class);
     }
 
     //转账

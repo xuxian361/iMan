@@ -22,6 +22,7 @@ public class Constants {
 
     //API 响应Code
     public static final int CODE_SUCCESS = 0; //0代表成功
+    public static final int CODE_NOT_EXIST_TRANSFER_PWD = 2015;
 
     //静态内容请求Type:
     //类型:

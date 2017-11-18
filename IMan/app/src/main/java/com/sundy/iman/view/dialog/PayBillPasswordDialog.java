@@ -49,7 +49,9 @@ public class PayBillPasswordDialog extends Dialog implements View.OnClickListene
     }
 
     public void setAmount(String amount) {
-        tv_amount.setText(amount);
+        double amountDou = Double.parseDouble(amount);
+        String value = String.format("%.2f", amountDou);
+        tv_amount.setText(value);
     }
 
     @Override

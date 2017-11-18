@@ -241,6 +241,8 @@
     <string name="try_again">再试一次</string>
     <string name="start">开始</string>
     <string name="media_uploading">媒体正在上传中,请稍后.</string>
+    <string name="not_set_transfer_pwd_yet">您还没有设置过交易密码, 请先设置</string>
+    <string name="go_set_pwd">前往设置</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% 荧光币将会送给用户.
