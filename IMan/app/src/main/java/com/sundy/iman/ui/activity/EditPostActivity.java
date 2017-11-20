@@ -353,6 +353,8 @@ public class EditPostActivity extends BaseActivity {
             setTagsList();
         }
 
+        if (selectMediaEntities != null)
+            selectMediaEntities.clear();
         List<GetPostInfoEntity.AttachmentEntity> attachment = dataEntity.getAttachment();
         if (attachment != null && attachment.size() > 0) {
             for (GetPostInfoEntity.AttachmentEntity attachmentEntity : attachment) {
@@ -518,20 +520,25 @@ public class EditPostActivity extends BaseActivity {
 
     //判断可否点击确认按钮
     private void canBtnClick() {
-        String subject = etSubject.getText().toString().trim();
-        if (TextUtils.isEmpty(subject) || isUploading) {
-            btnPostAgain.setSelected(false);
-            btnPostAgain.setEnabled(false);
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String subject = etSubject.getText().toString().trim();
+                if (TextUtils.isEmpty(subject) || isUploading) {
+                    btnPostAgain.setSelected(false);
+                    btnPostAgain.setEnabled(false);
 
-            btnPostModifiedAgain.setSelected(false);
-            btnPostModifiedAgain.setEnabled(false);
-        } else {
-            btnPostAgain.setSelected(true);
-            btnPostAgain.setEnabled(true);
+                    btnPostModifiedAgain.setSelected(false);
+                    btnPostModifiedAgain.setEnabled(false);
+                } else {
+                    btnPostAgain.setSelected(true);
+                    btnPostAgain.setEnabled(true);
 
-            btnPostModifiedAgain.setSelected(true);
-            btnPostModifiedAgain.setEnabled(true);
-        }
+                    btnPostModifiedAgain.setSelected(true);
+                    btnPostModifiedAgain.setEnabled(true);
+                }
+            }
+        });
     }
 
     //获取定位全向
@@ -1154,10 +1161,17 @@ public class EditPostActivity extends BaseActivity {
             @Override
             public void onClick(View view) {
                 dialog.dismiss();
-                //SUNDY - 跳转到社区消息列表
-
+                finish();
+                goCommunityMsgList();
             }
         });
+    }
+
+    //跳转社区消息列表
+    private void goCommunityMsgList() {
+        Bundle bundle = new Bundle();
+        bundle.putString("community_id", community_id);
+        UIHelper.jump(this, CommunityMsgListActivity.class, bundle);
     }
 
     //创建post

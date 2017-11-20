@@ -67,7 +67,7 @@
     <string name="select_tags_more_than_5">You can not have more than 5 tags</string>
     <string name="add_tags">Add tag</string>
     <string name="if_confirm_to_delete">Are you confirm to delete this tag?</string>
-    <string name="tags_edti_hint">You can write the tags what you like.</string>
+    <string name="tags_edti_hint">You can write the tag what you like.</string>
     <string name="congratulations">Congratulations</string>
     <string name="create_community_success">Create community successfully</string>
     <string name="search_contact_hint">Search by name</string>
@@ -145,13 +145,13 @@
     <string name="hour_48">48 hours</string>
     <string name="media">Media</string>
     <string name="delete">Delete</string>
-    <string name="if_confirm_delete_post">Are you sure you want to delete this message?</string>
+    <string name="if_confirm_delete_post">Are you want to delete this message?</string>
     <string name="allow_receive_msg">Allow to receive message</string>
     <string name="post_modified_msg_again">Post Modified Message Again</string>
     <string name="cancel_message">Cancel Message</string>
     <string name="active_message">Active Message</string>
     <string name="message_post_success_tips">Your message has been posted successfully!</string>
-    <string name="if_confirm_cancel_post">Confirm the release of the message?</string>
+    <string name="if_confirm_cancel_post">Confirm to cancel the message?</string>
     <string name="message_cancel_success_tips">This message has been canceled</string>
     <string name="old_message">Old Message</string>
     <string name="post_message_again">Post Message Again</string>
@@ -244,6 +244,7 @@
     <string name="media_uploading">Media is uploading, please wait a moment.</string>
     <string name="not_set_transfer_pwd_yet">You have not set transaction password yet, please set it first</string>
     <string name="go_set_pwd">Setting now</string>
+    <string name="logout_str">Logout</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% imcoins will be distributed to users.

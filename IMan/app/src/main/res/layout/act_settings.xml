@@ -19,12 +19,6 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:layout_marginTop="20dp"
-                android:background="@color/bg_light_gray" />
-
             <RelativeLayout
                 android:id="@+id/rel_set_transfer_pwd"
                 android:layout_width="match_parent"
@@ -242,6 +236,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
+                android:layout_marginLeft="15dp"
                 android:background="@color/bg_light_gray" />
 
             <TextView
@@ -253,7 +248,7 @@
                 android:background="@drawable/semi_bg_blue"
                 android:gravity="center"
                 android:minWidth="@dimen/button_min_width"
-                android:text="@string/logout"
+                android:text="@string/logout_str"
                 android:textColor="@color/txt_white"
                 android:textSize="14sp"
                 android:visibility="gone" />

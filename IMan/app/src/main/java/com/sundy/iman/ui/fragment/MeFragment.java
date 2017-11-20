@@ -204,6 +204,7 @@ public class MeFragment extends BaseFragment {
             relNotLogin.setVisibility(View.VISIBLE);
             relLogined.setVisibility(View.GONE);
             refreshLayout.setEnableRefresh(false);
+            tvMyImcoinNum.setVisibility(View.GONE);
         }
     }
 

@@ -135,7 +135,7 @@
     <string name="post_msg">發佈消息</string>
     <string name="share">分享</string>
     <string name="post_now">立即發佈</string>
-    <string name="msg_expire_in">消息有效期於</string>
+    <string name="msg_expire_in">消息有效期</string>
     <string name="post_message">發佈消息</string>
     <string name="image">圖片</string>
     <string name="hour_2">2 小時</string>
@@ -151,8 +151,8 @@
     <string name="cancel_message">取消發佈</string>
     <string name="active_message">激活消息</string>
     <string name="message_post_success_tips">您的消息已經發佈成功!</string>
-    <string name="if_confirm_cancel_post">確認取消該消息的發佈嗎?</string>
-    <string name="message_cancel_success_tips">這條消息已經取消發佈</string>
+    <string name="if_confirm_cancel_post">確認取消該消息嗎?</string>
+    <string name="message_cancel_success_tips">這條消息已經取消</string>
     <string name="old_message">舊消息</string>
     <string name="post_message_again">再次發佈消息</string>
     <string name="hours">小時</string>
@@ -244,6 +244,7 @@
     <string name="media_uploading">媒體正在上傳中,請稍後.</string>
     <string name="not_set_transfer_pwd_yet">您還沒有設置過交易密碼，請先設置</string>
     <string name="go_set_pwd">前往設置</string>
+    <string name="logout_str">登出</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% 螢光幣將會送給用戶.

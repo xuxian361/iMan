@@ -134,7 +134,7 @@
     <string name="post_msg">发布消息</string>
     <string name="share">分享</string>
     <string name="post_now">立即发布</string>
-    <string name="msg_expire_in">消息有效期于</string>
+    <string name="msg_expire_in">消息有效期</string>
     <string name="post_message">发布消息</string>
     <string name="image">图片</string>
     <string name="hour_2">2 小时</string>
@@ -150,8 +150,8 @@
     <string name="cancel_message">取消发布</string>
     <string name="active_message">激活消息</string>
     <string name="message_post_success_tips">您的消息已经发布成功!</string>
-    <string name="if_confirm_cancel_post">确认取消该消息的发布吗?</string>
-    <string name="message_cancel_success_tips">这条消息已经取消发布</string>
+    <string name="if_confirm_cancel_post">确认取消该消息吗?</string>
+    <string name="message_cancel_success_tips">这条消息已经取消</string>
     <string name="old_message">旧消息</string>
     <string name="post_message_again">再次发布消息</string>
     <string name="hours">小时</string>
@@ -243,6 +243,7 @@
     <string name="media_uploading">媒体正在上传中,请稍后.</string>
     <string name="not_set_transfer_pwd_yet">您还没有设置过交易密码, 请先设置</string>
     <string name="go_set_pwd">前往设置</string>
+    <string name="logout_str">登出</string>
     <string-array name="ad_charge_state">
         <item>
             * 70% 萤光币将会送给用户.

@@ -199,16 +199,21 @@ public class CreateCommunityActivity extends BaseActivity {
 
     //判断可否点击确认按钮
     private void canBtnClick() {
-        String name = etName.getText().toString().trim();
-        String location = tvLocation.getText().toString().trim();
-        if (TextUtils.isEmpty(name) || TextUtils.isEmpty(location)
-                || selectedTags == null || selectedTags.size() == 0) {
-            btnConfirm.setSelected(false);
-            btnConfirm.setEnabled(false);
-        } else {
-            btnConfirm.setSelected(true);
-            btnConfirm.setEnabled(true);
-        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String name = etName.getText().toString().trim();
+                String location = tvLocation.getText().toString().trim();
+                if (TextUtils.isEmpty(name) || TextUtils.isEmpty(location)
+                        || selectedTags == null || selectedTags.size() == 0) {
+                    btnConfirm.setSelected(false);
+                    btnConfirm.setEnabled(false);
+                } else {
+                    btnConfirm.setSelected(true);
+                    btnConfirm.setEnabled(true);
+                }
+            }
+        });
     }
 
     private TextWatcher etAboutWatcher = new TextWatcher() {
@@ -568,23 +573,28 @@ public class CreateCommunityActivity extends BaseActivity {
     }
 
     //设置选择回来的位置
-    private void setLocation(LocationEntity locationEntity) {
-        if (locationEntity != null) {
-            String country = locationEntity.getCountry();
-            String province = locationEntity.getProvince();
-            String city = locationEntity.getCity();
-            if (!TextUtils.isEmpty(province) && !TextUtils.isEmpty(city)) {
-                tvLocation.setText(province + " " + city);
-            } else if (TextUtils.isEmpty(province) && TextUtils.isEmpty(city)) {
-                tvLocation.setText(country);
-            } else {
-                if (TextUtils.isEmpty(province)) {
-                    tvLocation.setText(city);
-                } else {
-                    tvLocation.setText(province);
+    private void setLocation(final LocationEntity locationEntity) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if (locationEntity != null) {
+                    String country = locationEntity.getCountry();
+                    String province = locationEntity.getProvince();
+                    String city = locationEntity.getCity();
+                    if (!TextUtils.isEmpty(province) && !TextUtils.isEmpty(city)) {
+                        tvLocation.setText(province + " " + city);
+                    } else if (TextUtils.isEmpty(province) && TextUtils.isEmpty(city)) {
+                        tvLocation.setText(country);
+                    } else {
+                        if (TextUtils.isEmpty(province)) {
+                            tvLocation.setText(city);
+                        } else {
+                            tvLocation.setText(province);
+                        }
+                    }
                 }
             }
-        }
+        });
     }
 
     @Override

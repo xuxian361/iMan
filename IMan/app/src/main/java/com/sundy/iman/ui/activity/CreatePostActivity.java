@@ -366,14 +366,19 @@ public class CreatePostActivity extends BaseActivity {
 
     //判断可否点击确认按钮
     private void canBtnClick() {
-        String subject = etSubject.getText().toString().trim();
-        if (TextUtils.isEmpty(subject) || isUploading) {
-            btnConfirm.setSelected(false);
-            btnConfirm.setEnabled(false);
-        } else {
-            btnConfirm.setSelected(true);
-            btnConfirm.setEnabled(true);
-        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String subject = etSubject.getText().toString().trim();
+                if (TextUtils.isEmpty(subject) || isUploading) {
+                    btnConfirm.setSelected(false);
+                    btnConfirm.setEnabled(false);
+                } else {
+                    btnConfirm.setSelected(true);
+                    btnConfirm.setEnabled(true);
+                }
+            }
+        });
     }
 
     //获取定位全向
@@ -707,7 +712,7 @@ public class CreatePostActivity extends BaseActivity {
                     int code = createPostEntity.getCode();
                     String msg = createPostEntity.getMsg();
                     if (code == Constants.CODE_SUCCESS) {
-                        showCreateAdSuccessDialog();
+                        showCreatePostSuccessDialog();
                     } else {
                         MainApp.getInstance().showToast(msg);
                     }
@@ -955,7 +960,7 @@ public class CreatePostActivity extends BaseActivity {
     }
 
     //显示成功创建Post弹框
-    private void showCreateAdSuccessDialog() {
+    private void showCreatePostSuccessDialog() {
         final CommonDialog dialog = new CommonDialog(this);
         dialog.getTitle().setText(getString(R.string.success));
         dialog.getContent().setText(getString(R.string.message_post_success_tips));
@@ -966,6 +971,7 @@ public class CreatePostActivity extends BaseActivity {
                 dialog.dismiss();
                 sendRefreshMsg();
                 finish();
+
             }
         });
     }
@@ -974,7 +980,6 @@ public class CreatePostActivity extends BaseActivity {
     private void sendRefreshMsg() {
         MsgEvent msgEvent = new MsgEvent();
         msgEvent.setMsg(MsgEvent.EVENT_REFRESH_COMMUNITY_MSG_LIST);
-        //SUNDY - 刷新社区消息列表后展开对应的Item
         EventBus.getDefault().post(msgEvent);
     }
 

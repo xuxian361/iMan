@@ -695,15 +695,20 @@ public class CreateAdvertisementActivity extends BaseActivity {
 
     //判断可否点击确认按钮
     private void canBtnClick() {
-        String subject = etSubject.getText().toString().trim();
-        if (TextUtils.isEmpty(subject) || selectedCommunities == null
-                || selectedCommunities.size() == 0 || isUploading) {
-            btnConfirm.setSelected(false);
-            btnConfirm.setEnabled(false);
-        } else {
-            btnConfirm.setSelected(true);
-            btnConfirm.setEnabled(true);
-        }
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String subject = etSubject.getText().toString().trim();
+                if (TextUtils.isEmpty(subject) || selectedCommunities == null
+                        || selectedCommunities.size() == 0 || isUploading) {
+                    btnConfirm.setSelected(false);
+                    btnConfirm.setEnabled(false);
+                } else {
+                    btnConfirm.setSelected(true);
+                    btnConfirm.setEnabled(true);
+                }
+            }
+        });
     }
 
     @OnClick({R.id.rel_select_community, R.id.btn_add_tag, R.id.btn_more_tag, R.id.btn_confirm, R.id.ll_how_get_imcoin})
