@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">熒光人</string>
+    <string name="app_name">螢光人</string>
     <string name="wallet">錢包</string>
-    <string name="my_imcoin">我的熒光幣</string>
-    <string name="use_of_imcoin">熒光幣使用</string>
-    <string name="use_my_wallet">使用我的錢包</string>
+    <string name="my_imcoin">我的螢光幣</string>
+    <string name="use_of_imcoin">螢光幣使用</string>
+    <string name="use_my_wallet">錢包使用</string>
     <string name="want_to_ad">發廣告</string>
     <string name="want_to_promote_community">推廣社區</string>
     <string name="want_to_create_community">創建社區</string>
-    <string name="account">賬號</string>
+    <string name="account">賬戶</string>
     <string name="my_contacts">我的聯繫人</string>
     <string name="my_post">我的發佈</string>
     <string name="settings">設置</string>
@@ -45,7 +45,7 @@
     <string name="privacy">隱私</string>
     <string name="terms_of_use">使用條款</string>
     <string name="language">語言</string>
-    <string name="set_imcoin_password">設置熒光幣交易密碼</string>
+    <string name="set_imcoin_password">設置螢光幣交易密碼</string>
     <string name="a_new_version">新版本 :</string>
     <string name="success">成功</string>
     <string name="username">用戶名</string>
@@ -82,9 +82,9 @@
     <string name="detail">詳情</string>
     <string name="select_communities">選擇社區</string>
     <string name="total_uesrs">用戶總數:</string>
-    <string name="total_cost">總花費(熒光幣):</string>
+    <string name="total_cost">總花費(螢光幣):</string>
     <string name="post_ad_now">立即發佈</string>
-    <string name="how_get_imcoin">如何獲取熒光幣?</string>
+    <string name="how_get_imcoin">如何獲取螢光幣?</string>
     <string name="advertise">廣告</string>
     <string name="if_return">返回后編輯的內容將會丟失，確認返回？</string>
     <string name="search_community_hint">輸入社區名字、標籤搜索</string>
@@ -205,8 +205,8 @@
     <string name="year">年</string>
     <string name="month">月</string>
     <string name="day">日</string>
-    <string name="send_imcoin_to">發送熒光幣到</string>
-    <string name="imcoin_amount">熒光幣金額</string>
+    <string name="send_imcoin_to">發送螢光幣到</string>
+    <string name="imcoin_amount">螢光幣金額</string>
     <string name="add_note_tips">添加備註 (如果需要)</string>
     <string name="send">發送</string>
     <string name="transfer_success">轉賬成功</string>
@@ -233,7 +233,7 @@
     <string name="net_error_can_not_connect_chat_server">連接不到聊天服務器</string>
     <string name="video_size_more_than_50">所選的視頻文件不能大於100MB!</string>
     <string name="input_pay_pwd">請輸入支付密碼</string>
-    <string name="imcoin">熒光幣</string>
+    <string name="imcoin">螢光幣</string>
     <string name="resend_str">重發</string>
     <string name="confirm_resend_str">確認重發消息?</string>
     <string name="login_account_2_hint">手機號碼 / 電子郵箱</string>
@@ -246,10 +246,10 @@
     <string name="go_set_pwd">前往設置</string>
     <string-array name="ad_charge_state">
         <item>
-            * 70% 熒光幣將會送給用戶.
+            * 70% 螢光幣將會送給用戶.
         </item>
         <item>
-            * 您發佈的廣告將於48小時后失效, 未送出的熒光幣將返還到您的錢包.
+            * 您發佈的廣告將於48小時后失效, 未送出的螢光幣將返還到您的錢包.
         </item>
     </string-array>
 </resources>

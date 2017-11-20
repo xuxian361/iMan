@@ -108,7 +108,7 @@
                     android:singleLine="true"
                     android:hint="@string/please_choose"
                     android:layout_marginLeft="10dp"
-                    android:gravity="center"
+                    android:gravity="center_vertical"
                     android:textColor="@color/txt_black"
                     android:textSize="13sp" />
 

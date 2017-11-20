@@ -1,13 +1,13 @@
 <resources>
-    <string name="app_name">荧光人</string>
+    <string name="app_name">萤光人</string>
     <string name="wallet">钱包</string>
-    <string name="my_imcoin">我的荧光币</string>
-    <string name="use_of_imcoin">荧光币使用</string>
-    <string name="use_my_wallet">使用我的钱包</string>
+    <string name="my_imcoin">我的萤光币</string>
+    <string name="use_of_imcoin">萤光币使用</string>
+    <string name="use_my_wallet">钱包使用</string>
     <string name="want_to_ad">发广告</string>
     <string name="want_to_promote_community">推广社区</string>
     <string name="want_to_create_community">创建社区</string>
-    <string name="account">账号</string>
+    <string name="account">账户</string>
     <string name="my_contacts">我的联系人</string>
     <string name="my_post">我的发布</string>
     <string name="settings">设置</string>
@@ -44,7 +44,7 @@
     <string name="privacy">隐私</string>
     <string name="terms_of_use">使用条款</string>
     <string name="language">语言</string>
-    <string name="set_imcoin_password">设置荧光币交易密码</string>
+    <string name="set_imcoin_password">设置萤光币交易密码</string>
     <string name="a_new_version">新版本 :</string>
     <string name="success">成功</string>
     <string name="username">用户名</string>
@@ -81,9 +81,9 @@
     <string name="detail">详情</string>
     <string name="select_communities">选择社区</string>
     <string name="total_uesrs">用户总数:</string>
-    <string name="total_cost">总花费(荧光币):</string>
+    <string name="total_cost">总花费(萤光币):</string>
     <string name="post_ad_now">立即发布</string>
-    <string name="how_get_imcoin">如何获取荧光币?</string>
+    <string name="how_get_imcoin">如何获取萤光币?</string>
     <string name="advertise">广告</string>
     <string name="if_return">返回后编辑的内容将会丢失，确认返回?</string>
     <string name="search_community_hint">输入社区名字、标签搜索</string>
@@ -204,13 +204,13 @@
     <string name="year">年</string>
     <string name="month">月</string>
     <string name="day">日</string>
-    <string name="send_imcoin_to">发送荧光币到</string>
-    <string name="imcoin_amount">荧光币金额</string>
+    <string name="send_imcoin_to">发送萤光币到</string>
+    <string name="imcoin_amount">萤光币金额</string>
     <string name="add_note_tips">添加备注 (如果需要)</string>
     <string name="send">发送</string>
     <string name="transfer_success">转账成功</string>
     <string name="send_imcoin_success">发送成功</string>
-    <string name="send_imcoin">发送荧光币</string>
+    <string name="send_imcoin">发送萤光币</string>
     <string name="recall">撤回</string>
     <string name="recall_str">撤回</string>
     <string name="delete_str">删除</string>
@@ -232,7 +232,7 @@
     <string name="net_error_can_not_connect_chat_server">连接不到聊天服务器</string>
     <string name="video_size_more_than_50">所选的视频文件不能大于100MB!</string>
     <string name="input_pay_pwd">请输入支付密码</string>
-    <string name="imcoin">荧光币</string>
+    <string name="imcoin">萤光币</string>
     <string name="resend_str">重发</string>
     <string name="confirm_resend_str">确认重发消息?</string>
     <string name="login_account_2_hint">手机号码 / 邮箱</string>
@@ -245,10 +245,10 @@
     <string name="go_set_pwd">前往设置</string>
     <string-array name="ad_charge_state">
         <item>
-            * 70% 荧光币将会送给用户.
+            * 70% 萤光币将会送给用户.
         </item>
         <item>
-            * 您发布的广告将于48小时后失效, 未送出的荧光币将返还到您的钱包.
+            * 您发布的广告将于48小时后失效, 未送出的萤光币将返还到您的钱包.
         </item>
     </string-array>
 </resources>

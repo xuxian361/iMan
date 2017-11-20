@@ -65,7 +65,7 @@ public class ParamHelper {
     public static String getSign(JSONObject object) {
         String jsonStr = object.toString();
         Logger.t("json").json(jsonStr);
-//        Log.e(TAG,"--->jsonStr =" + jsonStr);
+        Log.e(TAG,"--->jsonStr =" + jsonStr);
         String signature = EncryptorUtils.md5(EncryptorUtils.md5(jsonStr + EncryptorUtils.KEY_SIGN)).toUpperCase();
 //        Log.e(TAG,"----->signature = " + signature);
         return signature;

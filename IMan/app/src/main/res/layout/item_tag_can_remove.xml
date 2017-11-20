@@ -6,27 +6,27 @@
     android:layout_marginRight="3dp"
     android:background="@drawable/corner_tag_blue"
     android:orientation="horizontal"
-    android:paddingBottom="5dp"
-    android:paddingLeft="8dp"
-    android:paddingRight="8dp"
-    android:paddingTop="5dp">
+    android:paddingBottom="3dp"
+    android:paddingLeft="10dp"
+    android:paddingRight="10dp"
+    android:paddingTop="3dp">
 
     <TextView
         android:id="@+id/tv_tag"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_gravity="center"
         android:text="HelloWorld"
         android:textColor="@color/txt_white"
-        android:textSize="12sp"
-        android:layout_gravity="center"/>
+        android:textSize="11sp" />
 
     <ImageView
         android:id="@+id/iv_remove"
         android:layout_width="15dp"
         android:layout_height="15dp"
         android:layout_gravity="center"
-        android:src="@mipmap/icon_delete_white"
-        android:layout_marginLeft="6dp"/>
+        android:layout_marginLeft="6dp"
+        android:src="@mipmap/icon_delete_white" />
 
 
 </LinearLayout>
