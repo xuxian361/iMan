@@ -88,7 +88,7 @@
     <string name="advertise">廣告</string>
     <string name="if_return">返回后編輯的內容將會丟失，確認返回？</string>
     <string name="search_community_hint">輸入社區名字、標籤搜索</string>
-    <string name="created">創建於:</string>
+    <string name="created">創建時間:</string>
     <string name="ad_post_success_tips">您的廣告已成功發佈到選擇的社區!</string>
     <string name="total">總共:</string>
     <string name="users">用戶</string>

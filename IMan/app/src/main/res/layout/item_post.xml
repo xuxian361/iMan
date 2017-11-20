@@ -8,7 +8,7 @@
 
     <ImageView
         android:id="@+id/view_top"
-        android:layout_width="3dp"
+        android:layout_width="1.5dp"
         android:layout_height="wrap_content"
         android:layout_alignBottom="@+id/ll_content"
         android:layout_alignTop="@+id/ll_content"
@@ -20,10 +20,10 @@
         android:id="@+id/iv_dot"
         android:layout_width="15dp"
         android:layout_height="15dp"
-        android:layout_marginLeft="14dp"
+        android:layout_marginLeft="13dp"
         android:src="@mipmap/icon_dot_blue"
         app:civ_border_color="@color/white"
-        app:civ_border_width="3dp" />
+        app:civ_border_width="4dp" />
 
     <LinearLayout
         android:id="@+id/ll_content"

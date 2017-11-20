@@ -63,15 +63,17 @@
         <TextView
             android:id="@+id/btn_finish"
             android:layout_width="wrap_content"
-            android:layout_height="34dp"
+            android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_marginTop="100dp"
             android:background="@drawable/square_green_stroke"
             android:gravity="center"
+            android:paddingBottom="5dp"
             android:paddingLeft="50dp"
             android:paddingRight="50dp"
+            android:paddingTop="5dp"
             android:text="@string/finish"
             android:textColor="#56ae56"
-            android:textSize="15sp" />
+            android:textSize="13sp" />
     </LinearLayout>
 </ScrollView>

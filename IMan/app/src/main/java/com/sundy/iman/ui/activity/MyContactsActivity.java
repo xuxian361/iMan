@@ -122,7 +122,7 @@ public class MyContactsActivity extends BaseActivity {
     }
 
     private void initTitle() {
-        titleBar.setBackMode(getString(R.string.contacts));
+        titleBar.setBackMode(getString(R.string.my_contacts));
         titleBar.setOnClickListener(new OnTitleBarClickListener() {
             @Override
             public void onLeftImgClick() {

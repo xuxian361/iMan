@@ -24,9 +24,9 @@
     <color name="txt_dark">#202020</color>
     <color name="txt_green">#27b07e</color>
     <color name="txt_red">#f5565a</color>
-    <color name="txt_blue">#1d89ff</color>
+    <color name="txt_blue">#1F9EFF</color>
     <color name="txt_orange">#caf5a644</color>
-    <color name="bg_blue">#e01d89ff</color>
+    <color name="bg_blue">#1F9EFF</color>
     <color name="bg_gray">#898a8b</color>
     <color name="txt_white">#ffffff</color>
     <color name="transparent">#00000000</color>

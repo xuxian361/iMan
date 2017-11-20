@@ -34,7 +34,7 @@
             android:hint="@string/search_contact_hint"
             android:paddingLeft="10dp"
             android:paddingRight="10dp"
-            android:textSize="13sp" />
+            android:textSize="12sp" />
 
     </RelativeLayout>
 

@@ -143,6 +143,7 @@ public class CreatePostActivity extends BaseActivity {
 
 
     private String community_id;
+    private String community_name;
     //声明AMapLocationClient类对象
     public AMapLocationClient locationClient = null;
     //声明AMapLocationClientOption对象
@@ -180,11 +181,12 @@ public class CreatePostActivity extends BaseActivity {
         Bundle bundle = getIntent().getExtras();
         if (bundle != null) {
             community_id = bundle.getString("community_id");
+            community_name = bundle.getString("community_name", "");
         }
     }
 
     private void initTitle() {
-        titleBar.setBackMode(getString(R.string.post_message));
+        titleBar.setBackMode(community_name);
         titleBar.setOnClickListener(new OnTitleBarClickListener() {
             @Override
             public void onLeftImgClick() {

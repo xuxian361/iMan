@@ -147,7 +147,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_centerVertical="true"
-                    android:layout_marginLeft="30dp"
+                    android:layout_marginLeft="50dp"
                     android:layout_marginRight="10dp"
                     android:gravity="center"
                     android:text="@string/select_communities"
@@ -158,7 +158,7 @@
                     android:layout_width="20dp"
                     android:layout_height="20dp"
                     android:layout_centerVertical="true"
-                    android:layout_marginRight="30dp"
+                    android:layout_marginRight="50dp"
                     android:layout_toRightOf="@+id/tv_select_community"
                     android:scaleType="fitCenter"
                     android:src="@mipmap/icon_add_black" />
@@ -365,7 +365,7 @@
                 android:background="@drawable/selector_btn_blue_gray"
                 android:gravity="center"
                 android:minWidth="@dimen/button_min_width"
-                android:text="@string/post_ad_again"
+                android:text="@string/post_now"
                 android:textColor="@color/txt_white"
                 android:textSize="14sp" />
 

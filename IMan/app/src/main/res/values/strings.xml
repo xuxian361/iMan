@@ -87,7 +87,7 @@
     <string name="advertise">广告</string>
     <string name="if_return">返回后编辑的内容将会丢失，确认返回?</string>
     <string name="search_community_hint">输入社区名字、标签搜索</string>
-    <string name="created">创建于:</string>
+    <string name="created">创建时间:</string>
     <string name="ad_post_success_tips">您的广告已成功发布到选择的社区!</string>
     <string name="total">总共:</string>
     <string name="users">用户</string>

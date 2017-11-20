@@ -403,6 +403,7 @@ public class CommunityMsgListActivity extends BaseActivity {
     private void goAddPost() {
         Bundle bundle = new Bundle();
         bundle.putString("community_id", community_id);
+        bundle.putString("community_name", titleBar.getTvTitle().getText().toString().trim());
         UIHelper.jump(this, CreatePostActivity.class, bundle);
     }
 

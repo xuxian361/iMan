@@ -124,6 +124,10 @@ public class TitleBarView extends LinearLayout implements View.OnClickListener {
         tvTitle.setText(text);
     }
 
+    public TextView getTvTitle() {
+        return tvTitle;
+    }
+
     public void setTitleTvTextColor(int color) {
         tvTitle.setTextColor(color);
     }

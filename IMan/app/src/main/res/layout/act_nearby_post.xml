@@ -23,7 +23,7 @@
 
             <ImageView
                 android:id="@+id/view_line"
-                android:layout_width="3dp"
+                android:layout_width="1.5dp"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="@dimen/layout_margin_size"
                 android:layout_marginTop="10dp"
