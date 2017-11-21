@@ -20,7 +20,7 @@
     <string name="confirm_pwd">確認密碼</string>
     <string name="set_transfer_pwd">設置交易密碼</string>
     <string name="chat">聊天</string>
-    <string name="community_name">社區名字</string>
+    <string name="community_name">社區名稱</string>
     <string name="select_tags">選擇標籤</string>
     <string name="create_community">創建社區</string>
     <string name="save">保存</string>
@@ -164,7 +164,7 @@
     <string name="promote_community_null_tips">您還沒有加入推廣社區呢\n您可以...</string>
     <string name="my_post_null_tips">您還沒有發佈過消息或者廣告呢\n您可以...</string>
     <string name="create_ad">發佈廣告</string>
-    <string name="you_have_collect_imcoin">已成功領取獎勵</string>
+    <string name="you_have_collect_imcoin">成功領取</string>
     <string name="share_to">分享到</string>
     <string name="report_this_msg">舉報該消息</string>
     <string name="delete_this_msg">刪除該消息</string>

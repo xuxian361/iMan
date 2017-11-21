@@ -164,7 +164,7 @@
     <string name="promote_community_null_tips">You have not joined the promotion community yet\nYou can...</string>
     <string name="my_post_null_tips">You have not released any news or advertisement yet\nYou can...</string>
     <string name="create_ad">Post Ad</string>
-    <string name="you_have_collect_imcoin">Reward has been successfully received</string>
+    <string name="you_have_collect_imcoin">Success rewarded</string>
     <string name="share_to">Share to</string>
     <string name="report_this_msg">Report this message</string>
     <string name="delete_this_msg">Delete this message</string>

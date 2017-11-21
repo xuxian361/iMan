@@ -19,7 +19,7 @@
     <string name="confirm_pwd">确认密码</string>
     <string name="set_transfer_pwd">设置交易密码</string>
     <string name="chat">聊天</string>
-    <string name="community_name">社区名字</string>
+    <string name="community_name">社区名称</string>
     <string name="select_tags">选择标签</string>
     <string name="create_community">创建社区</string>
     <string name="save">保存</string>
@@ -163,7 +163,7 @@
     <string name="promote_community_null_tips">您还没有加入推广社区呢\n您可以...</string>
     <string name="my_post_null_tips">您还没有发布过消息或者广告呢\n您可以...</string>
     <string name="create_ad">发布广告</string>
-    <string name="you_have_collect_imcoin">已成功领取奖励</string>
+    <string name="you_have_collect_imcoin">成功领取</string>
     <string name="share_to">分享到</string>
     <string name="report_this_msg">举报该消息</string>
     <string name="delete_this_msg">删除该消息</string>

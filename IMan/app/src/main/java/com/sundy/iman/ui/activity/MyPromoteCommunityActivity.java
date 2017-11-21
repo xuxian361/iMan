@@ -307,7 +307,7 @@ public class MyPromoteCommunityActivity extends BaseActivity {
                 }
 
                 tv_community_name.setText(item.getName());
-                tv_id.setText(getString(R.string.id_str) + " " + item.getId());
+                tv_id.setText(getString(R.string.id_str) + " " + item.getCommunity_id());
                 tv_users.setText(getString(R.string.acquired_users) + " " + item.getMembers());
 
             } catch (Exception e) {

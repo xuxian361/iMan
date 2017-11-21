@@ -1152,7 +1152,8 @@ public class CommunityMsgListActivity extends BaseActivity {
                         int code = collectAdvertisingEntity.getCode();
                         String msg = collectAdvertisingEntity.getMsg();
                         if (code == Constants.CODE_SUCCESS) {
-                            MainApp.getInstance().showToast(getString(R.string.you_have_collect_imcoin));
+                            MainApp.getInstance().showToast(getString(R.string.you_have_collect_imcoin) + " "
+                                    + collectAdvertisingEntity.getData().getIncome()+ " " +  getString(R.string.imcoin));
 
                             postItemEntity.setIs_collect("1");
                             listPost.set(itemData.getPosition(), postItemEntity);
